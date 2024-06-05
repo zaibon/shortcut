@@ -1,0 +1,23 @@
+package components
+
+templ URLList(urls []string) {
+	<ul id="links">
+		for _, item := range urls {
+			<li>
+				@ShortURL(item)
+			</li>
+		}
+	</ul>
+}
+
+templ ShortURL(url string) {
+	<a href={ templ.URL(url) } targer="blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">{ url }</a>
+}
+
+templ AddedURL(url string) {
+	<div id="links" hx-swap-oob="afterbegin">
+		<li>
+			@ShortURL(url)
+		</li>
+	</div>
+}

@@ -1,0 +1,107 @@
+package services
+
+import (
+	"context"
+	"crypto/rand"
+	"encoding/base64"
+	"fmt"
+	"net/http"
+	"net/url"
+
+	"github.com/zaibon/shortcut/db/datastore"
+	"github.com/zaibon/shortcut/domain"
+)
+
+const idLength = 6 //TODO: make this dynamic by reading the amount of url stored in DB.
+
+type URLStore interface {
+	Add(ctx context.Context, shortURL, longURL string, authorID int64) (int64, error)
+	List(ctx context.Context, authorID int64) ([]datastore.Url, error)
+	Get(ctx context.Context, shortID string) (datastore.Url, error)
+	TrackRedirect(ctx context.Context, urlID int64, ipAddress, userAgent string) error
+}
+
+type shortURL struct {
+	repo        URLStore
+	shortDomain string
+}
+
+func NewShortURL(repo URLStore, shortDomain string) *shortURL {
+	return &shortURL{
+		repo:        repo,
+		shortDomain: shortDomain,
+	}
+}
+
+func (s *shortURL) Shorten(ctx context.Context, url string) (string, error) {
+	id, err := generateShortID(idLength)
+	if err != nil {
+		return "", err
+	}
+
+	if _, err := s.repo.Add(ctx, id, url, 1); err != nil {
+		return "", err
+	}
+
+	return s.toURL(id), nil
+}
+
+func (s *shortURL) List(ctx context.Context, authorID int64) ([]string, error) {
+	rows, err := s.repo.List(ctx, authorID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list shorten urls: %w", err)
+	}
+	urls := make([]string, len(rows))
+	for i, v := range rows {
+		urls[i] = s.toURL(v.ShortUrl)
+	}
+
+	return urls, nil
+}
+
+func (s *shortURL) Expand(ctx context.Context, short string) (domain.URL, error) {
+	item, err := s.repo.Get(ctx, short)
+	if err != nil {
+		return domain.URL{}, err
+	}
+
+	return domain.URL{
+		ID:    item.ID,
+		Long:  item.LongUrl,
+		Short: short,
+	}, nil
+}
+
+func (s *shortURL) TrackRedirect(ctx context.Context, urlID int64, r *http.Request) error {
+	ipAddress, userAgent := parseRequest(r)
+	return s.repo.TrackRedirect(ctx, urlID, ipAddress, userAgent)
+}
+
+func generateShortID(length int) (string, error) {
+	// Generate a random byte slice of the desired length
+	b := make([]byte, length)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+
+	// Encode the byte slice to a base64 string
+	s := base64.URLEncoding.EncodeToString(b)
+
+	// Trim the string to the desired length
+	return s[:length], nil
+}
+
+func parseRequest(r *http.Request) (ipAddress string, userAgent string) {
+	ipAddress = r.Header.Get("X-Forwarded-For")
+	if ipAddress == "" {
+		ipAddress = r.RemoteAddr
+	}
+	userAgent = r.Header.Get("User-Agent")
+	return
+}
+
+func (s *shortURL) toURL(id string) string {
+	u, _ := url.JoinPath(s.shortDomain, id)
+	return u
+}

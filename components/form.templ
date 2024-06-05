@@ -1,0 +1,8 @@
+package components
+
+templ Form() {
+	<form id="url-form" hx-post="/shorten-url" hx-swap="outerHTML" class="flex flex-col">
+		<input type="url" id="long-url" name="long_url" placeholder="Enter a long URL 2" required class="mb-4 p-2 border border-gray-300 rounded"/>
+		<button type="submit" class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Shorten URL</button>
+	</form>
+}
