@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -39,14 +40,17 @@ func (h *Handler) Routes(r *chi.Mux) {
 }
 
 func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
+	data := views.IndexPageData{}
+
 	urls, err := h.svc.List(r.Context(), 1)
 	if err != nil {
 		h.log.Error("failed to list shorten urls", slog.Any("error", err))
-		views.IndexPage([]string{}).Render(r.Context(), w)
+		Render(r.Context(), w, views.IndexPage(data))
 		return
 	}
 
-	views.IndexPage(urls).Render(r.Context(), w)
+	data.URLs = urls
+	Render(r.Context(), w, views.IndexPage(data))
 }
 
 func (h *Handler) favicon(w http.ResponseWriter, r *http.Request) {
@@ -57,29 +61,24 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	url := r.FormValue("long_url")
 
-	if url == "" {
-		views.IndexPage([]string{}).Render(ctx, w)
+	if errs := validateURL(url); len(errs) > 0 {
+		Render(r.Context(), w, components.IndexForm(components.FormData{
+			URL:    url,
+			Errors: errs,
+		}))
 		return
 	}
 
 	short, err := h.svc.Shorten(ctx, url)
 	if err != nil {
 		h.log.Error("failed to shorten url", slog.Any("error", err))
-		views.IndexPage([]string{}).Render(ctx, w)
+		//TODO: show toast
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if err := components.Form().Render(ctx, w); err != nil {
-		h.log.Error("failed to render form", slog.Any("error", err))
-		http.Error(w, "failed to render form", http.StatusInternalServerError)
-		return
-	}
-
-	if err := components.AddedURL(short).Render(ctx, w); err != nil {
-		h.log.Error("failed to render short url", slog.Any("error", err))
-		http.Error(w, "failed to render short url", http.StatusInternalServerError)
-		return
-	}
+	Render(r.Context(), w, components.IndexForm(components.FormData{}))
+	Render(r.Context(), w, components.AddedURL(short))
 }
 
 func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
@@ -103,4 +102,20 @@ func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	http.Redirect(w, r, url.Long, http.StatusMovedPermanently)
+}
+
+func validateURL(url string) map[string]error {
+	errs := make(map[string]error)
+
+	if url == "" {
+		errs["long_url"] = fmt.Errorf("URL is required")
+		return errs
+	}
+
+	if !IsValidURL(url) {
+		errs["long_url"] = fmt.Errorf("invalid URL")
+		return errs
+	}
+
+	return errs
 }
