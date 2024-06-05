@@ -24,6 +24,9 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
 
+	fs := http.FileServer(http.Dir("static"))
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+
 	log := slog.New(slog.NewJSONHandler(os.Stderr, nil))
 
 	dbConn, err := sql.Open("sqlite3", "./shortcut.db")

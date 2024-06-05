@@ -8,5 +8,20 @@
     },
     "tailwindCSS.includeLanguages": {
         "templ": "html"
-    }
+    },
+    "tailwind-fold.supportedLanguages": [
+        "html",
+        "typescriptreact",
+        "javascriptreact",
+        "typescript",
+        "javascript",
+        "vue-html",
+        "vue",
+        "php",
+        "markdown",
+        "coffeescript",
+        "svelte",
+        "astro",
+        "templ"
+    ]
 }

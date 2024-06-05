@@ -25,7 +25,24 @@ func Layout() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>URL Shortener Service</title><script src=\"https://unpkg.com/htmx.org@1.6.1\"></script><link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\"></head><body class=\"flex flex-col bg-gray-100 items-center justify-center h-screen\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>URL Shortener Service</title><script src=\"https://unpkg.com/htmx.org@1.6.1\"></script><link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\"></head><body>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.NavBar(components.NavBarProp{
+			Title: "ShortCut",
+			HomeLink: components.NarBarLink{
+				Name: "ShortBut",
+				Href: "/",
+			},
+			HomeLogo: "static/img/logo.webp",
+			Links: []components.NarBarLink{
+				{
+					Name: "statistics",
+					Href: "/statistics",
+				},
+			},
+		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

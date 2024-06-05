@@ -73,3 +73,15 @@ func (s urlStore) TrackRedirect(ctx context.Context, urlID int64, ipAddress, use
 
 	return nil
 }
+
+func (s urlStore) Statistics(ctx context.Context, authorID int64) ([]datastore.ListStatisticsRow, error) {
+	rows, err := s.db.ListStatistics(ctx, sql.NullInt64{
+		Int64: authorID,
+		Valid: true,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list statistics: %w", err)
+	}
+
+	return rows, err
+}

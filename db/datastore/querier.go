@@ -13,6 +13,7 @@ type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
 	GetShortURL(ctx context.Context, shortUrl string) (Url, error)
 	ListShortURLs(ctx context.Context, authorID sql.NullInt64) ([]Url, error)
+	ListStatistics(ctx context.Context, authorID sql.NullInt64) ([]ListStatisticsRow, error)
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) error
 }
 

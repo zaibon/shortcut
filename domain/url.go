@@ -5,3 +5,10 @@ type URL struct {
 	Long  string
 	Short string
 }
+
+type URLStat struct {
+	URL
+	NrVisited int
+	// IPAddress  []string
+	// UserAgents []string
+}

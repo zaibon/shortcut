@@ -18,6 +18,8 @@ type ShortURLService interface {
 	List(ctx context.Context, authorID int64) ([]string, error)
 	Expand(ctx context.Context, short string) (domain.URL, error)
 
+	Statistics(ctx context.Context, authorID int64) ([]domain.URLStat, error)
+
 	TrackRedirect(ctx context.Context, urlID int64, r *http.Request) error
 }
 
@@ -38,6 +40,8 @@ func (h *Handler) Routes(r *chi.Mux) {
 	r.Get("/favicon.ico", h.favicon)
 	r.Post("/shorten-url", h.shorten)
 	r.Get("/{shortID}", h.redirect)
+
+	r.Get("/statistics", h.statistics)
 }
 
 func (h *Handler) index(w http.ResponseWriter, r *http.Request) {

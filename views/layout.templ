@@ -12,7 +12,21 @@ templ Layout() {
 			<script src="https://unpkg.com/htmx.org@1.6.1"></script>
 			<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
 		</head>
-		<body class="flex flex-col bg-gray-100 items-center justify-center h-screen">
+		<body>
+			@components.NavBar(components.NavBarProp{
+				Title: "ShortCut",
+				HomeLink: components.NarBarLink{
+					Name: "ShortBut",
+					Href: "/",
+				},
+				HomeLogo: "static/img/logo.webp",
+				Links: []components.NarBarLink{
+					{
+						Name: "statistics",
+						Href: "/statistics",
+					},
+				},
+			})
 			{ children... }
 			@components.Footer()
 		</body>

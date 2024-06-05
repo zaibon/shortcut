@@ -19,6 +19,7 @@ type URLStore interface {
 	List(ctx context.Context, authorID int64) ([]datastore.Url, error)
 	Get(ctx context.Context, shortID string) (datastore.Url, error)
 	TrackRedirect(ctx context.Context, urlID int64, ipAddress, userAgent string) error
+	Statistics(ctx context.Context, authorID int64) ([]datastore.ListStatisticsRow, error)
 }
 
 type shortURL struct {
@@ -75,6 +76,23 @@ func (s *shortURL) Expand(ctx context.Context, short string) (domain.URL, error)
 func (s *shortURL) TrackRedirect(ctx context.Context, urlID int64, r *http.Request) error {
 	ipAddress, userAgent := parseRequest(r)
 	return s.repo.TrackRedirect(ctx, urlID, ipAddress, userAgent)
+}
+
+func (s *shortURL) Statistics(ctx context.Context, authorID int64) ([]domain.URLStat, error) {
+	rows, err := s.repo.Statistics(ctx, authorID)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"failed to list shorten urls: %w", err)
+	}
+	stats := make([]domain.URLStat, len(rows))
+	for i, r := range rows {
+		stats[i] = domain.URLStat{
+			URL:       domain.URL{ID: r.ID, Long: r.LongUrl, Short: s.toURL(r.ShortUrl)},
+			NrVisited: int(r.Visits),
+		}
+	}
+
+	return stats, nil
 }
 
 func generateShortID(length int) (string, error) {

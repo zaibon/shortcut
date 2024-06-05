@@ -10,6 +10,58 @@ import (
 	"database/sql"
 )
 
+const listStatistics = `-- name: ListStatistics :many
+SELECT
+	count(v.id) as visits,
+	CAST(MIN(u.id) as INTEGER) as id,
+	u.short_url as short_url,
+	CAST(MIN(u.long_url) as TEXT) as long_url
+FROM
+	urls u
+LEFT JOIN visits v ON u.id = v.url_id
+WHERE
+	u.author_id = ?
+GROUP BY
+	u.short_url
+ORDER BY
+	visits
+`
+
+type ListStatisticsRow struct {
+	Visits   int64  `json:"visits"`
+	ID       int64  `json:"id"`
+	ShortUrl string `json:"short_url"`
+	LongUrl  string `json:"long_url"`
+}
+
+func (q *Queries) ListStatistics(ctx context.Context, authorID sql.NullInt64) ([]ListStatisticsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listStatistics, authorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListStatisticsRow{}
+	for rows.Next() {
+		var i ListStatisticsRow
+		if err := rows.Scan(
+			&i.Visits,
+			&i.ID,
+			&i.ShortUrl,
+			&i.LongUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const trackRedirect = `-- name: TrackRedirect :exec
 INSERT INTO visits (url_id, ip_address, user_agent)
 VALUES (?, ?, ?)

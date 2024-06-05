@@ -1,0 +1,50 @@
+package views 
+
+type StatisticsPageData struct {
+	Stats []URLStat
+}
+
+type URLStat struct {
+	Short    string
+	Long     string
+	NrVisite string
+}
+
+templ StatisticsPage(data StatisticsPageData) {
+	@Layout() {
+		<div class="flex flex-col bg-gray-100 h-screen">
+			<div class="relative overflow-x-auto">
+				<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+					<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+						<tr>
+							<th scope="col" class="px-6 py-3">
+								Short URL
+							</th>
+							<th scope="col" class="px-6 py-3">
+								Long URL
+							</th>
+							<th scope="col" class="px-6 py-3">
+								Number of Click
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _,item:= range data.Stats {
+							<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+								<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+									{ item.Short }
+								</th>
+								<td class="px-6 py-4">
+									{ item.Long }
+								</td>
+								<td class="px-6 py-4">
+									{ item.NrVisite }
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+}
