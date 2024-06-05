@@ -15,6 +15,9 @@ import (
 	"github.com/zaibon/shortcut/services"
 )
 
+// main is the entry point of the application. It sets up the HTTP router, configures the database connection,
+// applies any necessary database migrations, creates the URL shortening service, and registers the request handlers.
+// The server is then started and listens on port 3333.
 func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -26,13 +29,13 @@ func main() {
 	dbConn, err := sql.Open("sqlite3", "./shortcut.db")
 	if err != nil {
 		log.Error("failed to open database", slog.Any("error", err))
-		os.Exit(1)
+		return
 	}
 	defer dbConn.Close()
 
 	if err := db.Migrate(dbConn); err != nil {
 		log.Error("failed to apply migrations", slog.Any("error", err))
-		os.Exit(1)
+		return
 	}
 
 	store := db.NewURLStore(dbConn)
@@ -42,5 +45,7 @@ func main() {
 	handlers.Routes(r)
 
 	fmt.Println("Server is running on port 3333")
-	http.ListenAndServe(":3333", r)
+	if err := http.ListenAndServe(":3333", r); err != nil && err != http.ErrServerClosed {
+		slog.Error("HTTP server error", "err", err)
+	}
 }

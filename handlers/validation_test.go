@@ -19,7 +19,10 @@ func TestIsValidURL(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		t.Parallel()
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			got := IsValidURL(tt.url)
 			if got != tt.want {
 				t.Errorf("IsValidURL(%q) = %v, want %v", tt.url, got, tt.want)

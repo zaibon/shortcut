@@ -4,6 +4,9 @@ watch:
 fmt:
   gci write --custom-order --skip-generated {{ invocation_directory() }} -s standard -s default -s blank -s dot -s alias -s "prefix(github.com/zaibon/shortcut)" 
 
+lint: fmt
+    golangci-lint run ./...
+
 generate:
     go generate ./...
 
