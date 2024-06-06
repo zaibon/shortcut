@@ -1,0 +1,31 @@
+name: Go
+
+on:
+  push:
+    branches: ["main"]
+  release:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: ["ubuntu-latest"]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22"
+
+      - name: Build
+        run: just build
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: shortcut-${{ matrix.os }}-${{ matrix.version }}
+          path: bin/shortcut
