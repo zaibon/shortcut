@@ -25,7 +25,7 @@ jobs:
 
       - name: Build
         run: |
-          go install github.com/daixiang0/gci@v0.13.4
+          just build-deps
           just build
 
       - name: Archive production artifacts
