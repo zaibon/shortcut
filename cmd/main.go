@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -15,10 +16,20 @@ import (
 	"github.com/zaibon/shortcut/services"
 )
 
+type config struct {
+	Domain string
+	Port   int
+}
+
 // main is the entry point of the application. It sets up the HTTP router, configures the database connection,
 // applies any necessary database migrations, creates the URL shortening service, and registers the request handlers.
 // The server is then started and listens on port 3333.
 func main() {
+	c := config{}
+	flag.StringVar(&c.Domain, "domain", "localhost", "domain to use for shortened URLs")
+	flag.IntVar(&c.Port, "port", 80, "port to listen to")
+	flag.Parse()
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -42,13 +53,14 @@ func main() {
 	}
 
 	store := db.NewURLStore(dbConn)
-	shortURL := services.NewShortURL(store, "http://localhost:3333")
+	shortURL := services.NewShortURL(store, fmt.Sprintf("http://%s", c.Domain))
 	handlers := handlers.NewHandler(shortURL, log)
 
 	handlers.Routes(r)
 
-	fmt.Println("Server is running on port 3333")
-	if err := http.ListenAndServe(":3333", r); err != nil && err != http.ErrServerClosed {
+	listenAddr := fmt.Sprintf(":%d", c.Port)
+	fmt.Printf("Server is running on %s\n", listenAddr)
+	if err := http.ListenAndServe(listenAddr, r); err != nil && err != http.ErrServerClosed {
 		slog.Error("HTTP server error", "err", err)
 	}
 }
