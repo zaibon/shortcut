@@ -21,8 +21,12 @@ jobs:
         with:
           go-version: "1.22"
 
+      - uses: extractions/setup-just@v2
+
       - name: Build
-        run: just build
+        run: |
+          go install github.com/daixiang0/gci@v0.13.4
+          just build
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
