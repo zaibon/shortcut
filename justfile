@@ -16,13 +16,13 @@ generate:
     go generate ./...
 
 build: generate fmt
-    go build -o bin/shortcut cmd/*.go
+    CGO_ENABLED=0 go build -o bin/shortcut cmd/*.go
 
 build-linux: generate fmt
-    CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o bin/shortcut-linux cmd/*.go
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/shortcut-linux cmd/*.go
 
 build-dev: generate
-    go build -tags=dev -o bin/shortcut cmd/*.go
+    CGO_ENABLED=0 go build -tags=dev -o bin/shortcut cmd/*.go
 
 run: build
     ./bin/shortcut
@@ -32,6 +32,9 @@ db action: build
 
 test: generate
     go test -v ./...
+
+package: build
+    docker build -t zaibon/shortcut:latest .
 
 coverage:
     go test -v -race -coverprofile=coverage.txt -covermode=atomic  ./...
