@@ -33,8 +33,13 @@ go.work.sum
 # Binaries
 bin/
 
+<<<<<<< HEAD
 # temporary
 tmp/
 
 # geoip database
 *.mmdb
+=======
+# Ignore generated credentials from google-github-actions/auth
+gha-creds-*.json
+>>>>>>> e384707 (feat: deploy to cloud-run)

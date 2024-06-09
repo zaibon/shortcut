@@ -5,11 +5,9 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
 
-	_ "gitea.com/go-chi/session/redis"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/zaibon/shortcut/log"
 )
@@ -36,11 +34,6 @@ var c config
 
 func main() {
 	log.SetupLogger(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
-
-	if err := godotenv.Load(); err != nil {
-		log.Error("unable to load .env file", "error", err)
-		os.Exit(1)
-	}
 
 	app := &cli.App{
 		Name:  "shortcut",

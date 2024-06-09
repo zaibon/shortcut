@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"embed"
 	"errors"
 	"fmt"
 
@@ -17,15 +16,12 @@ type Migration struct {
 	db *sql.DB
 }
 
-//go:embed migrations/*.sql
-var embedMigrations embed.FS
-
 func NewMigration(pool *pgxpool.Pool) (*Migration, error) {
 	if pool == nil {
 		return &Migration{}, errors.New("pool is nil")
 	}
 
-	goose.SetBaseFS(embedMigrations)
+	goose.SetBaseFS(migrationsFS)
 
 	if err := goose.SetDialect("postgres"); err != nil {
 		return &Migration{}, err
