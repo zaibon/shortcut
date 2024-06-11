@@ -14,6 +14,7 @@ import (
 	"github.com/zaibon/shortcut/db"
 	"github.com/zaibon/shortcut/handlers"
 	"github.com/zaibon/shortcut/services"
+	"github.com/zaibon/shortcut/static"
 )
 
 type config struct {
@@ -35,7 +36,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
 
-	fs := http.FileServer(http.Dir("static"))
+	fs := http.FileServer(static.FileSystem)
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 
 	log := slog.New(slog.NewJSONHandler(os.Stderr, nil))
