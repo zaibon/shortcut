@@ -22,7 +22,7 @@ build-linux: generate fmt
     CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o bin/shortcut-linux cmd/main.go
 
 build-dev: generate
-    go build -o bin/shortcut cmd/main.go
+    go build -tags=dev -o bin/shortcut cmd/main.go
 
 run: build
     ./bin/shortcut
