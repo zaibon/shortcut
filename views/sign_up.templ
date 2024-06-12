@@ -1,0 +1,13 @@
+package views
+
+import "github.com/zaibon/shortcut/components"
+
+type SignUpPageData struct{}
+
+templ SignUpPage(data SignUpPageData) {
+	@Layout() {
+		<div class="grow flex flex-row justify-center items-center">
+			@components.SignUpForm()
+		</div>
+	}
+}

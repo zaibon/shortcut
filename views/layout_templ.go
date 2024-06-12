@@ -38,7 +38,7 @@ func Layout() templ.Component {
 			HomeLogo: "static/img/logo.webp",
 			Links: []components.NarBarLink{
 				{
-					Name: "statistics",
+					Name: "Statistics",
 					Href: "/statistics",
 				},
 			},
@@ -54,7 +54,7 @@ func Layout() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></body><script>\n\t\tdocument.body.addEventListener('htmx:beforeSwap', function(evt) {\n\t\t\tif(evt.detail.xhr.status === 404){\n\t\t\t\tevt.detail.shouldSwap = true;\n\t\t\t} else if(evt.detail.xhr.status === 422){\n\t\t\t\t// allow 422 responses to swap as we are using this as a signal that\n\t\t\t\t// a form was submitted with bad data and want to rerender with the\n\t\t\t\t// errors\n\t\t\t\t//\n\t\t\t\t// set isError to false to avoid error logging in console\n\t\t\t\tevt.detail.shouldSwap = true;\n\t\t\t\tevt.detail.isError = false;\n\t\t\t}\n\t\t});\n\t\t</script></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

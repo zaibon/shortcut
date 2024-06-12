@@ -10,11 +10,12 @@ import (
 
 	"github.com/zaibon/shortcut/components"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/views"
 )
 
 type ShortURLService interface {
-	Shorten(ctx context.Context, url string) (string, error)
+	Shorten(ctx context.Context, url string, userID int64) (string, error)
 	List(ctx context.Context, authorID int64) ([]string, error)
 	Expand(ctx context.Context, short string) (domain.URL, error)
 
@@ -28,20 +29,23 @@ type Handler struct {
 	log *slog.Logger
 }
 
-func NewHandler(shortURL ShortURLService, log *slog.Logger) *Handler {
+func NewURLHandlers(shortURL ShortURLService, log *slog.Logger) *Handler {
 	return &Handler{
 		svc: shortURL,
 		log: log,
 	}
 }
 
-func (h *Handler) Routes(r *chi.Mux) {
+func (h *Handler) Routes(r chi.Router) {
 	r.Get("/", h.index)
 	r.Get("/favicon.ico", h.favicon)
 	r.Post("/shorten-url", h.shorten)
 	r.Get("/{shortID}", h.redirect)
 
-	r.Get("/statistics", h.statistics)
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.Authenticated)
+		r.Get("/statistics", h.statistics)
+	})
 }
 
 func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +78,13 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	short, err := h.svc.Shorten(ctx, url)
+	user := middleware.UserFromContext(ctx)
+	if user == nil { // this should not happen
+		HXRedirect(ctx, w, "/login")
+		return
+	}
+
+	short, err := h.svc.Shorten(ctx, url, user.ID)
 	if err != nil {
 		h.log.Error("failed to shorten url", slog.Any("error", err))
 		//TODO: show toast

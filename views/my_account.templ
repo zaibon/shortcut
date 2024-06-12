@@ -1,0 +1,18 @@
+package views 
+
+import "github.com/zaibon/shortcut/domain"
+import "github.com/zaibon/shortcut/components"
+
+type MyAccountData struct {
+	User *domain.User
+}
+
+templ MyAccount(data MyAccountData) {
+	@Layout() {
+		<div class="grow flex flex-col">
+			<div class="w-1/4">
+				@components.ProfileCard(components.ProfileCardData{User: data.User})
+			</div>
+		</div>
+	}
+}

@@ -34,13 +34,13 @@ func NewShortURL(repo URLStore, shortDomain string) *shortURL {
 	}
 }
 
-func (s *shortURL) Shorten(ctx context.Context, url string) (string, error) {
+func (s *shortURL) Shorten(ctx context.Context, url string, userID int64) (string, error) {
 	id, err := generateShortID(idLength)
 	if err != nil {
 		return "", err
 	}
 
-	if _, err := s.repo.Add(ctx, id, url, 1); err != nil {
+	if _, err := s.repo.Add(ctx, id, url, userID); err != nil {
 		return "", err
 	}
 

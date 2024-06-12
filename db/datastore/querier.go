@@ -12,6 +12,8 @@ import (
 type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
 	GetShortURL(ctx context.Context, shortUrl string) (Url, error)
+	GetUser(ctx context.Context, email string) (User, error)
+	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
 	ListShortURLs(ctx context.Context, authorID sql.NullInt64) ([]Url, error)
 	ListStatistics(ctx context.Context, authorID sql.NullInt64) ([]ListStatisticsRow, error)
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) error

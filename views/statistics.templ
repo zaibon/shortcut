@@ -31,11 +31,11 @@ templ StatisticsPage(data StatisticsPageData) {
 					<tbody>
 						for _,item:= range data.Stats {
 							<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-								<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-									{ item.Short }
+								<th scope="row" class="px-6 py-4">
+									<a href={ templ.URL(item.Short) } target="blank" class="hover:underline">{ item.Short }</a>
 								</th>
 								<td class="px-6 py-4">
-									{ item.Long }
+									<a href={ templ.URL(item.Long) } target="blank" class="hover:underline">{ item.Long }</a>
 								</td>
 								<td class="px-6 py-4">
 									{ item.NrVisite }

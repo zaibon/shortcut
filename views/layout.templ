@@ -23,7 +23,7 @@ templ Layout() {
 					HomeLogo: "static/img/logo.webp",
 					Links: []components.NarBarLink{
 						{
-							Name: "statistics",
+							Name: "Statistics",
 							Href: "/statistics",
 						},
 					},
@@ -32,5 +32,20 @@ templ Layout() {
 				@components.Footer()
 			</div>
 		</body>
+		<script>
+		document.body.addEventListener('htmx:beforeSwap', function(evt) {
+			if(evt.detail.xhr.status === 404){
+				evt.detail.shouldSwap = true;
+			} else if(evt.detail.xhr.status === 422){
+				// allow 422 responses to swap as we are using this as a signal that
+				// a form was submitted with bad data and want to rerender with the
+				// errors
+				//
+				// set isError to false to avoid error logging in console
+				evt.detail.shouldSwap = true;
+				evt.detail.isError = false;
+			}
+		});
+		</script>
 	</html>
 }

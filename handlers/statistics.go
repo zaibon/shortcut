@@ -5,11 +5,18 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/views"
 )
 
 func (h *Handler) statistics(w http.ResponseWriter, r *http.Request) {
-	urls, err := h.svc.Statistics(r.Context(), 1) //TODO
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		HXRedirect(r.Context(), w, "/")
+		return
+	}
+
+	urls, err := h.svc.Statistics(r.Context(), user.ID)
 	if err != nil {
 		h.log.Error("failed to get statistics", slog.Any("error", err))
 		http.Error(w, "failed to get statistics", http.StatusInternalServerError)
