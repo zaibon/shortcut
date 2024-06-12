@@ -9,8 +9,10 @@ import (
 	"os"
 
 	"gitea.com/go-chi/session"
-	_ "gitea.com/go-chi/session/redis"
 	"github.com/go-chi/chi/v5"
+
+	_ "gitea.com/go-chi/session/redis"
+
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 
 	"github.com/zaibon/shortcut/db"

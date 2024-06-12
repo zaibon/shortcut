@@ -83,8 +83,10 @@ func (h *UsersHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess := session.GetSession(r)
-	sess.Set("user", user)
+	if err := session.GetSession(r).Set("user", user); err != nil {
+		http.Error(w, "unexpected error", http.StatusInternalServerError)
+		return
+	}
 
 	HXRedirect(r.Context(), w, "/")
 }
@@ -121,8 +123,10 @@ func (h *UsersHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess := session.GetSession(r)
-	sess.Set("user", user)
+	if err := session.GetSession(r).Set("user", user); err != nil {
+		http.Error(w, "unexpected error", http.StatusInternalServerError)
+		return
+	}
 
 	HXRedirect(r.Context(), w, "/")
 }
@@ -131,10 +135,6 @@ func (h *UsersHandler) logout(w http.ResponseWriter, r *http.Request) {
 	sess := session.GetSession(r)
 	id := sess.ID()
 
-	sess.Delete("user")
-	if err := sess.Flush(); err != nil {
-		slog.Error("failed to flush sessions", "id", id)
-	}
 	if err := sess.Destroy(w, r); err != nil {
 		slog.Error("failed to destroy sessions", "id", id)
 	}
