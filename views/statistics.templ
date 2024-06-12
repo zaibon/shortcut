@@ -1,7 +1,10 @@
 package views 
 
+import "fmt"
+
 type StatisticsPageData struct {
-	Stats []URLStat
+	Stats      []URLStat
+	Autoreload bool
 }
 
 type URLStat struct {
@@ -10,41 +13,76 @@ type URLStat struct {
 	NrVisite string
 }
 
+func toggle(b bool) string {
+	return fmt.Sprintf("/statistics?autoreload=%v", !b)
+}
+
 templ StatisticsPage(data StatisticsPageData) {
 	@Layout() {
-		<div class="grow flex flex-col bg-gray-100">
-			<div class="relative overflow-x-auto">
-				<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-					<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-						<tr>
-							<th scope="col" class="px-6 py-3">
-								Short URL
-							</th>
-							<th scope="col" class="px-6 py-3">
-								Long URL
-							</th>
-							<th scope="col" class="px-6 py-3">
-								Number of Click
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						for _,item:= range data.Stats {
-							<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-								<th scope="row" class="px-6 py-4">
-									<a href={ templ.URL(item.Short) } target="blank" class="hover:underline">{ item.Short }</a>
-								</th>
-								<td class="px-6 py-4">
-									<a href={ templ.URL(item.Long) } target="blank" class="hover:underline">{ item.Long }</a>
-								</td>
-								<td class="px-6 py-4">
-									{ item.NrVisite }
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
+		<div
+			class="grow flex flex-col bg-gray-100"
+		>
+			<div class="flex flex-row justify-between pt-4 bg-gray-50">
+				<h1 class="text-xl px-5">URL statistics</h1>
+				<div class="flex items-center mb-4 px-5">
+					<label class="inline-flex items-center cursor-pointer">
+						<input
+							type="checkbox"
+							class="sr-only peer"
+							hx-get={ toggle(data.Autoreload) }
+							hx-trigger="change"
+							hx-replace-url="true"
+							hx-target="body"
+							hx-swap="outerHTML"
+							checked?={ data.Autoreload }
+						/>
+						<div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+						<span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Auto reload</span>
+					</label>
+				</div>
+			</div>
+			<div
+				class="relative overflow-x-auto"
+				if data.Autoreload {
+					hx-get={ fmt.Sprintf("/stats-table?autoreload=%v", data.Autoreload) }
+					hx-trigger="load, every 5s"
+				}
+			>
+				@StatTable(data)
 			</div>
 		</div>
 	}
+}
+
+templ StatTable(data StatisticsPageData) {
+	<table id="stats-table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+		<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+			<tr>
+				<th scope="col" class="px-6 py-3">
+					Short URL
+				</th>
+				<th scope="col" class="px-6 py-3">
+					Long URL
+				</th>
+				<th scope="col" class="px-6 py-3">
+					Number of Click
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _,item:= range data.Stats {
+				<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+					<th scope="row" class="px-6 py-4">
+						<a href={ templ.URL(item.Short) } target="blank" class="hover:underline">{ item.Short }</a>
+					</th>
+					<td class="px-6 py-4">
+						<a href={ templ.URL(item.Long) } target="blank" class="hover:underline">{ item.Long }</a>
+					</td>
+					<td class="px-6 py-4">
+						{ item.NrVisite }
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
 }

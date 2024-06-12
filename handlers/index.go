@@ -45,6 +45,7 @@ func (h *Handler) Routes(r chi.Router) {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticated)
 		r.Get("/statistics", h.statistics)
+		r.Get("/stats-table", h.statsTable)
 	})
 }
 
