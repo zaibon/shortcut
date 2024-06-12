@@ -28,7 +28,7 @@ templ NavBar(prop NavBarProp) {
 							<a href={ templ.URL("/login") } class="bg-transparent hover:bg-cyan-600 text-cyan-600 p-4 hover:text-white rounded" aria-current="page">Login</a>
 						</li>
 						<li>
-							<a href={ templ.URL("/sign-up") } class="bg-orange-300 text-slate-700 hover:text-white p-4 rounded" aria-current="page">Sign Up</a>
+							<a href={ templ.URL("/sign-up") } class="bg-orange-300 hover:bg-orange-400 text-white p-4 rounded" aria-current="page">Sign Up</a>
 						</li>
 					} else {
 						for _,link := range prop.Links {

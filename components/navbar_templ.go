@@ -108,7 +108,7 @@ func NavBar(prop NavBarProp) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-orange-300 text-slate-700 hover:text-white p-4 rounded\" aria-current=\"page\">Sign Up</a></li>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-orange-300 hover:bg-orange-400 text-white p-4 rounded\" aria-current=\"page\">Sign Up</a></li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
