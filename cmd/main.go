@@ -28,7 +28,7 @@ type config struct {
 func main() {
 	c := config{}
 	flag.StringVar(&c.Domain, "domain", "localhost", "domain to use for shortened URLs")
-	flag.IntVar(&c.Port, "port", 80, "port to listen to")
+	flag.IntVar(&c.Port, "port", 8080, "port to listen to")
 	flag.Parse()
 
 	r := chi.NewRouter()

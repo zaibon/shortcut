@@ -1,5 +1,5 @@
 watch:
-    templ generate --watch .
+    templ generate --watch --proxy=http://localhost:8080
 
 build-deps:
     gci --help > /dev/null || go install github.com/daixiang0/gci@v0.13.4
