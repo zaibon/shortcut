@@ -15,32 +15,32 @@ type NarBarLink struct {
 }
 
 templ NavBar(prop NavBarProp) {
-	<nav class="bg-white border-gray-200 dark:bg-gray-900">
+	<nav class="bg-white border-gray-200 ">
 		<div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
 			<a href={ templ.URL(prop.HomeLink.Href) } class="flex items-center space-x-3 rtl:space-x-reverse">
 				<img src={ prop.HomeLogo } class="h-12" alt={ prop.Title }/>
-				<span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">{ prop.Title }</span>
+				<span class="self-center text-2xl font-semibold whitespace-nowrap">{ prop.Title }</span>
 			</a>
 			<div class="block w-auto" id="navbar-default">
-				<ul class="flex flex-row space-x-8 rtl:space-x-reverse mt-0 border-0 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:border-gray-700">
+				<ul class="flex flex-row space-x-8 mt-0 border-0 bg-white ">
 					if  middleware.UserFromContext(ctx) == nil {
 						<li>
-							<a href={ templ.URL("/login") } class="bg-transparent text-blue-700 p-0 dark:text-white dark:text-blue-500" aria-current="page">Login</a>
+							<a href={ templ.URL("/login") } class="bg-transparent hover:bg-cyan-600 text-cyan-600 p-4 hover:text-white rounded" aria-current="page">Login</a>
 						</li>
 						<li>
-							<a href={ templ.URL("/sign-up") } class="bg-transparent text-blue-700 p-0 dark:text-white dark:text-blue-500" aria-current="page">Sign Up</a>
+							<a href={ templ.URL("/sign-up") } class="bg-orange-300 text-slate-700 hover:text-white p-4 rounded" aria-current="page">Sign Up</a>
 						</li>
 					} else {
 						for _,link := range prop.Links {
 							<li>
-								<a href={ templ.URL(link.Href) } class="bg-transparent text-blue-700 p-0 dark:text-white dark:text-blue-500" aria-current="page">{ link.Name }</a>
+								<a href={ templ.URL(link.Href) } class="bg-transparent hover:bg-cyan-600 text-cyan-700 p-4 hover:text-white rounded" aria-current="page">{ link.Name }</a>
 							</li>
 						}
 						<li>
-							<a href={ templ.URL("/my-account") } class="bg-transparent text-blue-700 p-0 dark:text-white dark:text-blue-500" aria-current="page">My Account</a>
+							<a href={ templ.URL("/my-account") } class="bg-transparent hover:bg-cyan-600 text-cyan-700 p-4 hover:text-white rounded" aria-current="page">My Account</a>
 						</li>
 						<li>
-							<a href={ templ.URL("/logout") } class="bg-transparent text-red-700 p-0 dark:text-white dark:text-blue-500" aria-current="page">Logout</a>
+							<a href={ templ.URL("/logout") } class="bg-transparent hover:bg-red-700 text-red-700 hover:text-white p-4 rounded" aria-current="page">Logout</a>
 						</li>
 					}
 				</ul>

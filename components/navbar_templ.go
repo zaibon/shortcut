@@ -37,7 +37,7 @@ func NavBar(prop NavBarProp) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"bg-white border-gray-200 dark:bg-gray-900\"><div class=\"max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4\"><a href=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"bg-white border-gray-200 \"><div class=\"max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -72,20 +72,20 @@ func NavBar(prop NavBarProp) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <span class=\"self-center text-2xl font-semibold whitespace-nowrap dark:text-white\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <span class=\"self-center text-2xl font-semibold whitespace-nowrap\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(prop.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/navbar.templ`, Line: 22, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/navbar.templ`, Line: 22, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></a><div class=\"block w-auto\" id=\"navbar-default\"><ul class=\"flex flex-row space-x-8 rtl:space-x-reverse mt-0 border-0 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:border-gray-700\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></a><div class=\"block w-auto\" id=\"navbar-default\"><ul class=\"flex flex-row space-x-8 mt-0 border-0 bg-white \">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -99,7 +99,7 @@ func NavBar(prop NavBarProp) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-transparent text-blue-700 p-0 dark:text-white dark:text-blue-500\" aria-current=\"page\">Login</a></li><li><a href=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-transparent hover:bg-cyan-600 text-cyan-600 p-4 hover:text-white rounded\" aria-current=\"page\">Login</a></li><li><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -108,7 +108,7 @@ func NavBar(prop NavBarProp) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-transparent text-blue-700 p-0 dark:text-white dark:text-blue-500\" aria-current=\"page\">Sign Up</a></li>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-orange-300 text-slate-700 hover:text-white p-4 rounded\" aria-current=\"page\">Sign Up</a></li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -123,14 +123,14 @@ func NavBar(prop NavBarProp) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-transparent text-blue-700 p-0 dark:text-white dark:text-blue-500\" aria-current=\"page\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-transparent hover:bg-cyan-600 text-cyan-700 p-4 hover:text-white rounded\" aria-current=\"page\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(link.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/navbar.templ`, Line: 36, Col: 148}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/navbar.templ`, Line: 36, Col: 156}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -150,7 +150,7 @@ func NavBar(prop NavBarProp) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-transparent text-blue-700 p-0 dark:text-white dark:text-blue-500\" aria-current=\"page\">My Account</a></li><li><a href=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-transparent hover:bg-cyan-600 text-cyan-700 p-4 hover:text-white rounded\" aria-current=\"page\">My Account</a></li><li><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -159,7 +159,7 @@ func NavBar(prop NavBarProp) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-transparent text-red-700 p-0 dark:text-white dark:text-blue-500\" aria-current=\"page\">Logout</a></li>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-transparent hover:bg-red-700 text-red-700 hover:text-white p-4 rounded\" aria-current=\"page\">Logout</a></li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
