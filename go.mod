@@ -22,10 +22,10 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
+	github.com/oschwald/maxminddb-golang v1.13.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/unknwon/com v1.0.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20240312152122-5f08fbb34913 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
@@ -43,4 +43,5 @@ require (
 require (
 	github.com/a-h/templ v0.2.707
 	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/oschwald/geoip2-golang v1.11.0
 )

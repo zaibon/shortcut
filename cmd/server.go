@@ -3,9 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log/slog"
 	"net/http"
-	"os"
 
 	"gitea.com/go-chi/session"
 	"github.com/go-chi/chi/v5"
@@ -64,8 +62,6 @@ var serverFlags = []cli.Flag{
 // runServer is the entry point of the application. It sets up the HTTP router, configures the database connection,
 // applies any necessary database migrations, creates the URL shortening service, and registers the request handlers.
 func runServer(c config) error {
-	log := slog.New(slog.NewJSONHandler(os.Stderr, nil))
-
 	dbConn, err := sql.Open("sqlite3", c.DBPath)
 	if err != nil {
 		return fmt.Errorf("failed to open database: %w", err)
@@ -81,7 +77,7 @@ func runServer(c config) error {
 	userService := services.NewUser(userStore)
 
 	// HTTP handlers
-	urlHandlers := handlers.NewURLHandlers(shortURL, log)
+	urlHandlers := handlers.NewURLHandlers(shortURL)
 	userHandlers := handlers.NewUsersHandler(userService)
 	healthzHandlers := handlers.NewHealtzHandlers(dbConn)
 

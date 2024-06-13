@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/views"
 )
@@ -18,7 +19,7 @@ func (h *Handler) statistics(w http.ResponseWriter, r *http.Request) {
 
 	urls, err := h.svc.Statistics(r.Context(), user.ID)
 	if err != nil {
-		h.log.Error("failed to get statistics", slog.Any("error", err))
+		log.Error("failed to get statistics", slog.Any("error", err))
 		http.Error(w, "failed to get statistics", http.StatusInternalServerError)
 		return
 	}
@@ -47,7 +48,7 @@ func (h *Handler) statsTable(w http.ResponseWriter, r *http.Request) {
 
 	urls, err := h.svc.Statistics(r.Context(), user.ID)
 	if err != nil {
-		h.log.Error("failed to get statistics", slog.Any("error", err))
+		log.Error("failed to get statistics", slog.Any("error", err))
 		http.Error(w, "failed to get statistics", http.StatusInternalServerError)
 		return
 	}

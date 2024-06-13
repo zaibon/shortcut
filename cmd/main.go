@@ -1,13 +1,15 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"os"
 
 	"github.com/urfave/cli/v2"
 
 	_ "gitea.com/go-chi/session/redis"
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/zaibon/shortcut/log"
 )
 
 type config struct {
@@ -24,6 +26,7 @@ type config struct {
 var c config
 
 func main() {
+	log.SetupLogger(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
 
 	app := &cli.App{
 		Name:  "shortcut",

@@ -5,11 +5,13 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/services/geoip"
 )
 
 const idLength = 6 //TODO: make this dynamic by reading the amount of url stored in DB.
@@ -18,8 +20,9 @@ type URLStore interface {
 	Add(ctx context.Context, shortURL, longURL string, authorID int64) (int64, error)
 	List(ctx context.Context, authorID int64) ([]datastore.Url, error)
 	Get(ctx context.Context, shortID string) (datastore.Url, error)
-	TrackRedirect(ctx context.Context, urlID int64, ipAddress, userAgent string) error
-	Statistics(ctx context.Context, authorID int64) ([]datastore.ListStatisticsRow, error)
+	TrackRedirect(ctx context.Context, urlID int64, ipAddress, userAgent string) (datastore.Visit, error)
+	InsertVisitLocation(ctx context.Context, visitID int64, loc geoip.IPLocation) error
+	Statistics(ctx context.Context, authorID int64) ([]datastore.ListStatisticsPerAuthorRow, error)
 }
 
 type shortURL struct {
@@ -75,7 +78,19 @@ func (s *shortURL) Expand(ctx context.Context, short string) (domain.URL, error)
 
 func (s *shortURL) TrackRedirect(ctx context.Context, urlID int64, r *http.Request) error {
 	ipAddress, userAgent := parseRequest(r)
-	return s.repo.TrackRedirect(ctx, urlID, ipAddress, userAgent)
+	visit, err := s.repo.TrackRedirect(ctx, urlID, ipAddress, userAgent)
+	if err != nil {
+		return fmt.Errorf("failed to track redirect: %w", err)
+	}
+
+	loc, err := geoip.Country(ipAddress)
+	if err == nil {
+		if err := s.repo.InsertVisitLocation(ctx, visit.ID, loc); err != nil {
+			slog.WarnContext(ctx, "failed to insert visit location", "err", err)
+		}
+	}
+
+	return nil
 }
 
 func (s *shortURL) Statistics(ctx context.Context, authorID int64) ([]domain.URLStat, error) {

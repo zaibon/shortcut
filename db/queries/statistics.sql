@@ -1,8 +1,25 @@
--- name: TrackRedirect :exec
+-- name: TrackRedirect :one
 INSERT INTO visits (url_id, ip_address, user_agent)
-VALUES (?, ?, ?);
+VALUES (?, ?, ?)
+RETURNING *;
 
--- name: ListStatistics :many
+-- name: InsertVisitLocation :one
+INSERT INTO visit_locations (
+	visit_id,
+	address,
+	country_code,
+	country_name,
+	subdivision,
+	continent,
+	city_name,
+	latitude,
+	longitude,
+	source
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING *;
+
+-- name: ListStatisticsPerAuthor :many
 SELECT
 	count(v.id) as visits,
 	CAST(MIN(u.id) as INTEGER) as id,
@@ -16,4 +33,9 @@ WHERE
 GROUP BY
 	u.short_url
 ORDER BY
-	visits
+	visits;
+
+-- name: ListVisits :many
+SELECT *
+FROM visits
+ORDER BY id DESC;

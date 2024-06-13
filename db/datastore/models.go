@@ -32,3 +32,16 @@ type Visit struct {
 	IpAddress sql.NullString `json:"ip_address"`
 	UserAgent sql.NullString `json:"user_agent"`
 }
+
+type VisitLocation struct {
+	VisitID     int64           `json:"visit_id"`
+	Address     sql.NullString  `json:"address"`
+	CountryCode interface{}     `json:"country_code"`
+	CountryName sql.NullString  `json:"country_name"`
+	Subdivision sql.NullString  `json:"subdivision"`
+	Continent   sql.NullString  `json:"continent"`
+	CityName    sql.NullString  `json:"city_name"`
+	Latitude    sql.NullFloat64 `json:"latitude"`
+	Longitude   sql.NullFloat64 `json:"longitude"`
+	Source      sql.NullString  `json:"source"`
+}
