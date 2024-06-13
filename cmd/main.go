@@ -1,27 +1,13 @@
 package main
 
 import (
-	"context"
-	"database/sql"
-	"flag"
-	"fmt"
-	"log/slog"
-	"net/http"
+	"log"
 	"os"
 
-	"gitea.com/go-chi/session"
-	"github.com/go-chi/chi/v5"
+	"github.com/urfave/cli/v2"
 
 	_ "gitea.com/go-chi/session/redis"
 	_ "github.com/mattn/go-sqlite3"
-
-	chiMiddleware "github.com/go-chi/chi/v5/middleware"
-
-	"github.com/zaibon/shortcut/db"
-	"github.com/zaibon/shortcut/handlers"
-	"github.com/zaibon/shortcut/middleware"
-	"github.com/zaibon/shortcut/services"
-	"github.com/zaibon/shortcut/static"
 )
 
 type config struct {
@@ -35,91 +21,43 @@ type config struct {
 	MigrationDir string
 }
 
-func (c config) redirectURL() string {
-	if c.TLS {
-		return fmt.Sprintf("https://%s", c.Domain)
-	} else {
-		return fmt.Sprintf("http://%s", c.Domain)
-	}
-}
+var c config
 
-// main is the entry point of the application. It sets up the HTTP router, configures the database connection,
-// applies any necessary database migrations, creates the URL shortening service, and registers the request handlers.
-// The server is then started and listens on port 3333.
 func main() {
-	c := config{}
-	flag.BoolVar(&c.TLS, "tls", true, "generate redirect URL using HTTPS")
-	flag.StringVar(&c.Domain, "domain", "localhost:8080", "domain to use for shortened URLs")
-	flag.IntVar(&c.Port, "port", 8080, "port to listen to")
-	flag.StringVar(&c.Redis, "redis", "network=tcp,addr=:6379,db=0,pool_size=100,idle_timeout=180,prefix=session;", "configuration string for redis server")
-	flag.StringVar(&c.DBPath, "db", "shortcut.db", "path to the sqlite database file.")
-	flag.StringVar(&c.MigrationDir, "migration-dir", "", "directory containing the database migrations. If Specified the binary just apply migrations to the database and exit.")
-	flag.Parse()
 
-	// TODO: use proper CLI library
-	if c.MigrationDir != "" {
-		ctx := context.Background()
-		args := flag.Args()
+	app := &cli.App{
+		Name:  "shortcut",
+		Usage: "shortcut, your friendly shortening service",
 
-		arguments := []string{}
-		if len(args) >= 2 {
-			arguments = append(arguments, args[1:]...)
-		}
-		db.MigrateCmd(ctx, c.MigrationDir, c.DBPath, args[0], arguments...)
-		return
-	}
+		Flags: serverFlags,
+		Action: func(ctx *cli.Context) error {
+			return runServer(c)
+		},
 
-	log := slog.New(slog.NewJSONHandler(os.Stderr, nil))
-
-	dbConn, err := sql.Open("sqlite3", c.DBPath)
-	if err != nil {
-		log.Error("failed to open database", slog.Any("error", err))
-		return
-	}
-	defer dbConn.Close()
-
-	// databases
-	urlStore := db.NewURLStore(dbConn)
-	userStore := db.NewUserStore(dbConn)
-
-	// services
-	shortURL := services.NewShortURL(urlStore, c.redirectURL())
-	userService := services.NewUser(userStore)
-
-	// HTTP handlers
-	urlHandlers := handlers.NewURLHandlers(shortURL, log)
-	userHandlers := handlers.NewUsersHandler(userService)
-	healthzHandlers := handlers.NewHealtzHandlers(dbConn)
-
-	fs := http.FileServer(static.FileSystem)
-	server := chi.NewRouter()
-	// no middlewares
-	server.Group(func(r chi.Router) {
-		r.Handle("/static/*", http.StripPrefix("/static/", fs))
-	})
-
-	// normal HTTP middlewares
-	server.Group(func(r chi.Router) {
-		r.Use(chiMiddleware.Logger)
-		r.Use(chiMiddleware.Recoverer)
-		r.Use(chiMiddleware.RealIP)
-		r.Use(session.Sessioner(
-			session.Options{
-				Provider:       "redis",
-				ProviderConfig: c.Redis,
+		Commands: []*cli.Command{
+			{
+				Name:  "run",
+				Usage: "start the server",
+				Args:  false,
+				Action: func(ctx *cli.Context) error {
+					return runServer(c)
+				},
+				Flags: serverFlags,
 			},
-		))
-		r.Use(middleware.UserContext)
+			{
+				Name:      "migrate",
+				Usage:     "run DB migrations",
+				Args:      true,
+				ArgsUsage: "",
+				Action: func(ctx *cli.Context) error {
+					return runMigration(ctx, c)
+				},
+				Flags: migrationScan,
+			},
+		},
+	}
 
-		// HTTP Routing
-		urlHandlers.Routes(r)
-		userHandlers.Routes(r)
-		healthzHandlers.Routes(r)
-	})
-
-	listenAddr := fmt.Sprintf(":%d", c.Port)
-	fmt.Printf("Server is running on %s\n", listenAddr)
-	if err := http.ListenAndServe(listenAddr, server); err != nil && err != http.ErrServerClosed {
-		slog.Error("HTTP server error", "err", err)
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
 	}
 }

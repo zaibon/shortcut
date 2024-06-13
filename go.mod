@@ -6,12 +6,14 @@ require (
 	gitea.com/go-chi/session v0.0.0-20240316035857-16768d98ec96
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/pressly/goose/v3 v3.20.0
+	github.com/urfave/cli/v2 v2.27.2
 	golang.org/x/crypto v0.24.0
 	modernc.org/sqlite v1.29.6
 )
 
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
@@ -21,9 +23,11 @@ require (
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/unknwon/com v1.0.1 // indirect
+	github.com/xrash/smetrics v0.0.0-20240312152122-5f08fbb34913 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
@@ -38,9 +42,5 @@ require (
 
 require (
 	github.com/a-h/templ v0.2.707
-	github.com/golang-migrate/migrate/v4 v4.17.1
-	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.22
-	go.uber.org/atomic v1.11.0 // indirect
 )
