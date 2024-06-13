@@ -18,6 +18,8 @@ import (
 
 type AuthService interface {
 	CreateUser(ctx context.Context, user *domain.User) error
+	UpdateUser(ctx context.Context, id domain.ID, user *domain.User) (*domain.User, error)
+	UpdatePassword(ctx context.Context, id domain.ID, password string) error
 	VerifyLogin(ctx context.Context, email, password string) (*domain.User, error)
 }
 
@@ -38,6 +40,9 @@ func (h *UsersHandler) Routes(r chi.Router) {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticated)
 		r.Get("/my-account", h.myAccount)
+
+		r.Post("/auth/edit-account", h.editAccount)
+		r.Post("/auth/edit-password", h.editPassword)
 	})
 
 	r.Post("/auth/register", h.register)
@@ -78,7 +83,9 @@ func (h *UsersHandler) login(w http.ResponseWriter, r *http.Request) {
 		Render(r.Context(), w, components.LoginForm(components.LoginFormData{
 			Email:    email,
 			Password: password,
-			Alerts:   []components.LoginAlert{loginAlerts(err)},
+			Alerts: components.AlertListData{
+				Alerts: []components.Alert{loginAlerts(err)},
+			},
 		}))
 		return
 	}
@@ -142,22 +149,168 @@ func (h *UsersHandler) logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func loginAlerts(err error) components.LoginAlert {
+func (h *UsersHandler) editAccount(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	email := r.FormValue("email")
+	name := r.FormValue("name")
+
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Error(w, "user not found", http.StatusNotFound)
+		return
+	}
+
+	if len(name) == 0 || len(email) == 0 {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		Render(r.Context(), w, views.MyAccount(views.MyAccountData{
+			User: user,
+			EditAlerts: components.AlertListData{
+				Alerts: []components.Alert{
+					{
+						Title: "Edit failed",
+						Text:  "Name and email are required",
+					},
+				},
+			},
+		}))
+		return
+	}
+
+	user, err := h.svc.UpdateUser(r.Context(), user.ID, &domain.User{
+		Name:  name,
+		Email: email,
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		Render(r.Context(), w, views.MyAccount(views.MyAccountData{
+			User: user,
+			EditAlerts: components.AlertListData{
+				Alerts: []components.Alert{
+					{
+						Title: "Edit failed",
+						Text:  "An unexpected error occurred. Please try again.",
+					},
+				},
+			},
+		}))
+		return
+	}
+
+	sess := session.GetSession(r)
+	if err := sess.Set("user", user); err != nil {
+		http.Error(w, "unexpected error", http.StatusInternalServerError)
+		return
+	}
+
+	HXRedirect(r.Context(), w, "/my-account")
+}
+
+func (h *UsersHandler) editPassword(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	oldPassword := r.FormValue("old_password")
+	newPassword := r.FormValue("new_password")
+	newPasswordConfirm := r.FormValue("new_password_confirm")
+
+	data := components.EditPasswordFormData{
+		OldPassword:     oldPassword,
+		NewPassword:     newPassword,
+		ConfirmPassword: newPasswordConfirm,
+	}
+
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		data.Alerts = components.AlertListData{
+			Alerts: []components.Alert{{
+				Title: "Edit failed",
+				Text:  "User not found",
+			}},
+		}
+		Render(r.Context(), w, components.EditPasswordForm(data))
+		return
+	}
+
+	if len(oldPassword) == 0 || len(newPassword) == 0 {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		data.Alerts = components.AlertListData{
+			Alerts: []components.Alert{{
+				Title: "Edit failed",
+				Text:  "Old and new password are required",
+			}},
+		}
+		Render(r.Context(), w, components.EditPasswordForm(data))
+		return
+	}
+
+	if newPassword != newPasswordConfirm {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		data.Alerts = components.AlertListData{
+			Alerts: []components.Alert{{
+				Title: "Edit failed",
+				Text:  "New passwords do not match",
+			}},
+		}
+		Render(r.Context(), w, components.EditPasswordForm(data))
+		return
+	}
+
+	if _, err := h.svc.VerifyLogin(r.Context(), user.Email, oldPassword); err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		data.Alerts = components.AlertListData{
+			Alerts: []components.Alert{{
+				Title: "Edit failed",
+				Text:  "Old password is incorrect",
+			}},
+		}
+		Render(r.Context(), w, components.EditPasswordForm(data))
+		return
+	}
+
+	if err := h.svc.UpdatePassword(r.Context(), user.ID, newPassword); err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		data.Alerts = components.AlertListData{
+			Alerts: []components.Alert{{
+				Title: "Edit failed",
+				Text:  "An unexpected error occurred. Please try again.",
+			}},
+		}
+		Render(r.Context(), w, components.EditPasswordForm(data))
+		return
+	}
+
+	sess := session.GetSession(r)
+	if err := sess.Set("user", user); err != nil {
+		http.Error(w, "unexpected error", http.StatusInternalServerError)
+		return
+
+	}
+
+	HXRedirect(r.Context(), w, "/my-account")
+}
+
+func loginAlerts(err error) components.Alert {
 	if errors.Is(err, services.ErrInvalidCredentials) {
-		return components.LoginAlert{
+		return components.Alert{
 			Title: "Invalid credentials",
 			Text:  "The password you entered is incorrect. Please try again.",
 		}
 	}
 
-	if errors.Is(err, services.ErrInvalidCredentials) {
-		return components.LoginAlert{
-			Title: "Invalid credentials",
-			Text:  "The password you entered is incorrect. Please try again.",
+	if errors.Is(err, services.ErrUserNotFound) {
+		return components.Alert{
+			Title: "User not found",
+			Text:  "The email you entered is not associated with an account. Please try again.",
 		}
 	}
 
-	return components.LoginAlert{
+	return components.Alert{
 		Title: "Login failed",
 		Text:  "An unexpected error occurred. Please try again.",
 	}

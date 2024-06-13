@@ -7,7 +7,6 @@ type FormData struct {
 
 templ IndexForm(data FormData) {
 	<form id="url-form" hx-post="/shorten-url" hx-swap="outerHTML" class="flex flex-col gap-y-2">
-		// <input type="url" id="long-url" name="long_url" placeholder="Enter a long URL 2" required class="mb-4 p-2 border border-gray-300 rounded"/>
 		@InputText(InputTextProp{
 			Name:        "long_url",
 			PlaceHolder: "Enter a long URL",
@@ -18,6 +17,5 @@ templ IndexForm(data FormData) {
 		@Button(ButtonProp{Type: "submit"}) {
 			Shorten
 		}
-		// <button type="submiairt" class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Shorten URL</button>
 	</form>
 }

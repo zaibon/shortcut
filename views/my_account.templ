@@ -5,13 +5,25 @@ import "github.com/zaibon/shortcut/components"
 
 type MyAccountData struct {
 	User *domain.User
+
+	EditAlerts components.AlertListData
+
+	EditPasswordData components.EditPasswordFormData
 }
 
 templ MyAccount(data MyAccountData) {
 	@Layout() {
-		<div class="grow flex flex-col">
-			<div class="w-1/4">
-				@components.ProfileCard(components.ProfileCardData{User: data.User})
+		<h1 class="text-xl font-bold px-5 py-5">My Account</h1>
+		<div class="grow">
+			// <div class="w-1/4">
+			// 	@components.ProfileCard(components.ProfileCardData{User: data.User})
+			// </div>
+			<div class="flex flex-col md:flex-row gap-y-5">
+				@components.EditAccountForm(components.EditAccountFormData{
+					User:   data.User,
+					Alerts: data.EditAlerts,
+				})
+				@components.EditPasswordForm(data.EditPasswordData)
 			</div>
 		</div>
 	}

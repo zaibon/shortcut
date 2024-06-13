@@ -8,3 +8,14 @@ SELECT *
 FROM users
 WHERE users.email = @email
 LIMIT 1;
+
+-- name: UpdateUser :one
+UPDATE users
+SET username = @username, email = @email
+WHERE id = @id
+RETURNING *;
+
+-- name: UpdatePassword :exec
+UPDATE users
+SET password = @password, password_salt = @password_salt
+WHERE id = @id;
