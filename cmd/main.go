@@ -64,6 +64,7 @@ func main() {
 	// HTTP handlers
 	urlHandlers := handlers.NewURLHandlers(shortURL, log)
 	userHandlers := handlers.NewUsersHandler(userService)
+	healthzHandlers := handlers.NewHealtzHandlers(dbConn)
 
 	fs := http.FileServer(static.FileSystem)
 	server := chi.NewRouter()
@@ -73,7 +74,7 @@ func main() {
 	})
 
 	// normal HTTP middlewares
-	r := server.Group(func(r chi.Router) {
+	server.Group(func(r chi.Router) {
 		r.Use(chiMiddleware.Logger)
 		r.Use(chiMiddleware.Recoverer)
 		r.Use(chiMiddleware.RealIP)
@@ -84,15 +85,16 @@ func main() {
 			},
 		))
 		r.Use(middleware.UserContext)
-	})
 
-	// HTTP Routing
-	urlHandlers.Routes(r)
-	userHandlers.Routes(r)
+		// HTTP Routing
+		urlHandlers.Routes(r)
+		userHandlers.Routes(r)
+		healthzHandlers.Routes(r)
+	})
 
 	listenAddr := fmt.Sprintf(":%d", c.Port)
 	fmt.Printf("Server is running on %s\n", listenAddr)
-	if err := http.ListenAndServe(listenAddr, r); err != nil && err != http.ErrServerClosed {
+	if err := http.ListenAndServe(listenAddr, server); err != nil && err != http.ErrServerClosed {
 		slog.Error("HTTP server error", "err", err)
 	}
 }
