@@ -10,6 +10,7 @@ import (
 
 	"github.com/zaibon/shortcut/components"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/views"
 )
@@ -26,13 +27,11 @@ type ShortURLService interface {
 
 type Handler struct {
 	svc ShortURLService
-	log *slog.Logger
 }
 
-func NewURLHandlers(shortURL ShortURLService, log *slog.Logger) *Handler {
+func NewURLHandlers(shortURL ShortURLService) *Handler {
 	return &Handler{
 		svc: shortURL,
-		log: log,
 	}
 }
 
@@ -54,7 +53,7 @@ func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 
 	urls, err := h.svc.List(r.Context(), 1)
 	if err != nil {
-		h.log.Error("failed to list shorten urls", slog.Any("error", err))
+		log.Error("failed to list shorten urls", slog.Any("error", err))
 		Render(r.Context(), w, views.IndexPage(data))
 		return
 	}
@@ -87,7 +86,7 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 
 	short, err := h.svc.Shorten(ctx, url, user.ID)
 	if err != nil {
-		h.log.Error("failed to shorten url", slog.Any("error", err))
+		log.Error("failed to shorten url", slog.Any("error", err))
 		//TODO: show toast
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -106,14 +105,14 @@ func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
 
 	url, err := h.svc.Expand(r.Context(), id)
 	if err != nil {
-		h.log.Error("failed to expand url", slog.Any("error", err))
+		log.Error("failed to expand url", slog.Any("error", err))
 		http.Error(w, "failed to expand url", http.StatusInternalServerError)
 		return
 	}
 
 	go func() {
 		if err := h.svc.TrackRedirect(context.Background(), url.ID, r); err != nil {
-			h.log.Error("failed to track redirect", slog.Any("error", err))
+			log.Error("failed to track redirect", slog.Any("error", err))
 		}
 	}()
 

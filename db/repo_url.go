@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/zaibon/shortcut/db/datastore"
+	"github.com/zaibon/shortcut/services/geoip"
 )
 
 type urlStore struct {
@@ -53,8 +54,8 @@ func (s *urlStore) Get(ctx context.Context, shortID string) (datastore.Url, erro
 	return url, nil
 }
 
-func (s urlStore) TrackRedirect(ctx context.Context, urlID int64, ipAddress, userAgent string) error {
-	if err := s.db.TrackRedirect(ctx, datastore.TrackRedirectParams{
+func (s urlStore) TrackRedirect(ctx context.Context, urlID int64, ipAddress, userAgent string) (datastore.Visit, error) {
+	visit, err := s.db.TrackRedirect(ctx, datastore.TrackRedirectParams{
 		UrlID: sql.NullInt64{
 			Int64: urlID,
 			Valid: urlID != 0,
@@ -67,15 +68,55 @@ func (s urlStore) TrackRedirect(ctx context.Context, urlID int64, ipAddress, use
 			String: userAgent,
 			Valid:  userAgent != "",
 		},
-	}); err != nil {
-		return fmt.Errorf("failed to track redirect: %v", err)
+	})
+	if err != nil {
+		return datastore.Visit{}, fmt.Errorf("failed to track redirect: %v", err)
 	}
-
-	return nil
+	return visit, nil
 }
 
-func (s urlStore) Statistics(ctx context.Context, authorID int64) ([]datastore.ListStatisticsRow, error) {
-	rows, err := s.db.ListStatistics(ctx, sql.NullInt64{
+func (s urlStore) InsertVisitLocation(ctx context.Context, visitID int64, loc geoip.IPLocation) error {
+	_, err := s.db.InsertVisitLocation(ctx, datastore.InsertVisitLocationParams{
+		VisitID: visitID,
+		Address: sql.NullString{
+			String: loc.Address,
+			Valid:  loc.Address != "",
+		},
+		CountryCode: nil,
+		CountryName: sql.NullString{
+			String: loc.CountryName,
+			Valid:  loc.CountryName != "",
+		},
+		Subdivision: sql.NullString{
+			String: loc.Subdivision,
+			Valid:  loc.Subdivision != "",
+		},
+		Continent: sql.NullString{
+			String: loc.Continent,
+			Valid:  loc.Continent != "",
+		},
+		CityName: sql.NullString{
+			String: loc.CityName,
+			Valid:  loc.CityName != "",
+		},
+		Latitude: sql.NullFloat64{
+			Float64: loc.Latitude,
+			Valid:   loc.Latitude != 0,
+		},
+		Longitude: sql.NullFloat64{
+			Float64: loc.Longitude,
+			Valid:   loc.Longitude != 0,
+		},
+		Source: sql.NullString{
+			String: loc.Source,
+			Valid:  loc.Source != "",
+		},
+	})
+	return err
+}
+
+func (s urlStore) Statistics(ctx context.Context, authorID int64) ([]datastore.ListStatisticsPerAuthorRow, error) {
+	rows, err := s.db.ListStatisticsPerAuthor(ctx, sql.NullInt64{
 		Int64: authorID,
 		Valid: true,
 	})

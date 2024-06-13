@@ -10,7 +10,66 @@ import (
 	"database/sql"
 )
 
-const listStatistics = `-- name: ListStatistics :many
+const insertVisitLocation = `-- name: InsertVisitLocation :one
+INSERT INTO visit_locations (
+	visit_id,
+	address,
+	country_code,
+	country_name,
+	subdivision,
+	continent,
+	city_name,
+	latitude,
+	longitude,
+	source
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING visit_id, address, country_code, country_name, subdivision, continent, city_name, latitude, longitude, source
+`
+
+type InsertVisitLocationParams struct {
+	VisitID     int64           `json:"visit_id"`
+	Address     sql.NullString  `json:"address"`
+	CountryCode interface{}     `json:"country_code"`
+	CountryName sql.NullString  `json:"country_name"`
+	Subdivision sql.NullString  `json:"subdivision"`
+	Continent   sql.NullString  `json:"continent"`
+	CityName    sql.NullString  `json:"city_name"`
+	Latitude    sql.NullFloat64 `json:"latitude"`
+	Longitude   sql.NullFloat64 `json:"longitude"`
+	Source      sql.NullString  `json:"source"`
+}
+
+func (q *Queries) InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error) {
+	row := q.db.QueryRowContext(ctx, insertVisitLocation,
+		arg.VisitID,
+		arg.Address,
+		arg.CountryCode,
+		arg.CountryName,
+		arg.Subdivision,
+		arg.Continent,
+		arg.CityName,
+		arg.Latitude,
+		arg.Longitude,
+		arg.Source,
+	)
+	var i VisitLocation
+	err := row.Scan(
+		&i.VisitID,
+		&i.Address,
+		&i.CountryCode,
+		&i.CountryName,
+		&i.Subdivision,
+		&i.Continent,
+		&i.CityName,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Source,
+	)
+	return i, err
+}
+
+const listStatisticsPerAuthor = `-- name: ListStatisticsPerAuthor :many
 SELECT
 	count(v.id) as visits,
 	CAST(MIN(u.id) as INTEGER) as id,
@@ -27,22 +86,22 @@ ORDER BY
 	visits
 `
 
-type ListStatisticsRow struct {
+type ListStatisticsPerAuthorRow struct {
 	Visits   int64  `json:"visits"`
 	ID       int64  `json:"id"`
 	ShortUrl string `json:"short_url"`
 	LongUrl  string `json:"long_url"`
 }
 
-func (q *Queries) ListStatistics(ctx context.Context, authorID sql.NullInt64) ([]ListStatisticsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listStatistics, authorID)
+func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, authorID sql.NullInt64) ([]ListStatisticsPerAuthorRow, error) {
+	rows, err := q.db.QueryContext(ctx, listStatisticsPerAuthor, authorID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListStatisticsRow{}
+	items := []ListStatisticsPerAuthorRow{}
 	for rows.Next() {
-		var i ListStatisticsRow
+		var i ListStatisticsPerAuthorRow
 		if err := rows.Scan(
 			&i.Visits,
 			&i.ID,
@@ -62,9 +121,45 @@ func (q *Queries) ListStatistics(ctx context.Context, authorID sql.NullInt64) ([
 	return items, nil
 }
 
-const trackRedirect = `-- name: TrackRedirect :exec
+const listVisits = `-- name: ListVisits :many
+SELECT id, url_id, visited_at, ip_address, user_agent
+FROM visits
+ORDER BY id DESC
+`
+
+func (q *Queries) ListVisits(ctx context.Context) ([]Visit, error) {
+	rows, err := q.db.QueryContext(ctx, listVisits)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Visit{}
+	for rows.Next() {
+		var i Visit
+		if err := rows.Scan(
+			&i.ID,
+			&i.UrlID,
+			&i.VisitedAt,
+			&i.IpAddress,
+			&i.UserAgent,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const trackRedirect = `-- name: TrackRedirect :one
 INSERT INTO visits (url_id, ip_address, user_agent)
 VALUES (?, ?, ?)
+RETURNING id, url_id, visited_at, ip_address, user_agent
 `
 
 type TrackRedirectParams struct {
@@ -73,7 +168,15 @@ type TrackRedirectParams struct {
 	UserAgent sql.NullString `json:"user_agent"`
 }
 
-func (q *Queries) TrackRedirect(ctx context.Context, arg TrackRedirectParams) error {
-	_, err := q.db.ExecContext(ctx, trackRedirect, arg.UrlID, arg.IpAddress, arg.UserAgent)
-	return err
+func (q *Queries) TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error) {
+	row := q.db.QueryRowContext(ctx, trackRedirect, arg.UrlID, arg.IpAddress, arg.UserAgent)
+	var i Visit
+	err := row.Scan(
+		&i.ID,
+		&i.UrlID,
+		&i.VisitedAt,
+		&i.IpAddress,
+		&i.UserAgent,
+	)
+	return i, err
 }

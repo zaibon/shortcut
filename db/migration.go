@@ -2,12 +2,13 @@ package db
 
 import (
 	"context"
-	"log"
 
 	"github.com/pressly/goose/v3"
 
 	_ "github.com/zaibon/shortcut/db/migrations"
 	_ "modernc.org/sqlite" //TODO: replace with github.com/mattn/go-sqlite3 ?
+
+	"github.com/zaibon/shortcut/log"
 )
 
 func MigrateCmd(ctx context.Context, migrationDir, dbstring, command string, args ...string) {
