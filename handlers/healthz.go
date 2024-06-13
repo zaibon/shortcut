@@ -31,6 +31,6 @@ func (h *HealthzHandlers) healthz(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("ok"))
+	_, _ = w.Write([]byte("ok"))
 	w.WriteHeader(http.StatusOK)
 }
