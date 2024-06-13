@@ -11,6 +11,9 @@
             "mode": "auto",
             "program": "cmd/main.go",
             "cwd": "${workspaceFolder}",
+            "args": [
+                "-tls=false"
+            ]
         }
     ]
 }

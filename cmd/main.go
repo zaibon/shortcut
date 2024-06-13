@@ -23,10 +23,19 @@ import (
 )
 
 type config struct {
+	TLS    bool
 	Domain string
 	Port   int
 
 	Redis string
+}
+
+func (c config) redirectURL() string {
+	if c.TLS {
+		return fmt.Sprintf("https://%s", c.Domain)
+	} else {
+		return fmt.Sprintf("http://%s", c.Domain)
+	}
 }
 
 // main is the entry point of the application. It sets up the HTTP router, configures the database connection,
@@ -34,6 +43,7 @@ type config struct {
 // The server is then started and listens on port 3333.
 func main() {
 	c := config{}
+	flag.BoolVar(&c.TLS, "tls", true, "generate redirect URL using HTTPS")
 	flag.StringVar(&c.Domain, "domain", "localhost:8080", "domain to use for shortened URLs")
 	flag.IntVar(&c.Port, "port", 8080, "port to listen to")
 	flag.StringVar(&c.Redis, "redis", "network=tcp,addr=:6379,db=0,pool_size=100,idle_timeout=180,prefix=session;", "configuration string for redis server")
@@ -58,7 +68,7 @@ func main() {
 	userStore := db.NewUserStore(dbConn)
 
 	// services
-	shortURL := services.NewShortURL(urlStore, fmt.Sprintf("http://%s", c.Domain))
+	shortURL := services.NewShortURL(urlStore, c.redirectURL())
 	userService := services.NewUser(userStore)
 
 	// HTTP handlers
