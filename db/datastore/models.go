@@ -17,11 +17,12 @@ type Url struct {
 }
 
 type User struct {
-	ID        int64        `json:"id"`
-	Username  string       `json:"username"`
-	Email     string       `json:"email"`
-	Password  string       `json:"password"`
-	CreatedAt sql.NullTime `json:"created_at"`
+	ID           int64        `json:"id"`
+	Username     string       `json:"username"`
+	Email        string       `json:"email"`
+	Password     string       `json:"password"`
+	CreatedAt    sql.NullTime `json:"created_at"`
+	PasswordSalt string       `json:"password_salt"`
 }
 
 type Visit struct {

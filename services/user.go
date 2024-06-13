@@ -6,12 +6,14 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/services/password"
 )
 
 type userStore interface {
-	InsertUser(ctx context.Context, user *domain.User) error
-	GetUser(ctx context.Context, email string) (*domain.User, error)
+	InsertUser(ctx context.Context, user datastore.InsertUserParams) error
+	GetUser(ctx context.Context, email string) (datastore.User, error)
 }
 
 var (
@@ -28,10 +30,22 @@ func NewUser(store userStore) *userService {
 }
 
 func (s *userService) CreateUser(ctx context.Context, user *domain.User) error {
-	return s.store.InsertUser(ctx, user)
+	hasher := password.DefaultArgon2iHasher()
+
+	saltedPasswd, err := hasher.Hash([]byte(user.Password), nil)
+	if err != nil {
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	return s.store.InsertUser(ctx, datastore.InsertUserParams{
+		Username:     user.Name,
+		Email:        user.Email,
+		Password:     string(saltedPasswd.Hash),
+		PasswordSalt: string(saltedPasswd.Salt),
+	})
 }
 
-func (s *userService) VerifyLogin(ctx context.Context, email, password string) (*domain.User, error) {
+func (s *userService) VerifyLogin(ctx context.Context, email, passwd string) (*domain.User, error) {
 	user, err := s.store.GetUser(ctx, email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -45,7 +59,9 @@ func (s *userService) VerifyLogin(ctx context.Context, email, password string) (
 		)
 	}
 
-	if user.Password != password { //TODO: make it secure
+	hasher := password.DefaultArgon2iHasher()
+	err = hasher.Compare([]byte(user.Password), []byte(user.PasswordSalt), []byte(passwd))
+	if err != nil {
 		return nil, fmt.Errorf(
 			"failed to verify login for user %s: %w",
 			email,
@@ -53,5 +69,10 @@ func (s *userService) VerifyLogin(ctx context.Context, email, password string) (
 		)
 	}
 
-	return user, nil
+	return &domain.User{
+		ID:        user.ID,
+		Name:      user.Username,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt.Time,
+	}, nil
 }

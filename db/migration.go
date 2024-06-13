@@ -1,36 +1,33 @@
 package db
 
 import (
-	"database/sql"
-	"fmt"
+	"context"
+	"log"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+	"github.com/pressly/goose/v3"
 
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/zaibon/shortcut/db/migrations"
+	_ "modernc.org/sqlite" //TODO: replace with github.com/mattn/go-sqlite3 ?
 )
 
-func Migrate(db *sql.DB) error {
-	// Wrap the database connection in the migrate driver
-	driver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
+func MigrateCmd(ctx context.Context, migrationDir, dbstring, command string, args ...string) {
+	db, err := goose.OpenDBWithDriver("sqlite", dbstring)
 	if err != nil {
-		return fmt.Errorf("failed to apply migrations: %w", err)
+		log.Fatalf("goose: failed to open DB: %v\n", err)
 	}
 
-	// Create a new migrate instance
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://db/migrations",
-		"sqlite3", driver)
-	if err != nil {
-		return fmt.Errorf("failed to apply migrations: %w", err)
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Fatalf("goose: failed to close DB: %v\n", err)
+		}
+	}()
+
+	arguments := []string{}
+	if len(args) > 3 {
+		arguments = append(arguments, args[3:]...)
 	}
 
-	// Apply migrations
-	err = m.Up()
-	if err != nil && err != migrate.ErrNoChange {
-		return fmt.Errorf("failed to apply migrations: %w", err)
+	if err := goose.RunContext(ctx, command, db, migrationDir, arguments...); err != nil {
+		log.Fatalf("goose %v: %v", command, err)
 	}
-
-	return nil
 }

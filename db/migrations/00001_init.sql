@@ -1,3 +1,5 @@
+-- +goose Up
+-- +goose StatementBegin
 -- Table to store user information (author)
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,3 +34,11 @@ CREATE INDEX IF NOT EXISTS idx_visits_url_id ON visits(url_id);
 
 -- Index to improve query performance for urls by short_url
 CREATE INDEX IF NOT EXISTS idx_urls_short_url ON urls(short_url);
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS urls;
+DROP TABLE IF EXISTS visits;
+-- +goose StatementEnd

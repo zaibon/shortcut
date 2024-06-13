@@ -16,16 +16,19 @@ generate:
     go generate ./...
 
 build: generate fmt
-    go build -o bin/shortcut cmd/main.go
+    go build -o bin/shortcut cmd/*.go
 
 build-linux: generate fmt
-    CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o bin/shortcut-linux cmd/main.go
+    CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o bin/shortcut-linux cmd/*.go
 
 build-dev: generate
-    go build -tags=dev -o bin/shortcut cmd/main.go
+    go build -tags=dev -o bin/shortcut cmd/*.go
 
 run: build
     ./bin/shortcut
+
+db-fix: generate fmt
+    goose -dir db/migrations sqlite shortcut.db fix
 
 test: generate
     go test -v ./...

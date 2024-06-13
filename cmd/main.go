@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	_ "gitea.com/go-chi/session/redis"
+	_ "github.com/mattn/go-sqlite3"
 
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 
@@ -28,6 +30,9 @@ type config struct {
 	Port   int
 
 	Redis string
+
+	DBPath       string
+	MigrationDir string
 }
 
 func (c config) redirectURL() string {
@@ -47,21 +52,31 @@ func main() {
 	flag.StringVar(&c.Domain, "domain", "localhost:8080", "domain to use for shortened URLs")
 	flag.IntVar(&c.Port, "port", 8080, "port to listen to")
 	flag.StringVar(&c.Redis, "redis", "network=tcp,addr=:6379,db=0,pool_size=100,idle_timeout=180,prefix=session;", "configuration string for redis server")
+	flag.StringVar(&c.DBPath, "db", "shortcut.db", "path to the sqlite database file.")
+	flag.StringVar(&c.MigrationDir, "migration-dir", "", "directory containing the database migrations. If Specified the binary just apply migrations to the database and exit.")
 	flag.Parse()
+
+	// TODO: use proper CLI library
+	if c.MigrationDir != "" {
+		ctx := context.Background()
+		args := flag.Args()
+
+		arguments := []string{}
+		if len(args) >= 2 {
+			arguments = append(arguments, args[1:]...)
+		}
+		db.MigrateCmd(ctx, c.MigrationDir, c.DBPath, args[0], arguments...)
+		return
+	}
 
 	log := slog.New(slog.NewJSONHandler(os.Stderr, nil))
 
-	dbConn, err := sql.Open("sqlite3", "./shortcut.db")
+	dbConn, err := sql.Open("sqlite3", c.DBPath)
 	if err != nil {
 		log.Error("failed to open database", slog.Any("error", err))
 		return
 	}
 	defer dbConn.Close()
-
-	if err := db.Migrate(dbConn); err != nil {
-		log.Error("failed to apply migrations", slog.Any("error", err))
-		return
-	}
 
 	// databases
 	urlStore := db.NewURLStore(dbConn)
