@@ -25,7 +25,7 @@ func Layout() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>URL Shortener Service</title><script src=\"https://unpkg.com/htmx.org@1.6.1\"></script><script src=\"https://cdn.tailwindcss.com\"></script></head><body class=\"h-dvh\"><div class=\"flex min-h-full flex-col bg-gray-100\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>URL Shortener Service</title><script src=\"https://unpkg.com/htmx.org@1.6.1\"></script><script src=\"https://cdn.tailwindcss.com\"></script><link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"static/img/apple-touch-icon.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"static/img/favicon-32x32.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"static/img/favicon-16x16.png\"><link rel=\"manifest\" href=\"static/img/site.webmanifest\"></head><body class=\"h-dvh\"><div class=\"flex min-h-full flex-col bg-gray-100\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
