@@ -34,7 +34,7 @@ type config struct {
 // The server is then started and listens on port 3333.
 func main() {
 	c := config{}
-	flag.StringVar(&c.Domain, "domain", "localhost", "domain to use for shortened URLs")
+	flag.StringVar(&c.Domain, "domain", "localhost:8080", "domain to use for shortened URLs")
 	flag.IntVar(&c.Port, "port", 8080, "port to listen to")
 	flag.StringVar(&c.Redis, "redis", "network=tcp,addr=:6379,db=0,pool_size=100,idle_timeout=180,prefix=session;", "configuration string for redis server")
 	flag.Parse()
@@ -58,7 +58,7 @@ func main() {
 	userStore := db.NewUserStore(dbConn)
 
 	// services
-	shortURL := services.NewShortURL(urlStore, fmt.Sprintf("http://%s:%d", c.Domain, c.Port))
+	shortURL := services.NewShortURL(urlStore, fmt.Sprintf("http://%s", c.Domain))
 	userService := services.NewUser(userStore)
 
 	// HTTP handlers
