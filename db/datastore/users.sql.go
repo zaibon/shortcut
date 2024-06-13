@@ -61,3 +61,47 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 	)
 	return i, err
 }
+
+const updatePassword = `-- name: UpdatePassword :exec
+UPDATE users
+SET password = $1, password_salt = $2
+WHERE id = $3
+`
+
+type UpdatePasswordParams struct {
+	Password     []byte `json:"password"`
+	PasswordSalt []byte `json:"password_salt"`
+	ID           int32  `json:"id"`
+}
+
+func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error {
+	_, err := q.db.Exec(ctx, updatePassword, arg.Password, arg.PasswordSalt, arg.ID)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users
+SET username = $1, email = $2
+WHERE id = $3
+RETURNING id, username, email, password, created_at, password_salt
+`
+
+type UpdateUserParams struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	ID       int32  `json:"id"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUser, arg.Username, arg.Email, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Password,
+		&i.CreatedAt,
+		&i.PasswordSalt,
+	)
+	return i, err
+}

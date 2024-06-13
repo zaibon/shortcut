@@ -20,6 +20,8 @@ type Querier interface {
 	ListStatisticsPerAuthor(ctx context.Context, authorID pgtype.Int4) ([]ListStatisticsPerAuthorRow, error)
 	ListVisits(ctx context.Context) ([]Visit, error)
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)
+	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

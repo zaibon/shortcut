@@ -15,6 +15,10 @@ import "github.com/zaibon/shortcut/components"
 
 type MyAccountData struct {
 	User *domain.User
+
+	EditAlerts components.AlertListData
+
+	EditPasswordData components.EditPasswordFormData
 }
 
 func MyAccount(data MyAccountData) templ.Component {
@@ -36,11 +40,18 @@ func MyAccount(data MyAccountData) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"grow flex flex-col\"><div class=\"w-1/4\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1 class=\"text-xl font-bold px-5 py-5\">My Account</h1><div class=\"grow\"><div class=\"flex flex-col md:flex-row gap-y-5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.ProfileCard(components.ProfileCardData{User: data.User}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.EditAccountForm(components.EditAccountFormData{
+				User:   data.User,
+				Alerts: data.EditAlerts,
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.EditPasswordForm(data.EditPasswordData).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

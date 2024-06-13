@@ -39,5 +39,8 @@ package: build
 coverage:
     go test -v -race -coverprofile=coverage.txt -covermode=atomic  ./...
 
+enable-env kind:
+    ln -sf .env-{{kind}} .env
+
 clean:
     rm -rf bin/*

@@ -27,7 +27,7 @@ type config struct {
 }
 
 func (c config) DBString() string {
-	return fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s", c.DBUser, c.DBPassword, c.DBHost, c.DBPort, c.DBName)
+	return fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s timezone=UTC sslmode=disable", c.DBUser, c.DBPassword, c.DBHost, c.DBPort, c.DBName)
 }
 
 var c config

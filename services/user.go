@@ -14,6 +14,8 @@ import (
 type userStore interface {
 	InsertUser(ctx context.Context, user datastore.InsertUserParams) error
 	GetUser(ctx context.Context, email string) (datastore.User, error)
+	UpdateUser(ctx context.Context, id domain.ID, user *domain.User) (*domain.User, error)
+	UpdatePassword(ctx context.Context, id domain.ID, password, salt []byte) error
 }
 
 var (
@@ -43,6 +45,30 @@ func (s *userService) CreateUser(ctx context.Context, user *domain.User) error {
 		Password:     saltedPasswd.Hash,
 		PasswordSalt: saltedPasswd.Salt,
 	})
+}
+
+func (s *userService) UpdateUser(ctx context.Context, id domain.ID, user *domain.User) (*domain.User, error) {
+	user, err := s.store.UpdateUser(ctx, id, user)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update user %s: %w", user.Name, err)
+	}
+
+	return user, nil
+}
+
+func (s *userService) UpdatePassword(ctx context.Context, id domain.ID, newPassword string) error {
+	hasher := password.DefaultArgon2iHasher()
+
+	saltedPasswd, err := hasher.Hash([]byte(newPassword), nil)
+	if err != nil {
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	if err := s.store.UpdatePassword(ctx, id, saltedPasswd.Hash, saltedPasswd.Salt); err != nil {
+		return fmt.Errorf("failed to update user %d: %w", id, err)
+	}
+
+	return err
 }
 
 func (s *userService) VerifyLogin(ctx context.Context, email, passwd string) (*domain.User, error) {
