@@ -97,6 +97,10 @@ func runServer(c config) error {
 			session.Options{
 				Provider:       "redis",
 				ProviderConfig: c.Redis,
+				CookieName:     "shortcut_session",
+				Secure:         c.TLS,
+				SameSite:       http.SameSiteLaxMode,
+				IDLength:       32,
 			},
 		))
 		r.Use(middleware.UserContext)
