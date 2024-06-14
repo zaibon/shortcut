@@ -2,22 +2,24 @@ package geoip
 
 import (
 	"fmt"
+	"log"
 	"net"
+	"os"
 
 	_ "embed"
 
 	geo "github.com/oschwald/geoip2-golang"
-
-	"github.com/zaibon/shortcut/log"
 )
 
 var db *geo.Reader
 
 func init() {
-	var err error
-	db, err = geo.Open("GeoLite2-City.mmdb")
-	if err == nil {
-		log.Error("failed to load geoip database", "err", err)
+	path := "GeoLite2-City.mmdb"
+	if _, err := os.Stat(path); err == nil {
+		db, err = geo.Open(path)
+		if err != nil {
+			log.Printf("failed to load geoip database: %v", err)
+		}
 	}
 }
 

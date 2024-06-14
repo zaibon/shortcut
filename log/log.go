@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-var singletonLogger = slog.New(slog.NewJSONHandler(os.Stderr, nil))
+var singletonLogger *slog.Logger
 
 func SetupLogger(logger *slog.Logger) {
 	if singletonLogger == nil {

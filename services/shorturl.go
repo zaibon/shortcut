@@ -5,12 +5,12 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"net/url"
 
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/services/geoip"
 )
 
@@ -84,10 +84,13 @@ func (s *shortURL) TrackRedirect(ctx context.Context, urlID int64, r *http.Reque
 	}
 
 	loc, err := geoip.Country(ipAddress)
-	if err == nil {
-		if err := s.repo.InsertVisitLocation(ctx, visit.ID, loc); err != nil {
-			slog.WarnContext(ctx, "failed to insert visit location", "err", err)
-		}
+	if err != nil {
+		log.Warn("failed to get country", "err", err, "ip", ipAddress)
+		return nil
+	}
+
+	if err := s.repo.InsertVisitLocation(ctx, visit.ID, loc); err != nil {
+		log.Warn("failed to insert visit location", "err", err)
 	}
 
 	return nil
