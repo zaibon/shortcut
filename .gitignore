@@ -35,3 +35,6 @@ bin/
 
 # temporary
 tmp/
+
+# geoip database
+*.mmdb
