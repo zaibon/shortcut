@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/urfave/cli/v2"
 
-	_ "gitea.com/go-chi/session/redis"
 	_ "github.com/mattn/go-sqlite3"
 
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
@@ -95,8 +94,8 @@ func runServer(c config) error {
 		r.Use(chiMiddleware.RealIP)
 		r.Use(session.Sessioner(
 			session.Options{
-				Provider:       "redis",
-				ProviderConfig: c.Redis,
+				Provider:       "sqlite3",
+				ProviderConfig: c.DBPath,
 				CookieName:     "shortcut_session",
 				Secure:         c.TLS,
 				SameSite:       http.SameSiteLaxMode,

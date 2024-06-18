@@ -8,6 +8,12 @@ import (
 	"database/sql"
 )
 
+type Session struct {
+	Key    string        `json:"key"`
+	Data   []byte        `json:"data"`
+	Expiry sql.NullInt64 `json:"expiry"`
+}
+
 type Url struct {
 	ID        int64         `json:"id"`
 	ShortUrl  string        `json:"short_url"`

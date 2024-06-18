@@ -27,8 +27,8 @@ build-dev: generate
 run: build
     ./bin/shortcut
 
-db-fix: generate fmt
-    goose -dir db/migrations sqlite shortcut.db fix
+db action: build
+    ./bin/shortcut migrate --db shortcut.db --migration-dir db/migrations {{action}}
 
 test: generate
     go test -v ./...
