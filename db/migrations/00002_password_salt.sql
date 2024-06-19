@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-ALTER TABLE users ADD COLUMN password_salt TEXT DEFAULT '' NOT NULL;
+ALTER TABLE users ADD COLUMN password_salt BYTEA DEFAULT '' NOT NULL;
 -- +goose StatementEnd
 
 -- +goose Down

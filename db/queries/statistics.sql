@@ -1,6 +1,6 @@
 -- name: TrackRedirect :one
 INSERT INTO visits (url_id, ip_address, user_agent)
-VALUES (?, ?, ?)
+VALUES (@url_id, @ip_address, @user_agent)
 RETURNING *;
 
 -- name: InsertVisitLocation :one
@@ -16,7 +16,18 @@ INSERT INTO visit_locations (
 	longitude,
 	source
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (
+	@visit_id,
+	@address,
+	@country_code,
+	@country_name,
+	@subdivision,
+	@continent,
+	@city_name,
+	@latitude,
+	@longitude,
+	@source
+)
 RETURNING *;
 
 -- name: ListStatisticsPerAuthor :many
@@ -29,7 +40,7 @@ FROM
 	urls u
 LEFT JOIN visits v ON u.id = v.url_id
 WHERE
-	u.author_id = ?
+	u.author_id = @author_id
 GROUP BY
 	u.short_url
 ORDER BY

@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS session (
     key TEXT PRIMARY KEY,
-    data BLOB,
+    data BYTEA,
     expiry INTEGER
 );
 -- +goose StatementEnd

@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/zaibon/shortcut/db/datastore"
@@ -12,7 +11,7 @@ type userStore struct {
 	db datastore.Querier
 }
 
-func NewUserStore(db *sql.DB) *userStore {
+func NewUserStore(db datastore.DBTX) *userStore {
 	return &userStore{
 		db: datastore.New(db),
 	}

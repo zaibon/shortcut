@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
 
 	_ "gitea.com/go-chi/session/redis"
@@ -17,16 +19,28 @@ type config struct {
 	Domain string
 	Port   int
 
-	Redis string
+	// Redis string
 
-	DBPath       string
-	MigrationDir string
+	DBHost     string
+	DBPort     int
+	DBUser     string
+	DBPassword string
+	DBName     string
+}
+
+func (c config) DBString() string {
+	return fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s", c.DBUser, c.DBPassword, c.DBHost, c.DBPort, c.DBName)
 }
 
 var c config
 
 func main() {
 	log.SetupLogger(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
+
+	if err := godotenv.Load(); err != nil {
+		log.Error("unable to load .env file", "error", err)
+		os.Exit(1)
+	}
 
 	app := &cli.App{
 		Name:  "shortcut",

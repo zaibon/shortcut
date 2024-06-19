@@ -17,12 +17,12 @@ import (
 const idLength = 6 //TODO: make this dynamic by reading the amount of url stored in DB.
 
 type URLStore interface {
-	Add(ctx context.Context, shortURL, longURL string, authorID int64) (int64, error)
-	List(ctx context.Context, authorID int64) ([]datastore.Url, error)
+	Add(ctx context.Context, shortURL, longURL string, authorID domain.ID) (domain.ID, error)
+	List(ctx context.Context, authorID domain.ID) ([]datastore.Url, error)
 	Get(ctx context.Context, shortID string) (datastore.Url, error)
-	TrackRedirect(ctx context.Context, urlID int64, ipAddress, userAgent string) (datastore.Visit, error)
-	InsertVisitLocation(ctx context.Context, visitID int64, loc geoip.IPLocation) error
-	Statistics(ctx context.Context, authorID int64) ([]datastore.ListStatisticsPerAuthorRow, error)
+	TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error)
+	InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error
+	Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error)
 }
 
 type shortURL struct {
@@ -37,20 +37,20 @@ func NewShortURL(repo URLStore, shortDomain string) *shortURL {
 	}
 }
 
-func (s *shortURL) Shorten(ctx context.Context, url string, userID int64) (string, error) {
+func (s *shortURL) Shorten(ctx context.Context, url string, userID domain.ID) (string, error) {
 	id, err := generateShortID(idLength)
 	if err != nil {
 		return "", err
 	}
 
-	if _, err := s.repo.Add(ctx, id, url, userID); err != nil {
+	if _, err := s.repo.Add(ctx, id, url, domain.ID(userID)); err != nil {
 		return "", err
 	}
 
 	return s.toURL(id), nil
 }
 
-func (s *shortURL) List(ctx context.Context, authorID int64) ([]string, error) {
+func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]string, error) {
 	rows, err := s.repo.List(ctx, authorID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list shorten urls: %w", err)
@@ -70,13 +70,13 @@ func (s *shortURL) Expand(ctx context.Context, short string) (domain.URL, error)
 	}
 
 	return domain.URL{
-		ID:    item.ID,
+		ID:    domain.ID(item.ID),
 		Long:  item.LongUrl,
 		Short: short,
 	}, nil
 }
 
-func (s *shortURL) TrackRedirect(ctx context.Context, urlID int64, r *http.Request) error {
+func (s *shortURL) TrackRedirect(ctx context.Context, urlID domain.ID, r *http.Request) error {
 	ipAddress, userAgent := parseRequest(r)
 	visit, err := s.repo.TrackRedirect(ctx, urlID, ipAddress, userAgent)
 	if err != nil {
@@ -89,14 +89,14 @@ func (s *shortURL) TrackRedirect(ctx context.Context, urlID int64, r *http.Reque
 		return nil
 	}
 
-	if err := s.repo.InsertVisitLocation(ctx, visit.ID, loc); err != nil {
+	if err := s.repo.InsertVisitLocation(ctx, domain.ID(visit.ID), loc); err != nil {
 		log.Warn("failed to insert visit location", "err", err)
 	}
 
 	return nil
 }
 
-func (s *shortURL) Statistics(ctx context.Context, authorID int64) ([]domain.URLStat, error) {
+func (s *shortURL) Statistics(ctx context.Context, authorID domain.ID) ([]domain.URLStat, error) {
 	rows, err := s.repo.Statistics(ctx, authorID)
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -105,7 +105,7 @@ func (s *shortURL) Statistics(ctx context.Context, authorID int64) ([]domain.URL
 	stats := make([]domain.URLStat, len(rows))
 	for i, r := range rows {
 		stats[i] = domain.URLStat{
-			URL:       domain.URL{ID: r.ID, Long: r.LongUrl, Short: s.toURL(r.ShortUrl)},
+			URL:       domain.URL{ID: domain.ID(r.ID), Long: r.LongUrl, Short: s.toURL(r.ShortUrl)},
 			NrVisited: int(r.Visits),
 		}
 	}

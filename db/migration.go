@@ -2,33 +2,74 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"embed"
+	"errors"
+	"fmt"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pressly/goose/v3"
 
 	_ "github.com/zaibon/shortcut/db/migrations"
-	_ "modernc.org/sqlite" //TODO: replace with github.com/mattn/go-sqlite3 ?
-
-	"github.com/zaibon/shortcut/log"
 )
 
-func MigrateCmd(ctx context.Context, migrationDir, dbstring, command string, args ...string) {
-	db, err := goose.OpenDBWithDriver("sqlite", dbstring)
+type Migration struct {
+	db *sql.DB
+}
+
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
+
+func NewMigration(pool *pgxpool.Pool) (*Migration, error) {
+	if pool == nil {
+		return &Migration{}, errors.New("pool is nil")
+	}
+
+	goose.SetBaseFS(embedMigrations)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		return &Migration{}, err
+	}
+
+	cp := pool.Config().ConnConfig.ConnString()
+	db, err := sql.Open("pgx/v5", cp)
 	if err != nil {
-		log.Fatalf("goose: failed to open DB: %v\n", err)
+		return &Migration{}, err
 	}
 
-	defer func() {
-		if err := db.Close(); err != nil {
-			log.Fatalf("goose: failed to close DB: %v\n", err)
-		}
-	}()
+	return &Migration{db: db}, nil
+}
 
-	arguments := []string{}
-	if len(args) > 3 {
-		arguments = append(arguments, args[3:]...)
+func (m *Migration) Run(ctx context.Context, command string, args ...string) error {
+	if err := goose.RunContext(ctx, command, m.db, "migrations", args...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Migration) Up(ctx context.Context) error {
+	if err := goose.UpContext(ctx, m.db, "migrations"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Migration) Down(ctx context.Context) error {
+	if err := goose.DownContext(ctx, m.db, "migrations"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func MigrateCmd(ctx context.Context, pool *pgxpool.Pool, command string, args ...string) error {
+	m, err := NewMigration(pool)
+	if err != nil {
+		return fmt.Errorf("unable to create migration: %v", err)
 	}
 
-	if err := goose.RunContext(ctx, command, db, migrationDir, arguments...); err != nil {
-		log.Fatalf("goose %v: %v", command, err)
+	if err := m.Run(ctx, command, args...); err != nil {
+		return fmt.Errorf("goose %v: %v", command, err)
 	}
+
+	return nil
 }

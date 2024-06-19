@@ -40,8 +40,8 @@ func (s *userService) CreateUser(ctx context.Context, user *domain.User) error {
 	return s.store.InsertUser(ctx, datastore.InsertUserParams{
 		Username:     user.Name,
 		Email:        user.Email,
-		Password:     string(saltedPasswd.Hash),
-		PasswordSalt: string(saltedPasswd.Salt),
+		Password:     saltedPasswd.Hash,
+		PasswordSalt: saltedPasswd.Salt,
 	})
 }
 
@@ -70,7 +70,7 @@ func (s *userService) VerifyLogin(ctx context.Context, email, passwd string) (*d
 	}
 
 	return &domain.User{
-		ID:        user.ID,
+		ID:        domain.ID(user.ID),
 		Name:      user.Username,
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt.Time,

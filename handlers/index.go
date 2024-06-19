@@ -16,13 +16,13 @@ import (
 )
 
 type ShortURLService interface {
-	Shorten(ctx context.Context, url string, userID int64) (string, error)
-	List(ctx context.Context, authorID int64) ([]string, error)
+	Shorten(ctx context.Context, url string, userID domain.ID) (string, error)
+	List(ctx context.Context, authorID domain.ID) ([]string, error)
 	Expand(ctx context.Context, short string) (domain.URL, error)
 
-	Statistics(ctx context.Context, authorID int64) ([]domain.URLStat, error)
+	Statistics(ctx context.Context, authorID domain.ID) ([]domain.URLStat, error)
 
-	TrackRedirect(ctx context.Context, urlID int64, r *http.Request) error
+	TrackRedirect(ctx context.Context, urlID domain.ID, r *http.Request) error
 }
 
 type Handler struct {
