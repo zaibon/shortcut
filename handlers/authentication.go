@@ -11,6 +11,7 @@ import (
 
 	"github.com/zaibon/shortcut/components"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/handlers/toast"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/services"
 	"github.com/zaibon/shortcut/views"
@@ -206,7 +207,10 @@ func (h *UsersHandler) editAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	HXRedirect(r.Context(), w, "/my-account")
+	toast.Success(w, "Account updated", "Your account has been updated successfully")
+	Render(r.Context(), w, components.EditAccountForm(components.EditAccountFormData{
+		User: user,
+	}))
 }
 
 func (h *UsersHandler) editPassword(w http.ResponseWriter, r *http.Request) {
@@ -292,7 +296,9 @@ func (h *UsersHandler) editPassword(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	HXRedirect(r.Context(), w, "/my-account")
+	toast.Success(w, "Password updated", "Your password has been updated successfully")
+	w.Header().Set("HX-Reswap", "none")
+	Render(r.Context(), w, components.EditPasswordForm(components.EditPasswordFormData{}))
 }
 
 func loginAlerts(err error) components.Alert {

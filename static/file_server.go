@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-//go:embed img
+//go:embed img js
 var staticAssets embed.FS
 
 var FileSystem http.FileSystem
