@@ -10,6 +10,7 @@ import (
 
 	"github.com/zaibon/shortcut/components"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/handlers/toast"
 	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/views"
@@ -59,6 +60,7 @@ func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.URLs = urls
+
 	Render(r.Context(), w, views.IndexPage(data))
 }
 
@@ -92,6 +94,7 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	toast.Success(w, "Success", fmt.Sprintf("URL shortened to %s", short))
 	Render(r.Context(), w, components.IndexForm(components.FormData{}))
 	Render(r.Context(), w, components.AddedURL(short))
 }
