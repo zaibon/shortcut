@@ -61,6 +61,7 @@ jobs:
           region: ${{ vars.REGION }}
 
       - id: "deploy-preview"
+        if: github.event_name == 'pull_request'
         uses: "google-github-actions/deploy-cloudrun@v2"
         timeout-minutes: 10
         with:
