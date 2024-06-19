@@ -11,9 +11,7 @@
             "mode": "auto",
             "program": "cmd/",
             "cwd": "${workspaceFolder}",
-            "args": [
-                "-tls=false"
-            ]
+            "envFile": "${workspaceFolder}/.env"
         },
         {
             "name": "migrate",
@@ -23,8 +21,10 @@
             "program": "cmd/",
             "cwd": "${workspaceFolder}",
             "args": [
-                "-migration-dir=db/migrations",
-            ]
+                "migrate",
+                "status"
+            ],
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

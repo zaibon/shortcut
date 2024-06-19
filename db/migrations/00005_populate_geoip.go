@@ -3,8 +3,11 @@ package migrations
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
+	"log/slog"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/pressly/goose/v3"
 
 	"github.com/zaibon/shortcut/db/datastore"
@@ -12,13 +15,14 @@ import (
 )
 
 func init() {
-	goose.AddMigrationContext(upPopulateGeoip, downPopulateGeoip)
+	goose.AddMigrationNoTxContext(
+		pgxMigrateFunc(upPopulateGeoip),
+		downPopulateGeoip,
+	)
 }
 
-func upPopulateGeoip(ctx context.Context, tx *sql.Tx) error {
-	db := datastore.New(tx)
-
-	rows, err := db.ListVisits(ctx)
+func upPopulateGeoip(ctx context.Context, store datastore.Querier) error {
+	rows, err := store.ListVisits(ctx)
 	if err != nil {
 		return err
 	}
@@ -45,35 +49,38 @@ func upPopulateGeoip(ctx context.Context, tx *sql.Tx) error {
 			continue
 		}
 
-		_, err = db.InsertVisitLocation(ctx, datastore.InsertVisitLocationParams{
-			VisitID:     row.ID,
-			Address:     row.IpAddress,
-			CountryCode: loc.CountryCode,
-			CountryName: sql.NullString{
+		_, err = store.InsertVisitLocation(ctx, datastore.InsertVisitLocationParams{
+			VisitID: row.ID,
+			Address: row.IpAddress,
+			CountryCode: pgtype.Text{
+				String: loc.CountryCode,
+				Valid:  loc.CountryCode != "",
+			},
+			CountryName: pgtype.Text{
 				String: loc.CountryName,
 				Valid:  loc.CountryName != "",
 			},
-			Subdivision: sql.NullString{
+			Subdivision: pgtype.Text{
 				String: loc.Subdivision,
 				Valid:  loc.Subdivision != "",
 			},
-			Continent: sql.NullString{
+			Continent: pgtype.Text{
 				String: loc.Continent,
 				Valid:  loc.Continent != "",
 			},
-			CityName: sql.NullString{
+			CityName: pgtype.Text{
 				String: loc.CityName,
 				Valid:  loc.CityName != "",
 			},
-			Latitude: sql.NullFloat64{
+			Latitude: pgtype.Float8{
 				Float64: loc.Latitude,
 				Valid:   loc.Latitude != 0,
 			},
-			Longitude: sql.NullFloat64{
+			Longitude: pgtype.Float8{
 				Float64: loc.Longitude,
 				Valid:   loc.Longitude != 0,
 			},
-			Source: sql.NullString{
+			Source: pgtype.Text{
 				String: loc.Source,
 				Valid:  loc.Source != "",
 			},
@@ -87,7 +94,21 @@ func upPopulateGeoip(ctx context.Context, tx *sql.Tx) error {
 	return nil
 }
 
-func downPopulateGeoip(ctx context.Context, tx *sql.Tx) error {
-	_, err := tx.ExecContext(ctx, "DELETE FROM visit_locations")
-	return err
+func downPopulateGeoip(ctx context.Context, db *sql.DB) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM visit_locations"); err != nil {
+		if err := tx.Rollback(); err != nil {
+			slog.Error("failed to rollback transaction", "err", err)
+		}
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+	return nil
 }

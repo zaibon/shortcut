@@ -12,12 +12,12 @@ import (
 const getUser = `-- name: GetUser :one
 SELECT id, username, email, password, created_at, password_salt
 FROM users
-WHERE users.email = ?
+WHERE users.email = $1
 LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, email)
+	row := q.db.QueryRow(ctx, getUser, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -32,19 +32,19 @@ func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
 
 const insertUser = `-- name: InsertUser :one
 INSERT INTO users (username, email, password,password_salt)
-VALUES (?1, ?2, ?3, ?4)
+VALUES ($1, $2, $3, $4)
 RETURNING id, username, email, password, created_at, password_salt
 `
 
 type InsertUserParams struct {
 	Username     string `json:"username"`
 	Email        string `json:"email"`
-	Password     string `json:"password"`
-	PasswordSalt string `json:"password_salt"`
+	Password     []byte `json:"password"`
+	PasswordSalt []byte `json:"password_salt"`
 }
 
 func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, insertUser,
+	row := q.db.QueryRow(ctx, insertUser,
 		arg.Username,
 		arg.Email,
 		arg.Password,

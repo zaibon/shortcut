@@ -2,10 +2,12 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgtype"
+
 	"github.com/zaibon/shortcut/db/datastore"
+	"github.com/zaibon/shortcut/domain"
 	"github.com/zaibon/shortcut/services/geoip"
 )
 
@@ -13,30 +15,30 @@ type urlStore struct {
 	db datastore.Querier
 }
 
-func NewURLStore(db *sql.DB) *urlStore {
+func NewURLStore(db datastore.DBTX) *urlStore {
 	return &urlStore{
 		db: datastore.New(db),
 	}
 }
 
-func (s *urlStore) Add(ctx context.Context, shortURL, longURL string, authorID int64) (int64, error) {
+func (s *urlStore) Add(ctx context.Context, shortURL, longURL string, authorID domain.ID) (domain.ID, error) {
 	url, err := s.db.AddShortURL(ctx, datastore.AddShortURLParams{
 		ShortUrl: shortURL,
 		LongUrl:  longURL,
-		AuthorID: sql.NullInt64{
-			Int64: authorID,
+		AuthorID: pgtype.Int4{
+			Int32: int32(authorID),
 			Valid: true,
 		},
 	})
 	if err != nil {
 		return 0, fmt.Errorf("failed to add shorten url: %w", err)
 	}
-	return url.ID, nil
+	return domain.ID(url.ID), nil
 }
 
-func (s *urlStore) List(ctx context.Context, authorID int64) ([]datastore.Url, error) {
-	rows, err := s.db.ListShortURLs(ctx, sql.NullInt64{
-		Int64: authorID,
+func (s *urlStore) List(ctx context.Context, authorID domain.ID) ([]datastore.Url, error) {
+	rows, err := s.db.ListShortURLs(ctx, pgtype.Int4{
+		Int32: int32(authorID),
 		Valid: true,
 	})
 	if err != nil {
@@ -54,17 +56,17 @@ func (s *urlStore) Get(ctx context.Context, shortID string) (datastore.Url, erro
 	return url, nil
 }
 
-func (s urlStore) TrackRedirect(ctx context.Context, urlID int64, ipAddress, userAgent string) (datastore.Visit, error) {
+func (s urlStore) TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error) {
 	visit, err := s.db.TrackRedirect(ctx, datastore.TrackRedirectParams{
-		UrlID: sql.NullInt64{
-			Int64: urlID,
+		UrlID: pgtype.Int4{
+			Int32: int32(urlID),
 			Valid: urlID != 0,
 		},
-		IpAddress: sql.NullString{
+		IpAddress: pgtype.Text{
 			String: ipAddress,
 			Valid:  ipAddress != "",
 		},
-		UserAgent: sql.NullString{
+		UserAgent: pgtype.Text{
 			String: userAgent,
 			Valid:  userAgent != "",
 		},
@@ -75,39 +77,42 @@ func (s urlStore) TrackRedirect(ctx context.Context, urlID int64, ipAddress, use
 	return visit, nil
 }
 
-func (s urlStore) InsertVisitLocation(ctx context.Context, visitID int64, loc geoip.IPLocation) error {
+func (s urlStore) InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error {
 	_, err := s.db.InsertVisitLocation(ctx, datastore.InsertVisitLocationParams{
-		VisitID: visitID,
-		Address: sql.NullString{
+		VisitID: int32(visitID),
+		Address: pgtype.Text{
 			String: loc.Address,
 			Valid:  loc.Address != "",
 		},
-		CountryCode: nil,
-		CountryName: sql.NullString{
+		CountryCode: pgtype.Text{
+			String: loc.CountryCode,
+			Valid:  false,
+		},
+		CountryName: pgtype.Text{
 			String: loc.CountryName,
 			Valid:  loc.CountryName != "",
 		},
-		Subdivision: sql.NullString{
+		Subdivision: pgtype.Text{
 			String: loc.Subdivision,
 			Valid:  loc.Subdivision != "",
 		},
-		Continent: sql.NullString{
+		Continent: pgtype.Text{
 			String: loc.Continent,
 			Valid:  loc.Continent != "",
 		},
-		CityName: sql.NullString{
+		CityName: pgtype.Text{
 			String: loc.CityName,
 			Valid:  loc.CityName != "",
 		},
-		Latitude: sql.NullFloat64{
+		Latitude: pgtype.Float8{
 			Float64: loc.Latitude,
 			Valid:   loc.Latitude != 0,
 		},
-		Longitude: sql.NullFloat64{
+		Longitude: pgtype.Float8{
 			Float64: loc.Longitude,
 			Valid:   loc.Longitude != 0,
 		},
-		Source: sql.NullString{
+		Source: pgtype.Text{
 			String: loc.Source,
 			Valid:  loc.Source != "",
 		},
@@ -115,9 +120,9 @@ func (s urlStore) InsertVisitLocation(ctx context.Context, visitID int64, loc ge
 	return err
 }
 
-func (s urlStore) Statistics(ctx context.Context, authorID int64) ([]datastore.ListStatisticsPerAuthorRow, error) {
-	rows, err := s.db.ListStatisticsPerAuthor(ctx, sql.NullInt64{
-		Int64: authorID,
+func (s urlStore) Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error) {
+	rows, err := s.db.ListStatisticsPerAuthor(ctx, pgtype.Int4{
+		Int32: int32(authorID),
 		Valid: true,
 	})
 	if err != nil {

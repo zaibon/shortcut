@@ -7,7 +7,8 @@ package datastore
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const insertVisitLocation = `-- name: InsertVisitLocation :one
@@ -23,25 +24,36 @@ INSERT INTO visit_locations (
 	longitude,
 	source
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (
+	$1,
+	$2,
+	$3,
+	$4,
+	$5,
+	$6,
+	$7,
+	$8,
+	$9,
+	$10
+)
 RETURNING visit_id, address, country_code, country_name, subdivision, continent, city_name, latitude, longitude, source
 `
 
 type InsertVisitLocationParams struct {
-	VisitID     int64           `json:"visit_id"`
-	Address     sql.NullString  `json:"address"`
-	CountryCode interface{}     `json:"country_code"`
-	CountryName sql.NullString  `json:"country_name"`
-	Subdivision sql.NullString  `json:"subdivision"`
-	Continent   sql.NullString  `json:"continent"`
-	CityName    sql.NullString  `json:"city_name"`
-	Latitude    sql.NullFloat64 `json:"latitude"`
-	Longitude   sql.NullFloat64 `json:"longitude"`
-	Source      sql.NullString  `json:"source"`
+	VisitID     int32         `json:"visit_id"`
+	Address     pgtype.Text   `json:"address"`
+	CountryCode pgtype.Text   `json:"country_code"`
+	CountryName pgtype.Text   `json:"country_name"`
+	Subdivision pgtype.Text   `json:"subdivision"`
+	Continent   pgtype.Text   `json:"continent"`
+	CityName    pgtype.Text   `json:"city_name"`
+	Latitude    pgtype.Float8 `json:"latitude"`
+	Longitude   pgtype.Float8 `json:"longitude"`
+	Source      pgtype.Text   `json:"source"`
 }
 
 func (q *Queries) InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error) {
-	row := q.db.QueryRowContext(ctx, insertVisitLocation,
+	row := q.db.QueryRow(ctx, insertVisitLocation,
 		arg.VisitID,
 		arg.Address,
 		arg.CountryCode,
@@ -79,7 +91,7 @@ FROM
 	urls u
 LEFT JOIN visits v ON u.id = v.url_id
 WHERE
-	u.author_id = ?
+	u.author_id = $1
 GROUP BY
 	u.short_url
 ORDER BY
@@ -88,13 +100,13 @@ ORDER BY
 
 type ListStatisticsPerAuthorRow struct {
 	Visits   int64  `json:"visits"`
-	ID       int64  `json:"id"`
+	ID       int32  `json:"id"`
 	ShortUrl string `json:"short_url"`
 	LongUrl  string `json:"long_url"`
 }
 
-func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, authorID sql.NullInt64) ([]ListStatisticsPerAuthorRow, error) {
-	rows, err := q.db.QueryContext(ctx, listStatisticsPerAuthor, authorID)
+func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, authorID pgtype.Int4) ([]ListStatisticsPerAuthorRow, error) {
+	rows, err := q.db.Query(ctx, listStatisticsPerAuthor, authorID)
 	if err != nil {
 		return nil, err
 	}
@@ -112,9 +124,6 @@ func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, authorID sql.Null
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -128,7 +137,7 @@ ORDER BY id DESC
 `
 
 func (q *Queries) ListVisits(ctx context.Context) ([]Visit, error) {
-	rows, err := q.db.QueryContext(ctx, listVisits)
+	rows, err := q.db.Query(ctx, listVisits)
 	if err != nil {
 		return nil, err
 	}
@@ -147,9 +156,6 @@ func (q *Queries) ListVisits(ctx context.Context) ([]Visit, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -158,18 +164,18 @@ func (q *Queries) ListVisits(ctx context.Context) ([]Visit, error) {
 
 const trackRedirect = `-- name: TrackRedirect :one
 INSERT INTO visits (url_id, ip_address, user_agent)
-VALUES (?, ?, ?)
+VALUES ($1, $2, $3)
 RETURNING id, url_id, visited_at, ip_address, user_agent
 `
 
 type TrackRedirectParams struct {
-	UrlID     sql.NullInt64  `json:"url_id"`
-	IpAddress sql.NullString `json:"ip_address"`
-	UserAgent sql.NullString `json:"user_agent"`
+	UrlID     pgtype.Int4 `json:"url_id"`
+	IpAddress pgtype.Text `json:"ip_address"`
+	UserAgent pgtype.Text `json:"user_agent"`
 }
 
 func (q *Queries) TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error) {
-	row := q.db.QueryRowContext(ctx, trackRedirect, arg.UrlID, arg.IpAddress, arg.UserAgent)
+	row := q.db.QueryRow(ctx, trackRedirect, arg.UrlID, arg.IpAddress, arg.UserAgent)
 	var i Visit
 	err := row.Scan(
 		&i.ID,

@@ -5,49 +5,49 @@
 package datastore
 
 import (
-	"database/sql"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Session struct {
-	Key    string        `json:"key"`
-	Data   []byte        `json:"data"`
-	Expiry sql.NullInt64 `json:"expiry"`
+	Key    string      `json:"key"`
+	Data   []byte      `json:"data"`
+	Expiry pgtype.Int4 `json:"expiry"`
 }
 
 type Url struct {
-	ID        int64         `json:"id"`
-	ShortUrl  string        `json:"short_url"`
-	LongUrl   string        `json:"long_url"`
-	AuthorID  sql.NullInt64 `json:"author_id"`
-	CreatedAt sql.NullTime  `json:"created_at"`
+	ID        int32            `json:"id"`
+	ShortUrl  string           `json:"short_url"`
+	LongUrl   string           `json:"long_url"`
+	AuthorID  pgtype.Int4      `json:"author_id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
 type User struct {
-	ID           int64        `json:"id"`
-	Username     string       `json:"username"`
-	Email        string       `json:"email"`
-	Password     string       `json:"password"`
-	CreatedAt    sql.NullTime `json:"created_at"`
-	PasswordSalt string       `json:"password_salt"`
+	ID           int32            `json:"id"`
+	Username     string           `json:"username"`
+	Email        string           `json:"email"`
+	Password     []byte           `json:"password"`
+	CreatedAt    pgtype.Timestamp `json:"created_at"`
+	PasswordSalt []byte           `json:"password_salt"`
 }
 
 type Visit struct {
-	ID        int64          `json:"id"`
-	UrlID     sql.NullInt64  `json:"url_id"`
-	VisitedAt sql.NullTime   `json:"visited_at"`
-	IpAddress sql.NullString `json:"ip_address"`
-	UserAgent sql.NullString `json:"user_agent"`
+	ID        int32            `json:"id"`
+	UrlID     pgtype.Int4      `json:"url_id"`
+	VisitedAt pgtype.Timestamp `json:"visited_at"`
+	IpAddress pgtype.Text      `json:"ip_address"`
+	UserAgent pgtype.Text      `json:"user_agent"`
 }
 
 type VisitLocation struct {
-	VisitID     int64           `json:"visit_id"`
-	Address     sql.NullString  `json:"address"`
-	CountryCode interface{}     `json:"country_code"`
-	CountryName sql.NullString  `json:"country_name"`
-	Subdivision sql.NullString  `json:"subdivision"`
-	Continent   sql.NullString  `json:"continent"`
-	CityName    sql.NullString  `json:"city_name"`
-	Latitude    sql.NullFloat64 `json:"latitude"`
-	Longitude   sql.NullFloat64 `json:"longitude"`
-	Source      sql.NullString  `json:"source"`
+	VisitID     int32         `json:"visit_id"`
+	Address     pgtype.Text   `json:"address"`
+	CountryCode pgtype.Text   `json:"country_code"`
+	CountryName pgtype.Text   `json:"country_name"`
+	Subdivision pgtype.Text   `json:"subdivision"`
+	Continent   pgtype.Text   `json:"continent"`
+	CityName    pgtype.Text   `json:"city_name"`
+	Latitude    pgtype.Float8 `json:"latitude"`
+	Longitude   pgtype.Float8 `json:"longitude"`
+	Source      pgtype.Text   `json:"source"`
 }
