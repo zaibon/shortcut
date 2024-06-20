@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/samber/lo"
 
 	"github.com/zaibon/shortcut/components"
 	"github.com/zaibon/shortcut/domain"
@@ -18,10 +19,10 @@ import (
 
 type ShortURLService interface {
 	Shorten(ctx context.Context, url string, userID domain.ID) (string, error)
-	List(ctx context.Context, authorID domain.ID) ([]string, error)
+	List(ctx context.Context, authorID domain.ID) ([]domain.URL, error)
 	Expand(ctx context.Context, short string) (domain.URL, error)
 
-	Statistics(ctx context.Context, authorID domain.ID) ([]domain.URLStat, error)
+	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error)
 
 	TrackRedirect(ctx context.Context, urlID domain.ID, r *http.Request) error
 }
@@ -44,8 +45,11 @@ func (h *Handler) Routes(r chi.Router) {
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticated)
-		r.Get("/statistics", h.statistics)
-		r.Get("/stats-table", h.statsTable)
+		r.Get("/links", h.myLinks)
+		// r.Get("/links/{slug}", h.urlStatDetail)
+		// r.Get("/stats-table", h.statsTable)
+
+		r.Get("/statistics/clicks/{slug}", h.numberClicks)
 	})
 }
 
@@ -59,7 +63,9 @@ func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data.URLs = urls
+	data.URLs = lo.Map(urls, func(item domain.URL, _ int) string {
+		return item.Short
+	})
 
 	Render(r.Context(), w, views.IndexPage(data))
 }

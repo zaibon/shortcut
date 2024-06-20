@@ -1,9 +1,13 @@
 package domain
 
+import "time"
+
 type URL struct {
-	ID    ID
-	Long  string
-	Short string
+	ID        ID
+	Long      string
+	Short     string
+	Slug      string
+	CreatedAt time.Time
 }
 
 type URLStat struct {

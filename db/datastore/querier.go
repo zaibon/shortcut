@@ -19,6 +19,7 @@ type Querier interface {
 	ListShortURLs(ctx context.Context, authorID pgtype.Int4) ([]Url, error)
 	ListStatisticsPerAuthor(ctx context.Context, authorID pgtype.Int4) ([]ListStatisticsPerAuthorRow, error)
 	ListVisits(ctx context.Context) ([]Visit, error)
+	StatisticPerURL(ctx context.Context, arg StatisticPerURLParams) (StatisticPerURLRow, error)
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)
 	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)

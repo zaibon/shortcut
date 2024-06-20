@@ -1,0 +1,33 @@
+package components
+
+import "github.com/zaibon/shortcut/components/icons"
+import "fmt"
+
+type LinkCardData struct {
+	Short     string
+	Long      string
+	Title     string
+	Slug      string
+	CreatedAt string
+}
+
+templ LinkCard(data LinkCardData) {
+	<div class="grow flex flex-col items-center mx-16 my-5 bg-white border border-gray-200 rounded-lg shadow md:flex-row hover:bg-gray-100">
+		// <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg" src="https://www.google.com/s2/favicons?domain=flowbite.com&sz=32" alt=""/>
+		<div class="flex flex-col justify-between p-4 w-full">
+			<h3 class="mb-2 text-xl font-bold tracking-tight text-gray-900">{ data.Title }</h3>
+			<a href={ templ.URL(data.Short) } target="blank" class="mb-2 text-base font-normal text-blue-600 hover:underline">{ data.Short }</a>
+			<a href={ templ.URL(data.Long) } target="blank" class="mb-3 text-sm font-normal text-gray-500 hover:underline">{ data.Long }</a>
+			<div class="flex flex-row justify-between mt-4">
+				<div class="flex flex-row gap-x-1">
+					@icons.Calendar(icons.IconProp{Size: 18})
+					<span class="text-sm">{ data.CreatedAt }</span>
+				</div>
+				<div class="flex flex-row gap-x-1">
+					@icons.ChartMixed(icons.IconProp{Size: 18})
+					<span class="text-sm" hx-get={ fmt.Sprintf("/statistics/clicks/%s", data.Slug) } hx-trigger="revealed, every 5s">>...</span>
+				</div>
+			</div>
+		</div>
+	</div>
+}

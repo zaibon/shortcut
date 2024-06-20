@@ -24,6 +24,7 @@ type URLStore interface {
 	TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error)
 	InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error
 	Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error)
+	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error)
 }
 
 type shortURL struct {
@@ -51,14 +52,20 @@ func (s *shortURL) Shorten(ctx context.Context, url string, userID domain.ID) (s
 	return s.toURL(id), nil
 }
 
-func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]string, error) {
+func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]domain.URL, error) {
 	rows, err := s.repo.List(ctx, authorID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list shorten urls: %w", err)
 	}
-	urls := make([]string, len(rows))
+	urls := make([]domain.URL, len(rows))
 	for i, v := range rows {
-		urls[i] = s.toURL(v.ShortUrl)
+		urls[i] = domain.URL{
+			ID:        domain.ID(v.ID),
+			Long:      v.LongUrl,
+			Short:     s.toURL(v.ShortUrl),
+			Slug:      v.ShortUrl,
+			CreatedAt: v.CreatedAt.Time,
+		}
 	}
 
 	return urls, nil
@@ -110,12 +117,21 @@ func (s *shortURL) Statistics(ctx context.Context, authorID domain.ID) ([]domain
 	stats := make([]domain.URLStat, len(rows))
 	for i, r := range rows {
 		stats[i] = domain.URLStat{
-			URL:       domain.URL{ID: domain.ID(r.ID), Long: r.LongUrl, Short: s.toURL(r.ShortUrl)},
-			NrVisited: int(r.Visits),
+			URL: domain.URL{
+				ID:    domain.ID(r.ID),
+				Slug:  r.ShortUrl,
+				Long:  r.LongUrl,
+				Short: s.toURL(r.ShortUrl),
+			},
+			NrVisited: int(r.NrVisits),
 		}
 	}
 
 	return stats, nil
+}
+
+func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error) {
+	return s.repo.StatisticsDetail(ctx, authorID, slug)
 }
 
 func generateShortID(length int) (string, error) {

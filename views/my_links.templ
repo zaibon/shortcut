@@ -1,0 +1,57 @@
+package views 
+
+import "fmt"
+import "github.com/zaibon/shortcut/components"
+import "github.com/zaibon/shortcut/components/icons"
+
+type MyLinkPageData struct {
+	URLs       []URLStat
+	Autoreload bool
+}
+
+type URLStat struct {
+	Slug      string
+	Short     string
+	Long      string
+	CreatedAt string
+}
+
+func toggle(b bool) string {
+	return fmt.Sprintf("/statistics?autoreload=%v", !b)
+}
+
+templ MyLinksPage(data MyLinkPageData) {
+	@Layout() {
+		<div
+			class="grow flex flex-col bg-gray-100"
+		>
+			<div class="flex flex-row pt-4 pl-16 gap-x-2">
+				<h1 class="text-2xl font-extrabold">My links</h1>
+				<a href="/">
+					@components.Button(components.ButtonProp{
+						Type:     "text",
+						WithIcon: true,
+						Class:    "text-white text-cyan-700 bg-cyan-700 hover:bg-cyan-600",
+					}) {
+						@icons.CirclePlus(icons.IconProp{
+							Size:  18,
+							Class: "text-white",
+						})
+						<span class="ml-1">Create</span>
+					}
+				</a>
+			</div>
+			<div class="flex flex-col lg:grid lg:grid-flow-row lg:grid-cols-3 lg:grid-rows-3">
+				for _, url:= range data.URLs {
+					@components.LinkCard(components.LinkCardData{
+						Short:     url.Short,
+						Long:      url.Long,
+						Title:     "My super title",
+						CreatedAt: url.CreatedAt,
+						Slug:      url.Slug,
+					})
+				}
+			</div>
+		</div>
+	}
+}
