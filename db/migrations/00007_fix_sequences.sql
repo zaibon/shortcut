@@ -19,10 +19,10 @@ ALTER TABLE visits ALTER COLUMN url_id SET NOT NULL;
 ALTER TABLE visits ALTER COLUMN visited_at SET DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE visits ADD CONSTRAINT visits_unique_id UNIQUE (id);
 SELECT setval('visits_id_seq', max(id), true) FROM visits;
--- -- +goose StatementEnd
+-- +goose StatementEnd
 
--- -- +goose Down
--- -- +goose StatementBegin
+-- +goose Down
+-- +goose StatementBegin
 
 ALTER TABLE urls ALTER COLUMN created_at DROP NOT NULL;
 ALTER TABLE urls ALTER COLUMN created_at DROP DEFAULT;
