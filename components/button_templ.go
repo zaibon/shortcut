@@ -81,7 +81,7 @@ func Button(prop ButtonProp) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			var templ_7745c5c3_Var5 = []any{fmt.Sprintf("%s %s", iconButtonClass, prop.Class)}
+			var templ_7745c5c3_Var5 = []any{fmt.Sprintf("%s %s", buttonClass, prop.Class)}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

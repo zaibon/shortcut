@@ -19,7 +19,7 @@ templ Button(prop ButtonProp) {
 			{ children... }
 		</button>
 	} else {
-		<button type={ prop.Type } class={ fmt.Sprintf("%s %s", iconButtonClass, prop.Class) }>
+		<button type={ prop.Type } class={ fmt.Sprintf("%s %s", buttonClass, prop.Class) }>
 			{ children... }
 		</button>
 	}
