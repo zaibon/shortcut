@@ -7,12 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build-container:
     runs-on: "ubuntu-latest"
     permissions:
       contents: "read"
       id-token: "write"
-      pull-requests: write
 
     steps:
       - uses: "actions/checkout@v4"
@@ -50,7 +49,19 @@ jobs:
           docker tag ${{ vars.IMAGE_NAME }}:latest ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_NAME }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
           docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_NAME }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:latest
           docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_NAME }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
-
+  
+  deploy-cloudrun:
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: "read"
+      id-token: "write"
+      pull-requests: write
+          
+    steps:
+      - uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}" # Replace with the name of your GitHub Actions secret
+          
       - id: "deploy-live"
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: "google-github-actions/deploy-cloudrun@v2"
@@ -59,6 +70,7 @@ jobs:
           service: "shortcut"
           image: ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_NAME }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
           region: ${{ vars.REGION }}
+          revision_traffic: 'LATEST=100'
 
       - id: "deploy-preview"
         if: github.event_name == 'pull_request'
@@ -72,6 +84,7 @@ jobs:
           no_traffic: true
 
       - name: Comment PR
+        if: github.event_name == 'pull_request' && success()
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
