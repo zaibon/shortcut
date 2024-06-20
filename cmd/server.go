@@ -4,6 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"gitea.com/go-chi/session"
 	"github.com/go-chi/chi/v5"
@@ -98,11 +102,35 @@ var serverFlags = []cli.Flag{
 	},
 }
 
+func listenSignals(ctx context.Context, c config, f func(context.Context, config) error, sig ...os.Signal) error {
+	ctx, cancel := context.WithCancel(ctx)
+
+	cSig := make(chan os.Signal, 1)
+	signal.Notify(cSig, os.Interrupt, syscall.SIGTERM)
+
+	cErr := make(chan error, 1)
+	go func() {
+		cErr <- f(ctx, c)
+	}()
+
+	<-cSig
+	cancel()
+	log.Info("shutting down server")
+
+	select {
+	case <-time.After(time.Second * 5):
+		log.Error("server shutdown timeout")
+		return nil
+
+	case err := <-cErr:
+		log.Info("server shutdown complete")
+		return err
+	}
+}
+
 // runServer is the entry point of the application. It sets up the HTTP router, configures the database connection,
 // applies any necessary database migrations, creates the URL shortening service, and registers the request handlers.
-func runServer(c config) error {
-	ctx := context.Background()
-
+func runServer(ctx context.Context, c config) error {
 	if env.IsProd() {
 		if err := geoip.DownloadGeoIPDB(c.GeoIPBucket, c.GeoIPDBFile); err != nil {
 			log.Error("unable to download geoip database", "err", err)
@@ -160,9 +188,26 @@ func runServer(c config) error {
 
 	listenAddr := fmt.Sprintf(":%d", c.Port)
 	fmt.Printf("Server is running on %s in mode %s\n", listenAddr, env.Name())
-	if err := http.ListenAndServe(listenAddr, server); err != nil && err != http.ErrServerClosed {
-		return fmt.Errorf("HTTP server error: %w", err)
+	srv := &http.Server{
+		Addr:    listenAddr,
+		Handler: server,
 	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("HTTP server error", "err", err)
+			os.Exit(1)
+		}
+	}()
+
+	<-ctx.Done()
+
+	log.Info("shutting down server gracefully...")
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Error("server shutdown error", "err", err)
+		return err
+	}
+
 	return nil
 }
 

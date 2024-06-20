@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
+	"syscall"
 
 	"github.com/urfave/cli/v2"
 
@@ -44,7 +46,10 @@ func main() {
 
 		Flags: serverFlags,
 		Action: func(ctx *cli.Context) error {
-			return runServer(c)
+			return listenSignals(
+				context.Background(), c,
+				runServer,
+				os.Interrupt, syscall.SIGTERM)
 		},
 
 		Commands: []*cli.Command{
@@ -53,7 +58,10 @@ func main() {
 				Usage: "start the server",
 				Args:  false,
 				Action: func(ctx *cli.Context) error {
-					return runServer(c)
+					return listenSignals(
+						context.Background(), c,
+						runServer,
+						os.Interrupt, syscall.SIGTERM)
 				},
 				Flags: serverFlags,
 			},
