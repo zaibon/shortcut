@@ -1,67 +1,40 @@
 package handlers
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
-	"strconv"
+
+	"github.com/go-chi/chi/v5"
 
 	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
-	"github.com/zaibon/shortcut/views"
 )
 
-func (h *Handler) statistics(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) numberClicks(w http.ResponseWriter, r *http.Request) {
 	user := middleware.UserFromContext(r.Context())
-	if user == nil {
-		HXRedirect(r.Context(), w, "/")
+	if user == nil { // this should not happen
+		HXRedirect(r.Context(), w, "/login")
 		return
 	}
 
-	urls, err := h.svc.Statistics(r.Context(), user.ID)
+	slug := chi.URLParam(r, "slug")
+
+	url, err := h.svc.StatisticsDetail(r.Context(), user.ID, slug)
 	if err != nil {
 		log.Error("failed to get statistics", slog.Any("error", err))
 		http.Error(w, "failed to get statistics", http.StatusInternalServerError)
 		return
 	}
 
-	data := views.StatisticsPageData{
-		Stats:      []views.URLStat{},
-		Autoreload: r.URL.Query().Get("autoreload") == "true",
-	}
-	for _, url := range urls {
-		data.Stats = append(data.Stats, views.URLStat{
-			Short:    url.Short,
-			Long:     url.Long,
-			NrVisite: strconv.Itoa(url.NrVisited),
-		})
-	}
-
-	Render(r.Context(), w, views.StatisticsPage(data))
-}
-
-func (h *Handler) statsTable(w http.ResponseWriter, r *http.Request) {
-	user := middleware.UserFromContext(r.Context())
-	if user == nil {
-		HXRedirect(r.Context(), w, "/")
+	w.WriteHeader(http.StatusOK)
+	if url.NrVisited <= 0 {
+		fmt.Fprintf(w, "no click")
 		return
-	}
-
-	urls, err := h.svc.Statistics(r.Context(), user.ID)
-	if err != nil {
-		log.Error("failed to get statistics", slog.Any("error", err))
-		http.Error(w, "failed to get statistics", http.StatusInternalServerError)
+	} else if url.NrVisited == 1 {
+		fmt.Fprintf(w, "1 click")
 		return
+	} else {
+		fmt.Fprintf(w, "%d clicks", url.NrVisited)
 	}
-
-	data := views.StatisticsPageData{
-		Autoreload: r.URL.Query().Get("autoreload") == "true",
-	}
-	for _, url := range urls {
-		data.Stats = append(data.Stats, views.URLStat{
-			Short:    url.Short,
-			Long:     url.Long,
-			NrVisite: strconv.Itoa(url.NrVisited),
-		})
-	}
-	Render(r.Context(), w, views.StatTable(data))
 }

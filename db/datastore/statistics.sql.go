@@ -83,26 +83,28 @@ func (q *Queries) InsertVisitLocation(ctx context.Context, arg InsertVisitLocati
 
 const listStatisticsPerAuthor = `-- name: ListStatisticsPerAuthor :many
 SELECT
-	count(v.id) as visits,
-	CAST(MIN(u.id) as INTEGER) as id,
+	count(v.id) as nr_visits,
+	MIN(u.id)::INTEGER as id,
 	u.short_url as short_url,
-	CAST(MIN(u.long_url) as TEXT) as long_url
+	MIN(u.long_url):: TEXT as long_url,
+	MIN(u.created_at)::TIMESTAMP as created_at
 FROM
 	urls u
 LEFT JOIN visits v ON u.id = v.url_id
 WHERE
 	u.author_id = $1
 GROUP BY
-	u.short_url
+	u.short_url, u.id
 ORDER BY
-	visits
+	u.id DESC
 `
 
 type ListStatisticsPerAuthorRow struct {
-	Visits   int64  `json:"visits"`
-	ID       int32  `json:"id"`
-	ShortUrl string `json:"short_url"`
-	LongUrl  string `json:"long_url"`
+	NrVisits  int64            `json:"nr_visits"`
+	ID        int32            `json:"id"`
+	ShortUrl  string           `json:"short_url"`
+	LongUrl   string           `json:"long_url"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, authorID pgtype.Int4) ([]ListStatisticsPerAuthorRow, error) {
@@ -115,10 +117,11 @@ func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, authorID pgtype.I
 	for rows.Next() {
 		var i ListStatisticsPerAuthorRow
 		if err := rows.Scan(
-			&i.Visits,
+			&i.NrVisits,
 			&i.ID,
 			&i.ShortUrl,
 			&i.LongUrl,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -160,6 +163,50 @@ func (q *Queries) ListVisits(ctx context.Context) ([]Visit, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const statisticPerURL = `-- name: StatisticPerURL :one
+SELECT
+	count(v.id) as nr_visits,
+	MIN(u.id)::INTEGER as id,
+	u.short_url as short_url,
+	MIN(u.long_url):: TEXT as long_url,
+	MIN(u.created_at)::TIMESTAMP as created_at
+FROM
+	urls u
+LEFT JOIN visits v ON u.id = v.url_id
+WHERE
+	u.short_url = $1
+	AND u.author_id = $2
+GROUP BY
+	u.short_url, u.id
+LIMIT 1
+`
+
+type StatisticPerURLParams struct {
+	ShortUrl string      `json:"short_url"`
+	AuthorID pgtype.Int4 `json:"author_id"`
+}
+
+type StatisticPerURLRow struct {
+	NrVisits  int64            `json:"nr_visits"`
+	ID        int32            `json:"id"`
+	ShortUrl  string           `json:"short_url"`
+	LongUrl   string           `json:"long_url"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+}
+
+func (q *Queries) StatisticPerURL(ctx context.Context, arg StatisticPerURLParams) (StatisticPerURLRow, error) {
+	row := q.db.QueryRow(ctx, statisticPerURL, arg.ShortUrl, arg.AuthorID)
+	var i StatisticPerURLRow
+	err := row.Scan(
+		&i.NrVisits,
+		&i.ID,
+		&i.ShortUrl,
+		&i.LongUrl,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const trackRedirect = `-- name: TrackRedirect :one

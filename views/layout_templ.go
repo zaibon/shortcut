@@ -38,8 +38,8 @@ func Layout() templ.Component {
 			HomeLogo: "static/img/logo.webp",
 			Links: []components.NarBarLink{
 				{
-					Name: "Statistics",
-					Href: "/statistics",
+					Name: "My Links",
+					Href: "/links",
 				},
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)

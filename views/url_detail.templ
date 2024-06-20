@@ -1,0 +1,13 @@
+package views
+
+type URLDetailPageData struct {
+	Stat URLStat
+}
+
+templ URLDetailPage(data URLDetailPageData) {
+	@Layout() {
+		<div class="flex flex-row">
+			<p>{ data.Stat.Short }</p>
+		</div>
+	}
+}

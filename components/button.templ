@@ -1,11 +1,26 @@
 package components
 
+import "fmt"
+
 type ButtonProp struct {
-	Type string
+	Type     string
+	WithIcon bool
+	Class    string
 }
 
+var (
+	buttonClass     = "text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+	iconButtonClass = "px-3 py-2 text-xs font-medium text-center inline-flex items-center rounded-lg"
+)
+
 templ Button(prop ButtonProp) {
-	<button type={ prop.Type } class="text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2  focus:outline-none">
-		{ children... }
-	</button>
+	if prop.WithIcon {
+		<button type={ prop.Type } class={ fmt.Sprintf("%s %s", iconButtonClass, prop.Class) }>
+			{ children... }
+		</button>
+	} else {
+		<button type={ prop.Type } class={ fmt.Sprintf("%s %s", iconButtonClass, prop.Class) }>
+			{ children... }
+		</button>
+	}
 }
