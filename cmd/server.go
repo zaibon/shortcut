@@ -16,9 +16,12 @@ import (
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 
 	"github.com/zaibon/shortcut/db"
+	"github.com/zaibon/shortcut/env"
 	"github.com/zaibon/shortcut/handlers"
+	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/services"
+	"github.com/zaibon/shortcut/services/geoip"
 	"github.com/zaibon/shortcut/static"
 )
 
@@ -44,13 +47,6 @@ var serverFlags = []cli.Flag{
 		EnvVars:     []string{"SHORTCUT_PORT"},
 		Destination: &c.Port,
 	},
-	// &cli.StringFlag{
-	// 	Name:        "redis",
-	// 	Usage:       "configuration string for redis server",
-	// 	Value:       "network=tcp,addr=:6379,db=0,pool_size=100,idle_timeout=180,prefix=session;",
-	// 	EnvVars:     []string{"SHORTCUT_REDIS"},
-	// 	Destination: &c.Redis,
-	// },
 	&cli.StringFlag{
 		Name:        "db-host",
 		Usage:       "database host",
@@ -86,12 +82,33 @@ var serverFlags = []cli.Flag{
 		EnvVars:     []string{"SHORTCUT_DB_NAME"},
 		Destination: &c.DBName,
 	},
+	&cli.StringFlag{
+		Name:        "geoip-bucket",
+		Usage:       "Google Cloud Storage bucket for GeoIP database",
+		Value:       "shortcut-geoip",
+		EnvVars:     []string{"SHORTCUT_GEOIP_BUCKET"},
+		Destination: &c.GeoIPBucket,
+	},
+	&cli.StringFlag{
+		Name:        "geoip-db-file",
+		Usage:       "GeoIP database file",
+		Value:       "GeoLite2-City.mmdb",
+		EnvVars:     []string{"SHORTCUT_GEOIP_DB_FILE"},
+		Destination: &c.GeoIPDBFile,
+	},
 }
 
 // runServer is the entry point of the application. It sets up the HTTP router, configures the database connection,
 // applies any necessary database migrations, creates the URL shortening service, and registers the request handlers.
 func runServer(c config) error {
 	ctx := context.Background()
+
+	if env.IsProd() {
+		if err := geoip.DownloadGeoIPDB(c.GeoIPBucket, c.GeoIPDBFile); err != nil {
+			log.Error("unable to download geoip database", "err", err)
+		}
+	}
+
 	dbPool, err := pgxpool.New(ctx, c.DBString())
 	if err != nil {
 		return fmt.Errorf("unable to connect to database: %v", err)
@@ -142,7 +159,7 @@ func runServer(c config) error {
 	})
 
 	listenAddr := fmt.Sprintf(":%d", c.Port)
-	fmt.Printf("Server is running on %s\n", listenAddr)
+	fmt.Printf("Server is running on %s in mode %s\n", listenAddr, env.Name())
 	if err := http.ListenAndServe(listenAddr, server); err != nil && err != http.ErrServerClosed {
 		return fmt.Errorf("HTTP server error: %w", err)
 	}

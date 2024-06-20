@@ -24,6 +24,9 @@ type config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+
+	GeoIPBucket string
+	GeoIPDBFile string
 }
 
 func (c config) DBString() string {

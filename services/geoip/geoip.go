@@ -1,10 +1,15 @@
 package geoip
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"os"
+
+	"cloud.google.com/go/storage"
 
 	_ "embed"
 
@@ -21,6 +26,39 @@ func init() {
 			log.Printf("failed to load geoip database: %v", err)
 		}
 	}
+	log.Printf("geoip database loaded")
+}
+
+func DownloadGeoIPDB(bucket, dbFile string) error {
+	ctx := context.Background()
+
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to create storage client: %w", err)
+	}
+
+	r, err := client.Bucket(bucket).Object(dbFile).NewReader(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to create storage reader: %w", err)
+	}
+
+	buf := bytes.Buffer{}
+
+	if _, err := io.Copy(&buf, r); err != nil {
+		_ = r.Close()
+		return fmt.Errorf("unable to copy file: %w", err)
+	}
+	_ = r.Close()
+
+	db, err = geo.FromBytes(buf.Bytes())
+	if err != nil {
+		log.Printf("failed to load geoip database: %v", err)
+	}
+	buf.Reset()
+
+	log.Printf("geoip database loaded")
+
+	return nil
 }
 
 type IPLocation struct {
