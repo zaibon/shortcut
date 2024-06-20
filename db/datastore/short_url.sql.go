@@ -7,24 +7,28 @@ package datastore
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addShortURL = `-- name: AddShortURL :one
-INSERT INTO urls (short_url, long_url, author_id) 
-VALUES ($1, $2, $3)
-RETURNING id, short_url, long_url, author_id, created_at
+INSERT INTO urls (title,short_url, long_url, author_id) 
+VALUES ($1, $2, $3, $4)
+RETURNING id, short_url, long_url, author_id, created_at, title
 `
 
 type AddShortURLParams struct {
-	ShortUrl string      `json:"short_url"`
-	LongUrl  string      `json:"long_url"`
-	AuthorID pgtype.Int4 `json:"author_id"`
+	Title    string `json:"title"`
+	ShortUrl string `json:"short_url"`
+	LongUrl  string `json:"long_url"`
+	AuthorID int32  `json:"author_id"`
 }
 
 func (q *Queries) AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error) {
-	row := q.db.QueryRow(ctx, addShortURL, arg.ShortUrl, arg.LongUrl, arg.AuthorID)
+	row := q.db.QueryRow(ctx, addShortURL,
+		arg.Title,
+		arg.ShortUrl,
+		arg.LongUrl,
+		arg.AuthorID,
+	)
 	var i Url
 	err := row.Scan(
 		&i.ID,
@@ -32,12 +36,13 @@ func (q *Queries) AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, 
 		&i.LongUrl,
 		&i.AuthorID,
 		&i.CreatedAt,
+		&i.Title,
 	)
 	return i, err
 }
 
 const getShortURL = `-- name: GetShortURL :one
-SELECT id, short_url, long_url, author_id, created_at
+SELECT id, short_url, long_url, author_id, created_at, title
 FROM urls
 WHERE urls.short_url = $1
 `
@@ -51,18 +56,19 @@ func (q *Queries) GetShortURL(ctx context.Context, shortUrl string) (Url, error)
 		&i.LongUrl,
 		&i.AuthorID,
 		&i.CreatedAt,
+		&i.Title,
 	)
 	return i, err
 }
 
 const listShortURLs = `-- name: ListShortURLs :many
-SELECT id, short_url, long_url, author_id, created_at
+SELECT id, short_url, long_url, author_id, created_at, title
 FROM urls
 WHERE urls.author_id = $1
 ORDER BY id DESC
 `
 
-func (q *Queries) ListShortURLs(ctx context.Context, authorID pgtype.Int4) ([]Url, error) {
+func (q *Queries) ListShortURLs(ctx context.Context, authorID int32) ([]Url, error) {
 	rows, err := q.db.Query(ctx, listShortURLs, authorID)
 	if err != nil {
 		return nil, err
@@ -77,6 +83,7 @@ func (q *Queries) ListShortURLs(ctx context.Context, authorID pgtype.Int4) ([]Ur
 			&i.LongUrl,
 			&i.AuthorID,
 			&i.CreatedAt,
+			&i.Title,
 		); err != nil {
 			return nil, err
 		}

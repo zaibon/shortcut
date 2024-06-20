@@ -4,6 +4,7 @@ import "time"
 
 type URL struct {
 	ID        ID
+	Title     string
 	Long      string
 	Short     string
 	Slug      string

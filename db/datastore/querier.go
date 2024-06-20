@@ -6,8 +6,6 @@ package datastore
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
@@ -16,8 +14,8 @@ type Querier interface {
 	GetUser(ctx context.Context, email string) (User, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
 	InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error)
-	ListShortURLs(ctx context.Context, authorID pgtype.Int4) ([]Url, error)
-	ListStatisticsPerAuthor(ctx context.Context, authorID pgtype.Int4) ([]ListStatisticsPerAuthorRow, error)
+	ListShortURLs(ctx context.Context, authorID int32) ([]Url, error)
+	ListStatisticsPerAuthor(ctx context.Context, authorID int32) ([]ListStatisticsPerAuthorRow, error)
 	ListVisits(ctx context.Context) ([]Visit, error)
 	StatisticPerURL(ctx context.Context, arg StatisticPerURLParams) (StatisticPerURLRow, error)
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)

@@ -14,10 +14,10 @@ import "github.com/zaibon/shortcut/components/icons"
 import "fmt"
 
 type LinkCardData struct {
-	Short     string
-	Long      string
 	Title     string
 	Slug      string
+	Long      string
+	Short     string
 	CreatedAt string
 }
 

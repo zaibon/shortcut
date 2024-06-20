@@ -86,6 +86,7 @@ SELECT
 	count(v.id) as nr_visits,
 	MIN(u.id)::INTEGER as id,
 	u.short_url as short_url,
+	MIN(u.title):: TEXT as title,
 	MIN(u.long_url):: TEXT as long_url,
 	MIN(u.created_at)::TIMESTAMP as created_at
 FROM
@@ -103,11 +104,12 @@ type ListStatisticsPerAuthorRow struct {
 	NrVisits  int64            `json:"nr_visits"`
 	ID        int32            `json:"id"`
 	ShortUrl  string           `json:"short_url"`
+	Title     string           `json:"title"`
 	LongUrl   string           `json:"long_url"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
-func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, authorID pgtype.Int4) ([]ListStatisticsPerAuthorRow, error) {
+func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, authorID int32) ([]ListStatisticsPerAuthorRow, error) {
 	rows, err := q.db.Query(ctx, listStatisticsPerAuthor, authorID)
 	if err != nil {
 		return nil, err
@@ -120,6 +122,7 @@ func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, authorID pgtype.I
 			&i.NrVisits,
 			&i.ID,
 			&i.ShortUrl,
+			&i.Title,
 			&i.LongUrl,
 			&i.CreatedAt,
 		); err != nil {
@@ -170,6 +173,7 @@ SELECT
 	count(v.id) as nr_visits,
 	MIN(u.id)::INTEGER as id,
 	u.short_url as short_url,
+	MIN(u.title):: TEXT as title,
 	MIN(u.long_url):: TEXT as long_url,
 	MIN(u.created_at)::TIMESTAMP as created_at
 FROM
@@ -184,14 +188,15 @@ LIMIT 1
 `
 
 type StatisticPerURLParams struct {
-	ShortUrl string      `json:"short_url"`
-	AuthorID pgtype.Int4 `json:"author_id"`
+	ShortUrl string `json:"short_url"`
+	AuthorID int32  `json:"author_id"`
 }
 
 type StatisticPerURLRow struct {
 	NrVisits  int64            `json:"nr_visits"`
 	ID        int32            `json:"id"`
 	ShortUrl  string           `json:"short_url"`
+	Title     string           `json:"title"`
 	LongUrl   string           `json:"long_url"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
@@ -203,6 +208,7 @@ func (q *Queries) StatisticPerURL(ctx context.Context, arg StatisticPerURLParams
 		&i.NrVisits,
 		&i.ID,
 		&i.ShortUrl,
+		&i.Title,
 		&i.LongUrl,
 		&i.CreatedAt,
 	)
@@ -216,7 +222,7 @@ RETURNING id, url_id, visited_at, ip_address, user_agent
 `
 
 type TrackRedirectParams struct {
-	UrlID     pgtype.Int4 `json:"url_id"`
+	UrlID     int32       `json:"url_id"`
 	IpAddress pgtype.Text `json:"ip_address"`
 	UserAgent pgtype.Text `json:"user_agent"`
 }

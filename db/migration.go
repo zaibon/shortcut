@@ -3,10 +3,8 @@ package db
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pressly/goose/v3"
 
 	_ "github.com/zaibon/shortcut/db/migrations"
@@ -16,22 +14,8 @@ type Migration struct {
 	db *sql.DB
 }
 
-func NewMigration(pool *pgxpool.Pool) (*Migration, error) {
-	if pool == nil {
-		return &Migration{}, errors.New("pool is nil")
-	}
-
+func NewMigration(db *sql.DB) (*Migration, error) {
 	goose.SetBaseFS(migrationsFS)
-
-	if err := goose.SetDialect("postgres"); err != nil {
-		return &Migration{}, err
-	}
-
-	cp := pool.Config().ConnConfig.ConnString()
-	db, err := sql.Open("pgx/v5", cp)
-	if err != nil {
-		return &Migration{}, err
-	}
 
 	return &Migration{db: db}, nil
 }
@@ -43,22 +27,8 @@ func (m *Migration) Run(ctx context.Context, command string, args ...string) err
 	return nil
 }
 
-func (m *Migration) Up(ctx context.Context) error {
-	if err := goose.UpContext(ctx, m.db, "migrations"); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *Migration) Down(ctx context.Context) error {
-	if err := goose.DownContext(ctx, m.db, "migrations"); err != nil {
-		return err
-	}
-	return nil
-}
-
-func MigrateCmd(ctx context.Context, pool *pgxpool.Pool, command string, args ...string) error {
-	m, err := NewMigration(pool)
+func MigrateCmd(ctx context.Context, db *sql.DB, command string, args ...string) error {
+	m, err := NewMigration(db)
 	if err != nil {
 		return fmt.Errorf("unable to create migration: %v", err)
 	}
