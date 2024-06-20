@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
@@ -83,7 +84,11 @@ func (s *shortURL) TrackRedirect(ctx context.Context, urlID domain.ID, r *http.R
 		return fmt.Errorf("failed to track redirect: %w", err)
 	}
 
-	loc, err := geoip.Country(ipAddress)
+	if strings.Contains(ipAddress, ",") {
+		ipAddress = strings.Split(ipAddress, ",")[0]
+	}
+
+	loc, err := geoip.Locate(ipAddress)
 	if err != nil {
 		log.Warn("failed to get country", "err", err, "ip", ipAddress)
 		return nil

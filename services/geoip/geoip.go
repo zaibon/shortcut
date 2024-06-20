@@ -37,7 +37,7 @@ type IPLocation struct {
 
 var ErrInvalidIP = fmt.Errorf("invalid ip address")
 
-func Country(ip string) (IPLocation, error) {
+func Locate(ip string) (IPLocation, error) {
 	if db == nil {
 		return IPLocation{}, fmt.Errorf("geoip database not loaded")
 	}

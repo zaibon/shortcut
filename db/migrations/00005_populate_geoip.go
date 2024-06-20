@@ -39,7 +39,7 @@ func upPopulateGeoip(ctx context.Context, store datastore.Querier) error {
 		host := row.IpAddress.String
 
 		log.Printf("search location for ip %s", host)
-		loc, err := geoip.Country(host)
+		loc, err := geoip.Locate(host)
 		if err != nil {
 			log.Printf("failed to get country for ip %s: %v", host, err)
 			continue
