@@ -18,7 +18,7 @@ import (
 const idLength = 6 //TODO: make this dynamic by reading the amount of url stored in DB.
 
 type URLStore interface {
-	Add(ctx context.Context, shortURL, longURL string, authorID domain.ID) (domain.ID, error)
+	Add(ctx context.Context, title, shortURL, longURL string, authorID domain.ID) (domain.ID, error)
 	List(ctx context.Context, authorID domain.ID) ([]datastore.Url, error)
 	Get(ctx context.Context, shortID string) (datastore.Url, error)
 	TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error)
@@ -40,16 +40,18 @@ func NewShortURL(repo URLStore, shortDomain string) *shortURL {
 }
 
 func (s *shortURL) Shorten(ctx context.Context, url string, userID domain.ID) (string, error) {
-	id, err := generateShortID(idLength)
+	shortURL, err := generateShortID(idLength)
 	if err != nil {
 		return "", err
 	}
 
-	if _, err := s.repo.Add(ctx, id, url, domain.ID(userID)); err != nil {
+	title := ExtractTitle(url)
+
+	if _, err := s.repo.Add(ctx, title, shortURL, url, domain.ID(userID)); err != nil {
 		return "", err
 	}
 
-	return s.toURL(id), nil
+	return s.toURL(shortURL), nil
 }
 
 func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]domain.URL, error) {
@@ -59,7 +61,13 @@ func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]domain.URL, 
 	}
 	urls := make([]domain.URL, len(rows))
 	for i, v := range rows {
+		if v.Title == "" {
+			if u, err := url.Parse(v.LongUrl); err == nil {
+				v.Title = u.Host
+			}
+		}
 		urls[i] = domain.URL{
+			Title:     v.Title,
 			ID:        domain.ID(v.ID),
 			Long:      v.LongUrl,
 			Short:     s.toURL(v.ShortUrl),
@@ -118,6 +126,7 @@ func (s *shortURL) Statistics(ctx context.Context, authorID domain.ID) ([]domain
 	for i, r := range rows {
 		stats[i] = domain.URLStat{
 			URL: domain.URL{
+				Title: r.Title,
 				ID:    domain.ID(r.ID),
 				Slug:  r.ShortUrl,
 				Long:  r.LongUrl,

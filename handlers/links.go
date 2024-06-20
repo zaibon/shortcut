@@ -29,6 +29,7 @@ func (h *Handler) myLinks(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, url := range urls {
 		data.URLs = append(data.URLs, views.URLStat{
+			Title:     url.Title,
 			Slug:      url.Slug,
 			Short:     url.Short,
 			Long:      url.Long,

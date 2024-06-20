@@ -18,8 +18,9 @@ type Url struct {
 	ID        int32            `json:"id"`
 	ShortUrl  string           `json:"short_url"`
 	LongUrl   string           `json:"long_url"`
-	AuthorID  pgtype.Int4      `json:"author_id"`
+	AuthorID  int32            `json:"author_id"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
+	Title     string           `json:"title"`
 }
 
 type User struct {
@@ -33,7 +34,7 @@ type User struct {
 
 type Visit struct {
 	ID        int32            `json:"id"`
-	UrlID     pgtype.Int4      `json:"url_id"`
+	UrlID     int32            `json:"url_id"`
 	VisitedAt pgtype.Timestamp `json:"visited_at"`
 	IpAddress pgtype.Text      `json:"ip_address"`
 	UserAgent pgtype.Text      `json:"user_agent"`

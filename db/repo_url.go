@@ -21,14 +21,12 @@ func NewURLStore(db datastore.DBTX) *urlStore {
 	}
 }
 
-func (s *urlStore) Add(ctx context.Context, shortURL, longURL string, authorID domain.ID) (domain.ID, error) {
+func (s *urlStore) Add(ctx context.Context, title, shortURL, longURL string, authorID domain.ID) (domain.ID, error) {
 	url, err := s.db.AddShortURL(ctx, datastore.AddShortURLParams{
+		Title:    title,
 		ShortUrl: shortURL,
 		LongUrl:  longURL,
-		AuthorID: pgtype.Int4{
-			Int32: int32(authorID),
-			Valid: true,
-		},
+		AuthorID: int32(authorID),
 	})
 	if err != nil {
 		return 0, fmt.Errorf("failed to add shorten url: %w", err)
@@ -37,10 +35,7 @@ func (s *urlStore) Add(ctx context.Context, shortURL, longURL string, authorID d
 }
 
 func (s *urlStore) List(ctx context.Context, authorID domain.ID) ([]datastore.Url, error) {
-	rows, err := s.db.ListShortURLs(ctx, pgtype.Int4{
-		Int32: int32(authorID),
-		Valid: true,
-	})
+	rows, err := s.db.ListShortURLs(ctx, int32(authorID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to list shorten urls: %w", err)
 	}
@@ -58,10 +53,7 @@ func (s *urlStore) Get(ctx context.Context, shortID string) (datastore.Url, erro
 
 func (s urlStore) TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error) {
 	visit, err := s.db.TrackRedirect(ctx, datastore.TrackRedirectParams{
-		UrlID: pgtype.Int4{
-			Int32: int32(urlID),
-			Valid: urlID != 0,
-		},
+		UrlID: int32(urlID),
 		IpAddress: pgtype.Text{
 			String: ipAddress,
 			Valid:  ipAddress != "",
@@ -121,10 +113,7 @@ func (s urlStore) InsertVisitLocation(ctx context.Context, visitID domain.ID, lo
 }
 
 func (s urlStore) Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error) {
-	rows, err := s.db.ListStatisticsPerAuthor(ctx, pgtype.Int4{
-		Int32: int32(authorID),
-		Valid: true,
-	})
+	rows, err := s.db.ListStatisticsPerAuthor(ctx, int32(authorID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to list statistics: %w", err)
 	}
@@ -135,10 +124,7 @@ func (s urlStore) Statistics(ctx context.Context, authorID domain.ID) ([]datasto
 func (s urlStore) StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error) {
 	row, err := s.db.StatisticPerURL(ctx, datastore.StatisticPerURLParams{
 		ShortUrl: slug,
-		AuthorID: pgtype.Int4{
-			Int32: int32(authorID),
-			Valid: true,
-		},
+		AuthorID: int32(authorID),
 	})
 	if err != nil {
 		return domain.URLStat{}, fmt.Errorf("failed to get statistics: %w", err)

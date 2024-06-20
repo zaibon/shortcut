@@ -20,6 +20,7 @@ type MyLinkPageData struct {
 }
 
 type URLStat struct {
+	Title     string
 	Slug      string
 	Short     string
 	Long      string
@@ -89,9 +90,9 @@ func MyLinksPage(data MyLinkPageData) templ.Component {
 			}
 			for _, url := range data.URLs {
 				templ_7745c5c3_Err = components.LinkCard(components.LinkCardData{
+					Title:     url.Title,
 					Short:     url.Short,
 					Long:      url.Long,
-					Title:     "My super title",
 					CreatedAt: url.CreatedAt,
 					Slug:      url.Slug,
 				}).Render(ctx, templ_7745c5c3_Buffer)

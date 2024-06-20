@@ -35,6 +35,7 @@ SELECT
 	count(v.id) as nr_visits,
 	MIN(u.id)::INTEGER as id,
 	u.short_url as short_url,
+	MIN(u.title):: TEXT as title,
 	MIN(u.long_url):: TEXT as long_url,
 	MIN(u.created_at)::TIMESTAMP as created_at
 FROM
@@ -52,6 +53,7 @@ SELECT
 	count(v.id) as nr_visits,
 	MIN(u.id)::INTEGER as id,
 	u.short_url as short_url,
+	MIN(u.title):: TEXT as title,
 	MIN(u.long_url):: TEXT as long_url,
 	MIN(u.created_at)::TIMESTAMP as created_at
 FROM
