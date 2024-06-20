@@ -6,6 +6,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.head_ref != '' }}
+
 jobs:
   build-container:
     runs-on: "ubuntu-latest"
@@ -51,6 +55,7 @@ jobs:
           docker push ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_NAME }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
   
   deploy-cloudrun:
+    needs: build-container
     runs-on: "ubuntu-latest"
     permissions:
       contents: "read"
