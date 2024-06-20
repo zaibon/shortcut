@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/urfave/cli/v2"
 
 	"github.com/zaibon/shortcut/db"
@@ -57,5 +58,10 @@ func runMigration(cCtx *cli.Context, c config) error {
 	}
 	defer dbPool.Close()
 
-	return db.MigrateCmd(ctx, dbPool, cCtx.Args().First(), cCtx.Args().Tail()...)
+	dbConn := stdlib.OpenDBFromPool(dbPool)
+	if err := dbConn.Ping(); err != nil {
+		return fmt.Errorf("unable to connect to database: %v", err)
+	}
+
+	return db.MigrateCmd(ctx, dbConn, cCtx.Args().First(), cCtx.Args().Tail()...)
 }
