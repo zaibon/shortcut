@@ -5,7 +5,8 @@ import "github.com/zaibon/shortcut/domain"
 type EditAccountFormData struct {
 	User *domain.User
 
-	Alerts AlertListData
+	Alerts   AlertListData
+	Disabled bool
 }
 
 templ EditAccountForm(data EditAccountFormData) {
@@ -20,11 +21,19 @@ templ EditAccountForm(data EditAccountFormData) {
 			<h1 class="text-lg text-gray-500 font-semibold">Account</h1>
 			<span class="text-gray-300">Edit your information</span>
 		</div>
-		@InputText(InputTextProp{Type: "text", Name: "name", Label: "Your full name", PlaceHolder: "Jane Doe", Value: data.User.Name, Required: true})
-		@InputText(InputTextProp{Type: "email", Name: "email", Label: "Your email", PlaceHolder: "jane.doe@mail.com", Value: data.User.Email, Required: true})
+		@InputText(InputTextProp{Type: "text", Name: "name", Label: "Your full name", PlaceHolder: "Jane Doe", Value: data.User.Name, Required: true, Disabled: data.Disabled})
+		@InputText(InputTextProp{Type: "email", Name: "email", Label: "Your email", PlaceHolder: "jane.doe@mail.com", Value: data.User.Email, Required: true, Disabled: data.Disabled})
 		@AlertList(data.Alerts)
-		<button id="submit-btn" class="text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center">Submit</button>
+		@show(!data.Disabled) {
+			<button id="submit-btn" class="text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center">Submit</button>
+		}
 	</form>
+}
+
+templ show(show bool) {
+	if show {
+		{ children... }
+	}
 }
 
 type EditPasswordFormData struct {

@@ -45,15 +45,23 @@ func MyAccount(data MyAccountData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = components.EditAccountForm(components.EditAccountFormData{
-				User:   data.User,
-				Alerts: data.EditAlerts,
+				User:     data.User,
+				Alerts:   data.EditAlerts,
+				Disabled: data.User.IsOauth,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.EditPasswordForm(data.EditPasswordData).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+			if !data.User.IsOauth {
+				templ_7745c5c3_Err = components.EditPasswordForm(data.EditPasswordData).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full md:w-1/3 mx-auto\"><div class=\"bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded relative text-center\" role=\"alert\"><strong class=\"font-bold\">Warning!</strong> <span class=\"block sm:inline\">You are using an OAuth account, you can't change your password here.</span></div></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div>")
 			if templ_7745c5c3_Err != nil {

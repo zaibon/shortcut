@@ -9,12 +9,12 @@ cmd = "just build-dev"
 delay = 1000
 exclude_dir = ["assets", "tmp", "vendor", "testdata", "db/datastore"]
 exclude_file = []
-exclude_regex = ["_test.go", ".*_templ.go"]
+exclude_regex = ["_test.go"]
 exclude_unchanged = false
 follow_symlink = false
 full_bin = ""
 include_dir = []
-include_ext = ["go", "templ", "html", "sql"]
+include_ext = ["go", "html", "sql"]
 kill_delay = "0s"
 log = "build-errors.log"
 send_interrupt = false
@@ -28,6 +28,7 @@ runner = "green"
 watcher = "cyan"
 
 [log]
+main_only = true
 time = false
 
 [misc]

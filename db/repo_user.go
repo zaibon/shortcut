@@ -31,6 +31,19 @@ func (s *userStore) InsertUser(ctx context.Context, user datastore.InsertUserPar
 	return nil
 }
 
+func (s *userStore) InsertUserOauth(ctx context.Context, user datastore.InsertUserOauthParams) error {
+	_, err := s.db.InsertUserOauth(ctx, user)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to insert user %s: %w",
+			user.Username,
+			err,
+		)
+	}
+
+	return nil
+}
+
 func (s *userStore) UpdateUser(ctx context.Context, id domain.ID, user *domain.User) (*domain.User, error) {
 	row, err := s.db.UpdateUser(ctx, datastore.UpdateUserParams{
 		Username: user.Name,
@@ -81,4 +94,12 @@ func (s *userStore) GetUser(ctx context.Context, email string) (datastore.User, 
 	}
 
 	return row, nil
+}
+
+func (s *userStore) InsertOauthState(ctx context.Context, state string) error {
+	return s.db.InsertOauth2State(ctx, state)
+}
+
+func (s *userStore) GetOauthState(ctx context.Context, state string) (datastore.Oauth2State, error) {
+	return s.db.GetOauth2State(ctx, state)
 }

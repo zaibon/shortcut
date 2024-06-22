@@ -26,14 +26,20 @@ build: generate fmt
 build-linux: generate fmt
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/shortcut-linux cmd/*.go
 
-build-dev:
+build-dev: 
     CGO_ENABLED=0 go build -tags=dev -o bin/shortcut cmd/*.go
 
 run: build
     ./bin/shortcut
 
-db action: build
-    ./bin/shortcut migrate --db shortcut.db --migration-dir db/migrations {{ action }}
+db-migrate action: build
+    ./bin/shortcut migrate {{ action }}
+
+db-create-migration name type:
+    goose -dir=db/migrations create {{ name }} {{ type }}
+
+db-fix:
+    goose -dir=db/migrations fix
 
 test: generate
     go test -v ./...

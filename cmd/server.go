@@ -100,6 +100,27 @@ var serverFlags = []cli.Flag{
 		EnvVars:     []string{"SHORTCUT_GEOIP_DB_FILE"},
 		Destination: &c.GeoIPDBFile,
 	},
+	&cli.BoolFlag{
+		Name:        "dev",
+		Usage:       "Force dev mode",
+		Value:       false,
+		EnvVars:     []string{"SHORTCUT_DEV_MODE"},
+		Destination: &c.ForceDev,
+	},
+	&cli.StringFlag{
+		Name:        "google-oauth-client-id",
+		Usage:       "Google OAuth client ID",
+		Value:       "",
+		EnvVars:     []string{"SHORTCUT_GOOGLE_OAUTH_CLIENT_ID"},
+		Destination: &c.GoogleOauthClientID,
+	},
+	&cli.StringFlag{
+		Name:        "google-oauth-secret",
+		Usage:       "Google OAuth secret",
+		Value:       "",
+		EnvVars:     []string{"SHORTCUT_GOOGLE_OAUTH_SECRET"},
+		Destination: &c.GoogleOauthSecret,
+	},
 }
 
 func listenSignals(ctx context.Context, c config, f func(context.Context, config) error, sig ...os.Signal) error {
@@ -131,7 +152,7 @@ func listenSignals(ctx context.Context, c config, f func(context.Context, config
 // runServer is the entry point of the application. It sets up the HTTP router, configures the database connection,
 // applies any necessary database migrations, creates the URL shortening service, and registers the request handlers.
 func runServer(ctx context.Context, c config) error {
-	if env.IsProd() {
+	if env.IsProd() && !c.ForceDev {
 		if err := geoip.DownloadGeoIPDB(c.GeoIPBucket, c.GeoIPDBFile); err != nil {
 			log.Error("unable to download geoip database", "err", err)
 		}
@@ -149,7 +170,7 @@ func runServer(ctx context.Context, c config) error {
 
 	// services
 	shortURL := services.NewShortURL(urlStore, c.redirectURL())
-	userService := services.NewUser(userStore)
+	userService := services.NewUser(userStore, c.Domain, c.TLS, c.GoogleOauthClientID, c.GoogleOauthSecret)
 
 	// HTTP handlers
 	urlHandlers := handlers.NewURLHandlers(shortURL)

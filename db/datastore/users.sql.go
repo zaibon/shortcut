@@ -9,8 +9,23 @@ import (
 	"context"
 )
 
+const getOauth2State = `-- name: GetOauth2State :one
+SELECT state, created_at, expire_at
+FROM oauth2_state
+WHERE state = $1
+AND expire_at > CURRENT_TIMESTAMP
+LIMIT 1
+`
+
+func (q *Queries) GetOauth2State(ctx context.Context, state string) (Oauth2State, error) {
+	row := q.db.QueryRow(ctx, getOauth2State, state)
+	var i Oauth2State
+	err := row.Scan(&i.State, &i.CreatedAt, &i.ExpireAt)
+	return i, err
+}
+
 const getUser = `-- name: GetUser :one
-SELECT id, username, email, password, created_at, password_salt
+SELECT id, username, email, password, created_at, password_salt, is_oauth
 FROM users
 WHERE users.email = $1
 LIMIT 1
@@ -26,14 +41,25 @@ func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
 		&i.Password,
 		&i.CreatedAt,
 		&i.PasswordSalt,
+		&i.IsOauth,
 	)
 	return i, err
 }
 
+const insertOauth2State = `-- name: InsertOauth2State :exec
+INSERT INTO oauth2_state (state)
+VALUES ($1)
+`
+
+func (q *Queries) InsertOauth2State(ctx context.Context, state string) error {
+	_, err := q.db.Exec(ctx, insertOauth2State, state)
+	return err
+}
+
 const insertUser = `-- name: InsertUser :one
-INSERT INTO users (username, email, password,password_salt)
+INSERT INTO users (username, email, password, password_salt)
 VALUES ($1, $2, $3, $4)
-RETURNING id, username, email, password, created_at, password_salt
+RETURNING id, username, email, password, created_at, password_salt, is_oauth
 `
 
 type InsertUserParams struct {
@@ -58,6 +84,33 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 		&i.Password,
 		&i.CreatedAt,
 		&i.PasswordSalt,
+		&i.IsOauth,
+	)
+	return i, err
+}
+
+const insertUserOauth = `-- name: InsertUserOauth :one
+INSERT INTO users (username, email, is_oauth)
+VALUES ($1, $2, true)
+RETURNING id, username, email, password, created_at, password_salt, is_oauth
+`
+
+type InsertUserOauthParams struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+func (q *Queries) InsertUserOauth(ctx context.Context, arg InsertUserOauthParams) (User, error) {
+	row := q.db.QueryRow(ctx, insertUserOauth, arg.Username, arg.Email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Password,
+		&i.CreatedAt,
+		&i.PasswordSalt,
+		&i.IsOauth,
 	)
 	return i, err
 }
@@ -83,7 +136,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET username = $1, email = $2
 WHERE id = $3
-RETURNING id, username, email, password, created_at, password_salt
+RETURNING id, username, email, password, created_at, password_salt, is_oauth
 `
 
 type UpdateUserParams struct {
@@ -102,6 +155,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Password,
 		&i.CreatedAt,
 		&i.PasswordSalt,
+		&i.IsOauth,
 	)
 	return i, err
 }
