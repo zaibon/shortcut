@@ -100,7 +100,7 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	toast.Success(w, "Success", fmt.Sprintf("URL shortened to %s", short))
+	toast.Success(w, "Success", fmt.Sprintf("URL shortened to %s", short), `<a href="/links"></a>`)
 	Render(r.Context(), w, components.IndexForm(components.FormData{}))
 	Render(r.Context(), w, components.AddedURL(short))
 }

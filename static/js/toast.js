@@ -9,16 +9,18 @@ function onMakeToast(e) {
     const level = e.detail.level;
     const message = e.detail.message;
     const title = e.detail.title;
+    const customWrapper = e.detail.customWrapper;
 
     new Notify({
         title: title,
         text: message,
         status: level,
+        customWrapper: customWrapper ? customWrapper : null,
 
         showIcon: true,
         showCloseButton: true,
-        autoclose: true,
-        autotimeout: 3000,
+        autoclose: false,
+        // autotimeout: 3000,
         gap: 20,
         distance: 20,
         type: 'outline',
