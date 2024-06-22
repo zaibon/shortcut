@@ -39,12 +39,12 @@ func Success(w http.ResponseWriter, title, message string, customWrapper ...stri
 	New(SUCCESS, title, message).SetHXTriggerHeader(w)
 }
 
-func Warning(w http.ResponseWriter, title, message string, customWrapper ...string)  {
-	 New(WARNING, title, message).SetHXTriggerHeader(w)
+func Warning(w http.ResponseWriter, title, message string, customWrapper ...string) {
+	New(WARNING, title, message).SetHXTriggerHeader(w)
 }
 
-func Danger(w http.ResponseWriter, title, message string, customWrapper ...string)  {
-	 New(DANGER, title, message).SetHXTriggerHeader(w)
+func Danger(w http.ResponseWriter, title, message string, customWrapper ...string) {
+	New(DANGER, title, message).SetHXTriggerHeader(w)
 }
 
 func (t Toast) jsonify() (string, error) {

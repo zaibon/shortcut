@@ -8,6 +8,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Oauth2State struct {
+	State     string           `json:"state"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	ExpireAt  pgtype.Timestamp `json:"expire_at"`
+}
+
 type Session struct {
 	Key    string      `json:"key"`
 	Data   []byte      `json:"data"`
@@ -30,6 +36,7 @@ type User struct {
 	Password     []byte           `json:"password"`
 	CreatedAt    pgtype.Timestamp `json:"created_at"`
 	PasswordSalt []byte           `json:"password_salt"`
+	IsOauth      pgtype.Bool      `json:"is_oauth"`
 }
 
 type Visit struct {

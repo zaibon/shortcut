@@ -11,7 +11,10 @@
             "mode": "auto",
             "program": "cmd/",
             "cwd": "${workspaceFolder}",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "args": [
+                "--dev"
+            ]
         },
         {
             "name": "migrate",

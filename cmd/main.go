@@ -29,6 +29,11 @@ type config struct {
 
 	GeoIPBucket string
 	GeoIPDBFile string
+
+	ForceDev bool
+
+	GoogleOauthClientID string
+	GoogleOauthSecret   string
 }
 
 func (c config) DBString() string {

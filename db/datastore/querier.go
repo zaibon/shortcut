@@ -10,9 +10,12 @@ import (
 
 type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
+	GetOauth2State(ctx context.Context, state string) (Oauth2State, error)
 	GetShortURL(ctx context.Context, shortUrl string) (Url, error)
 	GetUser(ctx context.Context, email string) (User, error)
+	InsertOauth2State(ctx context.Context, state string) error
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
+	InsertUserOauth(ctx context.Context, arg InsertUserOauthParams) (User, error)
 	InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error)
 	ListShortURLs(ctx context.Context, authorID int32) ([]Url, error)
 	ListStatisticsPerAuthor(ctx context.Context, authorID int32) ([]ListStatisticsPerAuthorRow, error)

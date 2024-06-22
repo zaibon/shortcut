@@ -3,13 +3,18 @@ package views
 import "github.com/zaibon/shortcut/components"
 
 type LoginPageData struct {
-	FormData components.LoginFormData
+	FormData       components.LoginFormData
 }
 
 templ LoginPage(data LoginPageData) {
 	@Layout() {
 		<div class="grow flex flex-row justify-center items-center">
 			@components.LoginForm(data.FormData)
+		</div>
+		<div>
+			<span>
+				Don’t have an account yet? <a href="/sign-up">Sign up </a>
+			</span>
 		</div>
 	}
 }

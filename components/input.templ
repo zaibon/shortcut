@@ -8,6 +8,7 @@ type InputTextProp struct {
 	PlaceHolder string
 	Required    bool
 	Error       error
+	Disabled    bool
 }
 
 templ InputText(prop InputTextProp) {
@@ -25,9 +26,8 @@ templ InputText(prop InputTextProp) {
 			if prop.PlaceHolder!="" {
 				placeholder={ prop.PlaceHolder }
 			}
-			if prop.Required {
-				required
-			}
+			required?={ prop.Required }
+			disabled?={ prop.Disabled }
 			if prop.Value!="" {
 				value={ prop.Value }
 			}

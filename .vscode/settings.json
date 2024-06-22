@@ -1,4 +1,8 @@
 {
+    // "files.exclude": {
+    //     "**/*_templ.go": true,
+    //     "**/*_templ.txt": true,
+    // },
     "editor.formatOnSave": true,
     "[templ]": {
         "editor.defaultFormatter": "a-h.templ"

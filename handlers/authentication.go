@@ -22,6 +22,11 @@ type AuthService interface {
 	UpdateUser(ctx context.Context, id domain.ID, user *domain.User) (*domain.User, error)
 	UpdatePassword(ctx context.Context, id domain.ID, password string) error
 	VerifyLogin(ctx context.Context, email, password string) (*domain.User, error)
+
+	// oauth
+	InitiateOauthFlow(ctx context.Context) (string, error)
+	IdentifyOauthUser(ctx context.Context, code string) (*domain.User, error)
+	VerifyOauthState(ctx context.Context, state string) (bool, error)
 }
 
 type UsersHandler struct {
@@ -35,8 +40,16 @@ func NewUsersHandler(svc AuthService) *UsersHandler {
 }
 
 func (h *UsersHandler) Routes(r chi.Router) {
+	// user/password auth
 	r.Get("/login", h.loginPage)
 	r.Get("/sign-up", h.signUp)
+	r.Post("/auth/register", h.register)
+	r.Post("/auth/login", h.login)
+	r.Get("/logout", h.logout)
+
+	// oauth
+	r.Get("/oauth/callback", h.oauthCallback)
+	r.Get("/oauth/login", h.initiateGoogleOauthFlow)
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticated)
@@ -45,10 +58,6 @@ func (h *UsersHandler) Routes(r chi.Router) {
 		r.Post("/auth/edit-account", h.editAccount)
 		r.Post("/auth/edit-password", h.editPassword)
 	})
-
-	r.Post("/auth/register", h.register)
-	r.Post("/auth/login", h.login)
-	r.Get("/logout", h.logout)
 }
 
 func (h *UsersHandler) loginPage(w http.ResponseWriter, r *http.Request) {
@@ -299,6 +308,57 @@ func (h *UsersHandler) editPassword(w http.ResponseWriter, r *http.Request) {
 	toast.Success(w, "Password updated", "Your password has been updated successfully")
 	w.Header().Set("HX-Reswap", "none")
 	Render(r.Context(), w, components.EditPasswordForm(components.EditPasswordFormData{}))
+}
+
+func (h *UsersHandler) initiateGoogleOauthFlow(w http.ResponseWriter, r *http.Request) {
+	authURL, err := h.svc.InitiateOauthFlow(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, authURL, http.StatusFound)
+}
+
+func (h *UsersHandler) oauthCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	state := r.URL.Query().Get("state")
+	if code == "" {
+		http.Error(w, "code is required", http.StatusBadRequest)
+		return
+	}
+	if state == "" {
+		http.Error(w, "state is required", http.StatusBadRequest)
+		return
+	}
+
+	isValid, err := h.svc.VerifyOauthState(r.Context(), state)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !isValid {
+		http.Error(w, "invalid state", http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.svc.IdentifyOauthUser(r.Context(), code)
+	if err != nil {
+		w.WriteHeader(ErrorStatus(err))
+		Render(r.Context(), w, components.LoginForm(components.LoginFormData{
+			Alerts: components.AlertListData{
+				Alerts: []components.Alert{loginAlerts(err)},
+			},
+		}))
+		return
+	}
+
+	if err := session.GetSession(r).Set("user", user); err != nil {
+		http.Error(w, "unexpected error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func loginAlerts(err error) components.Alert {
