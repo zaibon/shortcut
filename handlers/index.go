@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/samber/lo"
 
 	"github.com/zaibon/shortcut/components"
 	"github.com/zaibon/shortcut/domain"
@@ -55,18 +54,6 @@ func (h *Handler) Routes(r chi.Router) {
 
 func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
 	data := views.IndexPageData{}
-
-	urls, err := h.svc.List(r.Context(), 1)
-	if err != nil {
-		log.Error("failed to list shorten urls", slog.Any("error", err))
-		Render(r.Context(), w, views.IndexPage(data))
-		return
-	}
-
-	data.URLs = lo.Map(urls, func(item domain.URL, _ int) string {
-		return item.Short
-	})
-
 	Render(r.Context(), w, views.IndexPage(data))
 }
 

@@ -15,7 +15,6 @@ import (
 )
 
 type IndexPageData struct {
-	URLs     []string
 	FormData components.FormData
 }
 
@@ -43,14 +42,6 @@ func IndexPage(data IndexPageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = components.IndexForm(data.FormData).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"container mx-auto p-4 max-w-md bg-white shadow-md rounded-lg\"><h2 class=\"text-lg font-bold mb-4 text-center\">Your links</h2>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.URLList(data.URLs).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
