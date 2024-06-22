@@ -1,5 +1,5 @@
 watch:
-    templ generate --watch --proxy=http://localhost:8080
+    templ generate --watch --proxy=http://localhost:8080 --open-browser=false
 
 dev:
   #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
