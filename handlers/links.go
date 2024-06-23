@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 
+	"github.com/zaibon/shortcut/domain"
 	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/views"
@@ -15,8 +17,13 @@ func (h *Handler) myLinks(w http.ResponseWriter, r *http.Request) {
 		HXRedirect(r.Context(), w, "/")
 		return
 	}
+	req := domain.URLSortRequest{
+		SortBy:  r.URL.Query().Get("sort_by"),
+		SortDir: r.URL.Query().Get("sort_dir"),
+	}
+	fmt.Println("req", req)
 
-	urls, err := h.svc.List(r.Context(), user.ID)
+	urls, err := h.svc.List(r.Context(), user.ID, req)
 	if err != nil {
 		log.Error("failed to get statistics", slog.Any("error", err))
 		http.Error(w, "failed to get statistics", http.StatusInternalServerError)

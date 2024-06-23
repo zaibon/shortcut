@@ -20,7 +20,7 @@ type ButtonProp struct {
 
 var (
 	buttonClass     = "text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
-	iconButtonClass = "px-3 py-2 text-xs font-medium text-center inline-flex items-center rounded-lg"
+	iconButtonClass = "px-5 py-2.5 text-center inline-flex items-center rounded-lg"
 )
 
 func Button(prop ButtonProp) templ.Component {

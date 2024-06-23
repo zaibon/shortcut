@@ -34,8 +34,11 @@ func (s *urlStore) Add(ctx context.Context, title, shortURL, longURL string, aut
 	return domain.ID(url.ID), nil
 }
 
-func (s *urlStore) List(ctx context.Context, authorID domain.ID) ([]datastore.Url, error) {
-	rows, err := s.db.ListShortURLs(ctx, int32(authorID))
+func (s *urlStore) List(ctx context.Context, authorID domain.ID, sortBy domain.URLSortRequest) ([]datastore.Url, error) {
+	rows, err := s.db.ListShortURLs(ctx, datastore.ListShortURLsParams{
+		AuthorID: int32(authorID),
+		SortBy:   sortBy.String(),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list shorten urls: %w", err)
 	}

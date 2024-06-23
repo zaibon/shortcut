@@ -17,7 +17,7 @@ type Querier interface {
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
 	InsertUserOauth(ctx context.Context, arg InsertUserOauthParams) (User, error)
 	InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error)
-	ListShortURLs(ctx context.Context, authorID int32) ([]Url, error)
+	ListShortURLs(ctx context.Context, arg ListShortURLsParams) ([]Url, error)
 	ListStatisticsPerAuthor(ctx context.Context, authorID int32) ([]ListStatisticsPerAuthorRow, error)
 	ListVisits(ctx context.Context) ([]Visit, error)
 	StatisticPerURL(ctx context.Context, arg StatisticPerURLParams) (StatisticPerURLRow, error)

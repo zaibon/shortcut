@@ -18,7 +18,7 @@ import (
 
 type ShortURLService interface {
 	Shorten(ctx context.Context, url string, userID domain.ID) (string, error)
-	List(ctx context.Context, authorID domain.ID) ([]domain.URL, error)
+	List(ctx context.Context, authorID domain.ID, sortBy domain.URLSortRequest) ([]domain.URL, error)
 	Expand(ctx context.Context, short string) (domain.URL, error)
 
 	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error)

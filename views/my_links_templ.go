@@ -79,12 +79,30 @@ func MyLinksPage(data MyLinkPageData) templ.Component {
 			templ_7745c5c3_Err = components.Button(components.ButtonProp{
 				Type:     "text",
 				WithIcon: true,
-				Class:    "text-white text-cyan-700 bg-cyan-700 hover:bg-cyan-600",
+				Class:    "text-white text-cyan-700 bg-cyan-700 hover:bg-cyan-600 px-5 py-2.5 font-medium",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a></div><div class=\"flex flex-col lg:grid lg:grid-flow-row lg:grid-cols-3 lg:grid-rows-3\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a> <button id=\"dropdownDefaultButton\" data-dropdown-toggle=\"dropdown\" class=\"text-white bg-cyan-700 hover:bg-cyan-800 font-medium rounded-lg px-5 py-2.5 text-center inline-flex items-center\" type=\"button\">Sort by  <svg class=\"w-2.5 h-2.5 ms-3\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 10 6\"><path stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m1 1 4 4 4-4\"></path></svg></button><!-- Dropdown menu --><div id=\"dropdown\" class=\"z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700\"><ul class=\"py-2 text-sm text-gray-700 dark:text-gray-200\" aria-labelledby=\"dropdownDefaultButton\"><li><a href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 templ.SafeURL = sortByURL("created_at", "desc")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var4)))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white\">Creation date</a></li><li><a href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 templ.SafeURL = sortByURL("title", "asc")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var5)))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white\">Title</a></li></ul></div></div><div class=\"flex flex-col lg:grid lg:grid-flow-row lg:grid-cols-3 lg:grid-rows-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -118,4 +136,8 @@ func MyLinksPage(data MyLinkPageData) templ.Component {
 		}
 		return templ_7745c5c3_Err
 	})
+}
+
+func sortByURL(by, dir string) templ.SafeURL {
+	return templ.URL(fmt.Sprintf("/links?sort_by=%s&sort_dir=%s", by, dir))
 }

@@ -65,11 +65,20 @@ const listShortURLs = `-- name: ListShortURLs :many
 SELECT id, short_url, long_url, author_id, created_at, title
 FROM urls
 WHERE urls.author_id = $1
-ORDER BY id DESC
+ORDER BY 
+    CASE WHEN $2 = 'title_asc' THEN title END ASC,
+    CASE WHEN $2 = 'title_desc' THEN title END DESC,
+    CASE WHEN $2 = 'created_at_asc' THEN created_at END ASC,
+    CASE WHEN $2 = 'created_at_desc' THEN created_at END DESC
 `
 
-func (q *Queries) ListShortURLs(ctx context.Context, authorID int32) ([]Url, error) {
-	rows, err := q.db.Query(ctx, listShortURLs, authorID)
+type ListShortURLsParams struct {
+	AuthorID int32       `json:"author_id"`
+	SortBy   interface{} `json:"sort_by"`
+}
+
+func (q *Queries) ListShortURLs(ctx context.Context, arg ListShortURLsParams) ([]Url, error) {
+	rows, err := q.db.Query(ctx, listShortURLs, arg.AuthorID, arg.SortBy)
 	if err != nil {
 		return nil, err
 	}

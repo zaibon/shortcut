@@ -19,7 +19,7 @@ const idLength = 6 //TODO: make this dynamic by reading the amount of url stored
 
 type URLStore interface {
 	Add(ctx context.Context, title, shortURL, longURL string, authorID domain.ID) (domain.ID, error)
-	List(ctx context.Context, authorID domain.ID) ([]datastore.Url, error)
+	List(ctx context.Context, authorID domain.ID, sortBy domain.URLSortRequest) ([]datastore.Url, error)
 	Get(ctx context.Context, shortID string) (datastore.Url, error)
 	TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error)
 	InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error
@@ -54,8 +54,8 @@ func (s *shortURL) Shorten(ctx context.Context, url string, userID domain.ID) (s
 	return s.toURL(shortURL), nil
 }
 
-func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]domain.URL, error) {
-	rows, err := s.repo.List(ctx, authorID)
+func (s *shortURL) List(ctx context.Context, authorID domain.ID, sortBy domain.URLSortRequest) ([]domain.URL, error) {
+	rows, err := s.repo.List(ctx, authorID, sortBy)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list shorten urls: %w", err)
 	}

@@ -11,6 +11,7 @@ templ Layout() {
 			<title>URL Shortener Service</title>
 			<script src="https://unpkg.com/htmx.org@2.0.0/dist/htmx.js" integrity="sha384-Xh+GLLi0SMFPwtHQjT72aPG19QvKB8grnyRbYBNIdHWc2NkCrz65jlU7YrzO6qRp" crossorigin="anonymous"></script>
 			<script src="https://cdn.tailwindcss.com"></script>
+			<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet"/>
 			<script src="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.min.js"></script>
 			<script src="static/js/toast.js" defer></script>
 			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.css"/>
@@ -39,6 +40,7 @@ templ Layout() {
 				@components.Footer()
 				<section id="toast-container"></section>
 			</div>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 		</body>
 		<script>
 		document.body.addEventListener('htmx:beforeSwap', function(evt) {
