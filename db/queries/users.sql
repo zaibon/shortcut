@@ -1,11 +1,11 @@
 -- name: InsertUser :one
-INSERT INTO users (username, email, password, password_salt)
-VALUES (@username, @email, @password, @password_salt)
+INSERT INTO users (guid, username, email, password, password_salt)
+VALUES (@guid, @username, @email, @password, @password_salt)
 RETURNING *;
 
 -- name: InsertUserOauth :one
-INSERT INTO users (username, email, is_oauth)
-VALUES (@username, @email, true)
+INSERT INTO users (guid, username, email, is_oauth)
+VALUES (@guid, @username, @email, true)
 RETURNING *;
 
 -- name: GetUser :one
@@ -17,13 +17,13 @@ LIMIT 1;
 -- name: UpdateUser :one
 UPDATE users
 SET username = @username, email = @email
-WHERE id = @id
+WHERE guid = @guid
 RETURNING *;
 
 -- name: UpdatePassword :exec
 UPDATE users
 SET password = @password, password_salt = @password_salt
-WHERE id = @id;
+WHERE guid = @guid;
 
 -- name: InsertOauth2State :exec
 INSERT INTO oauth2_state (state)
