@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 
@@ -21,8 +22,8 @@ type userStore interface {
 	InsertUser(ctx context.Context, user datastore.InsertUserParams) error
 	InsertUserOauth(ctx context.Context, user datastore.InsertUserOauthParams) error
 	GetUser(ctx context.Context, email string) (datastore.User, error)
-	UpdateUser(ctx context.Context, id domain.ID, user *domain.User) (*domain.User, error)
-	UpdatePassword(ctx context.Context, id domain.ID, password, salt []byte) error
+	UpdateUser(ctx context.Context, id domain.GUID, user *domain.User) (*domain.User, error)
+	UpdatePassword(ctx context.Context, id domain.GUID, password, salt []byte) error
 
 	// oauth
 	InsertOauthState(ctx context.Context, state string) error
@@ -67,7 +68,15 @@ func (s *userService) CreateUser(ctx context.Context, user *domain.User) error {
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
+	if user.GUID.IsNil() {
+		user.GUID = domain.GUID(uuid.Must(uuid.NewV7()))
+	}
+
 	return s.store.InsertUser(ctx, datastore.InsertUserParams{
+		Guid: pgtype.UUID{
+			Bytes: user.GUID,
+			Valid: !user.GUID.IsNil(),
+		},
 		Username:     user.Name,
 		Email:        user.Email,
 		Password:     saltedPasswd.Hash,
@@ -75,7 +84,7 @@ func (s *userService) CreateUser(ctx context.Context, user *domain.User) error {
 	})
 }
 
-func (s *userService) UpdateUser(ctx context.Context, id domain.ID, user *domain.User) (*domain.User, error) {
+func (s *userService) UpdateUser(ctx context.Context, id domain.GUID, user *domain.User) (*domain.User, error) {
 	user, err := s.store.UpdateUser(ctx, id, user)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user %s: %w", user.Name, err)
@@ -84,7 +93,7 @@ func (s *userService) UpdateUser(ctx context.Context, id domain.ID, user *domain
 	return user, nil
 }
 
-func (s *userService) UpdatePassword(ctx context.Context, id domain.ID, newPassword string) error {
+func (s *userService) UpdatePassword(ctx context.Context, id domain.GUID, newPassword string) error {
 	hasher := password.DefaultArgon2iHasher()
 
 	saltedPasswd, err := hasher.Hash([]byte(newPassword), nil)

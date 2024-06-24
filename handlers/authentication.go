@@ -19,8 +19,8 @@ import (
 
 type AuthService interface {
 	CreateUser(ctx context.Context, user *domain.User) error
-	UpdateUser(ctx context.Context, id domain.ID, user *domain.User) (*domain.User, error)
-	UpdatePassword(ctx context.Context, id domain.ID, password string) error
+	UpdateUser(ctx context.Context, id domain.GUID, user *domain.User) (*domain.User, error)
+	UpdatePassword(ctx context.Context, id domain.GUID, password string) error
 	VerifyLogin(ctx context.Context, email, password string) (*domain.User, error)
 
 	// oauth
@@ -190,7 +190,7 @@ func (h *UsersHandler) editAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.svc.UpdateUser(r.Context(), user.ID, &domain.User{
+	user, err := h.svc.UpdateUser(r.Context(), user.GUID, &domain.User{
 		Name:  name,
 		Email: email,
 	})
@@ -286,7 +286,7 @@ func (h *UsersHandler) editPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.svc.UpdatePassword(r.Context(), user.ID, newPassword); err != nil {
+	if err := h.svc.UpdatePassword(r.Context(), user.GUID, newPassword); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		data.Alerts = components.AlertListData{
 			Alerts: []components.Alert{{

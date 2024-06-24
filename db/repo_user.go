@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
 )
@@ -44,11 +47,14 @@ func (s *userStore) InsertUserOauth(ctx context.Context, user datastore.InsertUs
 	return nil
 }
 
-func (s *userStore) UpdateUser(ctx context.Context, id domain.ID, user *domain.User) (*domain.User, error) {
+func (s *userStore) UpdateUser(ctx context.Context, id domain.GUID, user *domain.User) (*domain.User, error) {
 	row, err := s.db.UpdateUser(ctx, datastore.UpdateUserParams{
 		Username: user.Name,
 		Email:    user.Email,
-		ID:       int32(id),
+		Guid: pgtype.UUID{
+			Bytes: id,
+			Valid: id != domain.GUID(uuid.Nil),
+		},
 	})
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -67,11 +73,14 @@ func (s *userStore) UpdateUser(ctx context.Context, id domain.ID, user *domain.U
 	}, nil
 }
 
-func (s *userStore) UpdatePassword(ctx context.Context, id domain.ID, newPassword, newSalt []byte) error {
+func (s *userStore) UpdatePassword(ctx context.Context, id domain.GUID, newPassword, newSalt []byte) error {
 	err := s.db.UpdatePassword(ctx, datastore.UpdatePasswordParams{
 		Password:     newPassword,
 		PasswordSalt: newSalt,
-		ID:           int32(id),
+		Guid: pgtype.UUID{
+			Bytes: id,
+			Valid: id != domain.GUID(uuid.Nil),
+		},
 	})
 	if err != nil {
 		return fmt.Errorf(

@@ -37,6 +37,7 @@ type User struct {
 	CreatedAt    pgtype.Timestamp `json:"created_at"`
 	PasswordSalt []byte           `json:"password_salt"`
 	IsOauth      pgtype.Bool      `json:"is_oauth"`
+	Guid         pgtype.UUID      `json:"guid"`
 }
 
 type Visit struct {

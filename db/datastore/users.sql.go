@@ -7,6 +7,8 @@ package datastore
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getOauth2State = `-- name: GetOauth2State :one
@@ -25,7 +27,7 @@ func (q *Queries) GetOauth2State(ctx context.Context, state string) (Oauth2State
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, email, password, created_at, password_salt, is_oauth
+SELECT id, username, email, password, created_at, password_salt, is_oauth, guid
 FROM users
 WHERE users.email = $1
 LIMIT 1
@@ -42,6 +44,7 @@ func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
 		&i.CreatedAt,
 		&i.PasswordSalt,
 		&i.IsOauth,
+		&i.Guid,
 	)
 	return i, err
 }
@@ -57,20 +60,22 @@ func (q *Queries) InsertOauth2State(ctx context.Context, state string) error {
 }
 
 const insertUser = `-- name: InsertUser :one
-INSERT INTO users (username, email, password, password_salt)
-VALUES ($1, $2, $3, $4)
-RETURNING id, username, email, password, created_at, password_salt, is_oauth
+INSERT INTO users (guid, username, email, password, password_salt)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, username, email, password, created_at, password_salt, is_oauth, guid
 `
 
 type InsertUserParams struct {
-	Username     string `json:"username"`
-	Email        string `json:"email"`
-	Password     []byte `json:"password"`
-	PasswordSalt []byte `json:"password_salt"`
+	Guid         pgtype.UUID `json:"guid"`
+	Username     string      `json:"username"`
+	Email        string      `json:"email"`
+	Password     []byte      `json:"password"`
+	PasswordSalt []byte      `json:"password_salt"`
 }
 
 func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, insertUser,
+		arg.Guid,
 		arg.Username,
 		arg.Email,
 		arg.Password,
@@ -85,23 +90,25 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 		&i.CreatedAt,
 		&i.PasswordSalt,
 		&i.IsOauth,
+		&i.Guid,
 	)
 	return i, err
 }
 
 const insertUserOauth = `-- name: InsertUserOauth :one
-INSERT INTO users (username, email, is_oauth)
-VALUES ($1, $2, true)
-RETURNING id, username, email, password, created_at, password_salt, is_oauth
+INSERT INTO users (guid, username, email, is_oauth)
+VALUES ($1, $2, $3, true)
+RETURNING id, username, email, password, created_at, password_salt, is_oauth, guid
 `
 
 type InsertUserOauthParams struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	Guid     pgtype.UUID `json:"guid"`
+	Username string      `json:"username"`
+	Email    string      `json:"email"`
 }
 
 func (q *Queries) InsertUserOauth(ctx context.Context, arg InsertUserOauthParams) (User, error) {
-	row := q.db.QueryRow(ctx, insertUserOauth, arg.Username, arg.Email)
+	row := q.db.QueryRow(ctx, insertUserOauth, arg.Guid, arg.Username, arg.Email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -111,6 +118,7 @@ func (q *Queries) InsertUserOauth(ctx context.Context, arg InsertUserOauthParams
 		&i.CreatedAt,
 		&i.PasswordSalt,
 		&i.IsOauth,
+		&i.Guid,
 	)
 	return i, err
 }
@@ -118,35 +126,35 @@ func (q *Queries) InsertUserOauth(ctx context.Context, arg InsertUserOauthParams
 const updatePassword = `-- name: UpdatePassword :exec
 UPDATE users
 SET password = $1, password_salt = $2
-WHERE id = $3
+WHERE guid = $3
 `
 
 type UpdatePasswordParams struct {
-	Password     []byte `json:"password"`
-	PasswordSalt []byte `json:"password_salt"`
-	ID           int32  `json:"id"`
+	Password     []byte      `json:"password"`
+	PasswordSalt []byte      `json:"password_salt"`
+	Guid         pgtype.UUID `json:"guid"`
 }
 
 func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error {
-	_, err := q.db.Exec(ctx, updatePassword, arg.Password, arg.PasswordSalt, arg.ID)
+	_, err := q.db.Exec(ctx, updatePassword, arg.Password, arg.PasswordSalt, arg.Guid)
 	return err
 }
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET username = $1, email = $2
-WHERE id = $3
-RETURNING id, username, email, password, created_at, password_salt, is_oauth
+WHERE guid = $3
+RETURNING id, username, email, password, created_at, password_salt, is_oauth, guid
 `
 
 type UpdateUserParams struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	ID       int32  `json:"id"`
+	Username string      `json:"username"`
+	Email    string      `json:"email"`
+	Guid     pgtype.UUID `json:"guid"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUser, arg.Username, arg.Email, arg.ID)
+	row := q.db.QueryRow(ctx, updateUser, arg.Username, arg.Email, arg.Guid)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -156,6 +164,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.CreatedAt,
 		&i.PasswordSalt,
 		&i.IsOauth,
+		&i.Guid,
 	)
 	return i, err
 }

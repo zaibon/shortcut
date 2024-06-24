@@ -13,6 +13,7 @@ func init() {
 
 type User struct {
 	ID        ID
+	GUID      GUID
 	Name      string
 	Email     string
 	Password  string
