@@ -42,7 +42,15 @@ func (r *repoSubscriptions) Tx(ctx context.Context, fn func(context.Context) err
 	return nil
 }
 
-func (r *repoSubscriptions) GetCustomer(ctx context.Context, id string) (datastore.Customer, error) {
+func (r *repoSubscriptions) GetCustomer(ctx context.Context, user *domain.User) (datastore.Customer, error) {
+	row, err := r.db.GetCustomer(ctx, user.GUID.PgType())
+	if err != nil {
+		return datastore.Customer{}, fmt.Errorf("error getting customer with id %s: %w", user.GUID, err)
+	}
+	return row, nil
+}
+
+func (r *repoSubscriptions) GetCustomerByStripeId(ctx context.Context, id string) (datastore.Customer, error) {
 	row, err := r.db.GetCustomerByStripeId(ctx, id)
 	if err != nil {
 		return datastore.Customer{}, fmt.Errorf("error getting customer with id %s: %w", id, err)
@@ -62,6 +70,14 @@ func (r *repoSubscriptions) InsertSubscription(ctx context.Context, subscription
 	_, err := r.db.InsertSubscription(ctx, subscription)
 	if err != nil {
 		return fmt.Errorf("error inserting subscription with id %s: %w", subscription.StripeID, err)
+	}
+	return nil
+}
+
+func (r repoSubscriptions) UpdateSubscription(ctx context.Context, subscription datastore.UpdateSubscriptionParams) error {
+	_, err := r.db.UpdateSubscription(ctx, subscription)
+	if err != nil {
+		return fmt.Errorf("error updating subscription with id %s: %w", subscription.StripeID, err)
 	}
 	return nil
 }

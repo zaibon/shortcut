@@ -32,7 +32,9 @@ type AuthService interface {
 
 type stripeService interface {
 	GetSubscription(ctx context.Context, user *domain.User) (*domain.Subscription, error)
-	HandlerSessionCheckout(ctx context.Context, session *stripe.CheckoutSession) error
+	HandleSessionCheckout(ctx context.Context, session *stripe.CheckoutSession) error
+	HandleSubscriptionUpdated(ctx context.Context, sub *stripe.Subscription) error
+	GenerateCustomerPortalURL(ctx context.Context, user *domain.User) (string, error)
 }
 
 type UsersHandler struct {
@@ -90,14 +92,22 @@ func (h *UsersHandler) myAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var customerPortalURL string
 	if errors.Is(err, services.ErrNotSubscription) {
 		subscription = nil
+	} else {
+		customerPortalURL, err = h.stripe.GenerateCustomerPortalURL(r.Context(), user)
+		if err != nil {
+			slog.Error("failed to generate customer portal URL", "err", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	Render(r.Context(), w, views.MyAccount(views.MyAccountData{
 		User:                  user,
 		Subscription:          subscription,
-		CustomterDashboardURL: "https://billing.stripe.com/p/login/test_bIY00r1FMdkf9Ik5kk", //FIXME: get from config or API
+		CustomterDashboardURL: customerPortalURL,
 		PricingData: components.PricingData{
 			User:     user,
 			StipeKey: h.stripePubKey,

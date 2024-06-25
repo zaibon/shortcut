@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -20,8 +21,10 @@ type stripeStore interface {
 	Txer
 
 	InsertCustomer(ctx context.Context, customer datastore.InsertCustomerParams) (datastore.Customer, error)
-	GetCustomer(ctx context.Context, id string) (datastore.Customer, error)
+	GetCustomer(ctx context.Context, user *domain.User) (datastore.Customer, error)
+	GetCustomerByStripeId(ctx context.Context, id string) (datastore.Customer, error)
 	InsertSubscription(ctx context.Context, subscription datastore.InsertSubscriptionParams) error
+	UpdateSubscription(ctx context.Context, subscription datastore.UpdateSubscriptionParams) error
 	ListSubscriptions(ctx context.Context, user *domain.User, status string) ([]datastore.Subscription, error)
 }
 
@@ -39,9 +42,9 @@ func NewStripeService(key string, store stripeStore) *stripeService {
 		store:  store,
 	}
 }
-func (s *stripeService) HandlerSessionCheckout(ctx context.Context, session *stripe.CheckoutSession) error {
+func (s *stripeService) HandleSessionCheckout(ctx context.Context, session *stripe.CheckoutSession) error {
 	txFunx := func(ctx context.Context) error {
-		customer, err := s.store.GetCustomer(ctx, session.Customer.ID)
+		customer, err := s.store.GetCustomerByStripeId(ctx, session.Customer.ID)
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return err
 		}
@@ -89,6 +92,26 @@ func (s *stripeService) HandlerSessionCheckout(ctx context.Context, session *str
 	})
 }
 
+func (s stripeService) HandleSubscriptionUpdated(ctx context.Context, sub *stripe.Subscription) error {
+	params := &stripe.SubscriptionParams{}
+	params.AddExpand("items.data.price.product")
+	sub, err := s.client.Subscriptions.Get(sub.ID, params)
+	if err != nil {
+		return err
+	}
+
+	if err := s.store.UpdateSubscription(ctx, datastore.UpdateSubscriptionParams{
+		StripeID:          sub.ID,
+		Status:            string(sub.Status),
+		StripePriceID:     sub.Items.Data[0].Price.ID,
+		StripeProductName: sub.Items.Data[0].Price.Product.Name,
+		Quantity:          int32(sub.Items.Data[0].Quantity), //FIXME: truncate int??
+	}); err != nil {
+		return fmt.Errorf("error updating subscription: %w", err)
+	}
+	return nil
+}
+
 // GetSubscription returns the active subscription for the user
 func (s *stripeService) GetSubscription(ctx context.Context, user *domain.User) (*domain.Subscription, error) {
 	rows, err := s.store.ListSubscriptions(ctx, user, "active")
@@ -109,45 +132,22 @@ func (s *stripeService) GetSubscription(ctx context.Context, user *domain.User) 
 	return domain.NewSubscription(sub), nil
 }
 
-// GetSubscription returns the active subscription for the user
-// func (s *stripeService) GetSubscription(ctx context.Context, user *domain.User) (*domain.Subscription, error) {
-// 	customerID := user.ReferenceID()
-// 	events, err := s.store.ListStripeEvent(ctx, customerID, "checkout.session.completed")
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func (s *stripeService) GenerateCustomerPortalURL(ctx context.Context, user *domain.User) (string, error) {
 
-// 	if len(events) == 0 {
-// 		return nil, ErrNotSubscription
-// 	}
+	customer, err := s.store.GetCustomer(ctx, user)
+	if err != nil {
+		return "", fmt.Errorf("error getting customer: %w", err)
+	}
 
-// 	sort.Slice(events, func(i, j int) bool {
-// 		return events[i].CreatedAt.Time.After(events[j].CreatedAt.Time)
-// 	})
+	returnURL := "http://localhost:8080/my-account" //TODO: get from config
 
-// 	wrapper := struct {
-// 		Data struct {
-// 			Object struct {
-// 				ID           string                    `json:"id"`
-// 				Status       stripe.SubscriptionStatus `json:"status"`
-// 				Subscription string                    `json:"subscription"`
-// 			} `json:"object"`
-// 		} `json:"data"`
-// 	}{}
-// 	for _, e := range events {
-// 		fmt.Println(string(e.Data))
-// 		if err := json.Unmarshal(e.Data, &wrapper); err != nil {
-// 			return nil, fmt.Errorf("error unmarshalling session: %w", err)
-// 		}
+	sess, err := s.client.BillingPortalSessions.New(&stripe.BillingPortalSessionParams{
+		Customer:  &customer.StripeID,
+		ReturnURL: &returnURL,
+	})
+	if err != nil {
+		return "", fmt.Errorf("error creating billing portal session: %w", err)
+	}
 
-// 		params:=stripe.SubscriptionParams{}
-// 		params.AddExpand("
-
-//TODO: handler all possible states
-// if wrapper.Data.Object.Status == stripe.SubscriptionStatusActive {
-// 	return domain.LoadSubscription(wrapper.Data.Object.Subscription, s.client)
-// }
-// 	}
-
-// 	return nil, ErrNotSubscription
-// }
+	return sess.URL, nil
+}
