@@ -141,9 +141,26 @@ func (s *stripeService) GenerateCustomerPortalURL(ctx context.Context, user *dom
 
 	returnURL := "http://localhost:8080/my-account" //TODO: get from config
 
+	var configurationID *string
+	yes := true
+	iter := s.client.BillingPortalConfigurations.List(&stripe.BillingPortalConfigurationListParams{
+		ListParams: stripe.ListParams{},
+		Active:     &yes,
+		IsDefault:  &yes,
+	})
+
+	for iter.Next() {
+		config, ok := iter.Current().(*stripe.BillingPortalConfiguration)
+		if ok {
+			configurationID = &config.ID
+		}
+	}
+
 	sess, err := s.client.BillingPortalSessions.New(&stripe.BillingPortalSessionParams{
-		Customer:  &customer.StripeID,
-		ReturnURL: &returnURL,
+		Params:        stripe.Params{},
+		Configuration: configurationID,
+		Customer:      &customer.StripeID,
+		ReturnURL:     &returnURL,
 	})
 	if err != nil {
 		return "", fmt.Errorf("error creating billing portal session: %w", err)
