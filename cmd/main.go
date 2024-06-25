@@ -34,6 +34,10 @@ type config struct {
 
 	GoogleOauthClientID string
 	GoogleOauthSecret   string
+
+	StripeKey            string
+	StripePubKey         string
+	StripeEndpointSecret string
 }
 
 func (c config) DBString() string {

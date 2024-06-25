@@ -10,13 +10,18 @@ import (
 
 type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
+	// Description: Get customer by stripe id
+	GetCustomerByStripeId(ctx context.Context, stripeID string) (Customer, error)
 	GetOauth2State(ctx context.Context, state string) (Oauth2State, error)
 	GetShortURL(ctx context.Context, shortUrl string) (Url, error)
 	GetUser(ctx context.Context, email string) (User, error)
+	InsertCustomer(ctx context.Context, arg InsertCustomerParams) (Customer, error)
 	InsertOauth2State(ctx context.Context, state string) error
+	InsertSubscription(ctx context.Context, arg InsertSubscriptionParams) (Subscription, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
 	InsertUserOauth(ctx context.Context, arg InsertUserOauthParams) (User, error)
 	InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error)
+	ListCustomerSubscription(ctx context.Context, arg ListCustomerSubscriptionParams) ([]Subscription, error)
 	ListShortURLs(ctx context.Context, authorID int32) ([]Url, error)
 	ListStatisticsPerAuthor(ctx context.Context, authorID int32) ([]ListStatisticsPerAuthorRow, error)
 	ListVisits(ctx context.Context) ([]Visit, error)

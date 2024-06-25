@@ -121,6 +121,27 @@ var serverFlags = []cli.Flag{
 		EnvVars:     []string{"SHORTCUT_GOOGLE_OAUTH_SECRET"},
 		Destination: &c.GoogleOauthSecret,
 	},
+	&cli.StringFlag{
+		Name:        "stripe-key",
+		Usage:       "Stripe secret key",
+		Value:       "",
+		EnvVars:     []string{"SHORTCUT_STRIPE_KEY"},
+		Destination: &c.StripeKey,
+	},
+	&cli.StringFlag{
+		Name:        "stripe-pub-key",
+		Usage:       "Stripe public key",
+		Value:       "",
+		EnvVars:     []string{"SHORTCUT_STRIPE_PUB_KEY"},
+		Destination: &c.StripePubKey,
+	},
+	&cli.StringFlag{
+		Name:        "stripe-endpoint-secret",
+		Usage:       "Stripe endpoint secret",
+		Value:       "",
+		EnvVars:     []string{"SHORTCUT_STRIPE_ENDPOINT_SECRET"},
+		Destination: &c.StripeEndpointSecret,
+	},
 }
 
 func listenSignals(ctx context.Context, c config, f func(context.Context, config) error, sig ...os.Signal) error {
@@ -167,15 +188,18 @@ func runServer(ctx context.Context, c config) error {
 	// databases
 	urlStore := db.NewURLStore(dbPool)
 	userStore := db.NewUserStore(dbPool)
+	subscriptionStore := db.NewRepoSubscription(dbPool)
 
 	// services
 	shortURL := services.NewShortURL(urlStore, c.redirectURL())
 	userService := services.NewUser(userStore, c.Domain, c.TLS, c.GoogleOauthClientID, c.GoogleOauthSecret)
+	stripeService := services.NewStripeService(c.StripeKey, subscriptionStore)
 
 	// HTTP handlers
 	urlHandlers := handlers.NewURLHandlers(shortURL)
-	userHandlers := handlers.NewUsersHandler(userService)
+	userHandlers := handlers.NewUsersHandler(userService, stripeService, c.StripePubKey)
 	healthzHandlers := handlers.NewHealtzHandlers(stdlib.OpenDBFromPool(dbPool))
+	subscriptionHandlers := handlers.NewSubscriptionHandlers(c.StripeKey, c.StripeEndpointSecret, stripeService)
 
 	fs := http.FileServer(static.FileSystem)
 	server := chi.NewRouter()
@@ -205,6 +229,7 @@ func runServer(ctx context.Context, c config) error {
 		urlHandlers.Routes(r)
 		userHandlers.Routes(r)
 		healthzHandlers.Routes(r)
+		subscriptionHandlers.Routes(r)
 	})
 
 	listenAddr := fmt.Sprintf(":%d", c.Port)

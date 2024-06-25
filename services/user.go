@@ -134,9 +134,12 @@ func (s *userService) VerifyLogin(ctx context.Context, email, passwd string) (*d
 
 	return &domain.User{
 		ID:        domain.ID(user.ID),
+		GUID:      domain.GUID(user.Guid.Bytes),
 		Name:      user.Username,
 		Email:     user.Email,
+		Password:  "",
 		CreatedAt: user.CreatedAt.Time,
+		IsOauth:   false,
 	}, nil
 }
 
@@ -177,6 +180,10 @@ func (s *userService) IdentifyOauthUser(ctx context.Context, code string) (*doma
 	}
 	if errors.Is(err, sql.ErrNoRows) {
 		if err := s.store.InsertUserOauth(ctx, datastore.InsertUserOauthParams{
+			Guid: pgtype.UUID{
+				Bytes: uuid.Must(uuid.NewV7()),
+				Valid: true,
+			},
 			Username: userInfo.Name,
 			Email:    user.Email,
 		}); err != nil {
@@ -185,6 +192,7 @@ func (s *userService) IdentifyOauthUser(ctx context.Context, code string) (*doma
 	}
 
 	return &domain.User{
+		GUID:      domain.GUID(user.Guid.Bytes),
 		ID:        domain.ID(user.ID),
 		Name:      user.Username,
 		Email:     user.Email,

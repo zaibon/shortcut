@@ -16,8 +16,11 @@ import "github.com/zaibon/shortcut/components"
 type MyAccountData struct {
 	User *domain.User
 
-	EditAlerts components.AlertListData
+	Subscription          *domain.Subscription
+	CustomterDashboardURL string
+	PricingData           components.PricingData
 
+	EditAlerts       components.AlertListData
 	EditPasswordData components.EditPasswordFormData
 }
 
@@ -40,7 +43,7 @@ func MyAccount(data MyAccountData) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1 class=\"text-xl font-bold px-5 py-5\">My Account</h1><div class=\"grow\"><div class=\"flex flex-col md:flex-row gap-y-5\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"fex flex-col grow\"><h2 class=\"text-xl font-bold px-5 py-5\">My Account</h2><div class=\"grow\"><div class=\"flex flex-col md:flex-row gap-y-5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -57,13 +60,42 @@ func MyAccount(data MyAccountData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><h2 class=\"text-xl font-bold px-5 py-5 my-5\">Subscription</h2>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.Subscription != nil {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full md:w-1/3 mx-auto flex flex-col\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.TierCard(components.TierData{
+					Subscription:         data.Subscription,
+					CusomterDashboardURL: data.CustomterDashboardURL,
+				}).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			} else {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full md:w-1/3 mx-auto\"><div class=\"bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded relative text-center\" role=\"alert\"><strong class=\"font-bold\">Warning!</strong> <span class=\"block sm:inline\">You are using an OAuth account, you can't change your password here.</span></div></div>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full  mx-auto flex flex-col my-5\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.PricingPreview(data.PricingData).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
