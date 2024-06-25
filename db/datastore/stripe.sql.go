@@ -11,6 +11,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getCustomer = `-- name: GetCustomer :one
+SELECT user_id, stripe_id, created_at, updated_at
+FROM customer
+WHERE user_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetCustomer(ctx context.Context, userID pgtype.UUID) (Customer, error) {
+	row := q.db.QueryRow(ctx, getCustomer, userID)
+	var i Customer
+	err := row.Scan(
+		&i.UserID,
+		&i.StripeID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getCustomerByStripeId = `-- name: GetCustomerByStripeId :one
 SELECT user_id, stripe_id, created_at, updated_at 
 FROM customer
@@ -132,4 +151,41 @@ func (q *Queries) ListCustomerSubscription(ctx context.Context, arg ListCustomer
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateSubscription = `-- name: UpdateSubscription :one
+UPDATE subscription
+SET status = $2, stripe_price_id = $3, stripe_product_name = $4, quantity = $5
+WHERE stripe_id = $1
+RETURNING stripe_id, customer_id, stripe_price_id, stripe_product_name, status, quantity, created_at, updated_at
+`
+
+type UpdateSubscriptionParams struct {
+	StripeID          string `json:"stripe_id"`
+	Status            string `json:"status"`
+	StripePriceID     string `json:"stripe_price_id"`
+	StripeProductName string `json:"stripe_product_name"`
+	Quantity          int32  `json:"quantity"`
+}
+
+func (q *Queries) UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error) {
+	row := q.db.QueryRow(ctx, updateSubscription,
+		arg.StripeID,
+		arg.Status,
+		arg.StripePriceID,
+		arg.StripeProductName,
+		arg.Quantity,
+	)
+	var i Subscription
+	err := row.Scan(
+		&i.StripeID,
+		&i.CustomerID,
+		&i.StripePriceID,
+		&i.StripeProductName,
+		&i.Status,
+		&i.Quantity,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

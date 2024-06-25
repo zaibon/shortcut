@@ -63,6 +63,12 @@ func (h *subscriptionHandlers) webhook(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+	case "customer.subscription.updated":
+		if err := h.handleSubscriptionUpdated(r.Context(), event); err != nil {
+			log.Error("Error handling subscription updated", "err", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	default:
 		fmt.Fprintf(os.Stderr, "Unhandled event type: %s\n", event.Type)
 	}
@@ -89,7 +95,21 @@ func (h *subscriptionHandlers) handlerSessionCompleted(ctx context.Context, even
 		return fmt.Errorf("error parsing webhook JSON: %w", err)
 	}
 
-	if err := h.svc.HandlerSessionCheckout(ctx, &session); err != nil {
+	if err := h.svc.HandleSessionCheckout(ctx, &session); err != nil {
+		return fmt.Errorf("error handling checkout session completed event: %w", err)
+	}
+
+	return nil
+}
+
+func (h *subscriptionHandlers) handleSubscriptionUpdated(ctx context.Context, event *stripe.Event) error {
+	var sub stripe.Subscription
+	err := json.Unmarshal(event.Data.Raw, &sub)
+	if err != nil {
+		return fmt.Errorf("error parsing webhook JSON: %w", err)
+	}
+
+	if err := h.svc.HandleSubscriptionUpdated(ctx, &sub); err != nil {
 		return fmt.Errorf("error handling checkout session completed event: %w", err)
 	}
 

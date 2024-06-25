@@ -6,10 +6,13 @@ package datastore
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
+	GetCustomer(ctx context.Context, userID pgtype.UUID) (Customer, error)
 	// Description: Get customer by stripe id
 	GetCustomerByStripeId(ctx context.Context, stripeID string) (Customer, error)
 	GetOauth2State(ctx context.Context, state string) (Oauth2State, error)
@@ -28,6 +31,7 @@ type Querier interface {
 	StatisticPerURL(ctx context.Context, arg StatisticPerURLParams) (StatisticPerURLRow, error)
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)
 	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
+	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 
