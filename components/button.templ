@@ -6,6 +6,7 @@ type ButtonProp struct {
 	Type     string
 	WithIcon bool
 	Class    string
+	Href     string
 }
 
 var (
@@ -15,9 +16,15 @@ var (
 
 templ Button(prop ButtonProp) {
 	if prop.WithIcon {
-		<button type={ prop.Type } class={ fmt.Sprintf("%s %s", iconButtonClass, prop.Class) }>
-			{ children... }
-		</button>
+		if prop.Href !="" {
+			<a href={ templ.URL(prop.Href) } class={ fmt.Sprintf("%s %s", iconButtonClass, prop.Class) }>
+				{ children... }
+			</a>
+		} else {
+			<button type={ prop.Type } class={ fmt.Sprintf("%s %s", iconButtonClass, prop.Class) }>
+				{ children... }
+			</button>
+		}
 	} else {
 		<button type={ prop.Type } class={ fmt.Sprintf("%s %s", buttonClass, prop.Class) }>
 			{ children... }
