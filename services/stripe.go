@@ -31,15 +31,18 @@ type stripeStore interface {
 type stripeService struct {
 	client *client.API
 	store  stripeStore
+
+	returnURL string
 }
 
-func NewStripeService(key string, store stripeStore) *stripeService {
+func NewStripeService(key string, store stripeStore, domain string, tls bool) *stripeService {
 	client := &client.API{}
 	client.Init(key, nil)
 
 	return &stripeService{
-		client: client,
-		store:  store,
+		client:    client,
+		store:     store,
+		returnURL: customerRedirectURL(domain, tls),
 	}
 }
 func (s *stripeService) HandleSessionCheckout(ctx context.Context, session *stripe.CheckoutSession) error {
@@ -139,8 +142,6 @@ func (s *stripeService) GenerateCustomerPortalURL(ctx context.Context, user *dom
 		return "", fmt.Errorf("error getting customer: %w", err)
 	}
 
-	returnURL := "http://localhost:8080/my-account" //TODO: get from config
-
 	var configurationID *string
 	yes := true
 	iter := s.client.BillingPortalConfigurations.List(&stripe.BillingPortalConfigurationListParams{
@@ -160,11 +161,20 @@ func (s *stripeService) GenerateCustomerPortalURL(ctx context.Context, user *dom
 		Params:        stripe.Params{},
 		Configuration: configurationID,
 		Customer:      &customer.StripeID,
-		ReturnURL:     &returnURL,
+		ReturnURL:     &s.returnURL,
 	})
 	if err != nil {
 		return "", fmt.Errorf("error creating billing portal session: %w", err)
 	}
 
 	return sess.URL, nil
+}
+
+func customerRedirectURL(domain string, tls bool) string {
+	url := fmt.Sprintf("%s/my-account", domain)
+	if tls {
+		return fmt.Sprintf("https://%s", url)
+	} else {
+		return fmt.Sprintf("http://%s", url)
+	}
 }

@@ -193,7 +193,7 @@ func runServer(ctx context.Context, c config) error {
 	// services
 	shortURL := services.NewShortURL(urlStore, c.redirectURL())
 	userService := services.NewUser(userStore, c.Domain, c.TLS, c.GoogleOauthClientID, c.GoogleOauthSecret)
-	stripeService := services.NewStripeService(c.StripeKey, subscriptionStore)
+	stripeService := services.NewStripeService(c.StripeKey, subscriptionStore, c.Domain, c.TLS)
 
 	// HTTP handlers
 	urlHandlers := handlers.NewURLHandlers(shortURL)

@@ -39,15 +39,13 @@ type userService struct {
 	store userStore
 
 	TLS               bool
-	ownDomain         string
 	googleOauthConfig *oauth2.Config
 }
 
 func NewUser(store userStore, ownDomain string, tls bool, googleClientID, googleClientSecret string) *userService {
 
 	return &userService{
-		store:     store,
-		ownDomain: ownDomain,
+		store: store,
 		googleOauthConfig: &oauth2.Config{
 			ClientID:     googleClientID,
 			ClientSecret: googleClientSecret,
