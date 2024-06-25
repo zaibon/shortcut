@@ -8,6 +8,7 @@ import (
 
 	"gitea.com/go-chi/session"
 	"github.com/go-chi/chi/v5"
+	"github.com/stripe/stripe-go/v78"
 
 	"github.com/zaibon/shortcut/components"
 	"github.com/zaibon/shortcut/domain"
@@ -29,13 +30,22 @@ type AuthService interface {
 	VerifyOauthState(ctx context.Context, state string) (bool, error)
 }
 
-type UsersHandler struct {
-	svc AuthService
+type stripeService interface {
+	GetSubscription(ctx context.Context, user *domain.User) (*domain.Subscription, error)
+	HandlerSessionCheckout(ctx context.Context, session *stripe.CheckoutSession) error
 }
 
-func NewUsersHandler(svc AuthService) *UsersHandler {
+type UsersHandler struct {
+	auth         AuthService
+	stripe       stripeService
+	stripePubKey string
+}
+
+func NewUsersHandler(svc AuthService, stripe stripeService, stripePubKey string) *UsersHandler {
 	return &UsersHandler{
-		svc: svc,
+		auth:         svc,
+		stripe:       stripe,
+		stripePubKey: stripePubKey,
 	}
 }
 
@@ -73,8 +83,25 @@ func (h *UsersHandler) signUp(w http.ResponseWriter, r *http.Request) {
 func (h *UsersHandler) myAccount(w http.ResponseWriter, r *http.Request) {
 	user := middleware.UserFromContext(r.Context())
 
+	subscription, err := h.stripe.GetSubscription(r.Context(), user)
+	if err != nil && !errors.Is(err, services.ErrNotSubscription) {
+		slog.Error("failed to get subscription detail", "err", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if errors.Is(err, services.ErrNotSubscription) {
+		subscription = nil
+	}
+
 	Render(r.Context(), w, views.MyAccount(views.MyAccountData{
-		User: user,
+		User:                  user,
+		Subscription:          subscription,
+		CustomterDashboardURL: "https://billing.stripe.com/p/login/test_bIY00r1FMdkf9Ik5kk", //FIXME: get from config or API
+		PricingData: components.PricingData{
+			User:     user,
+			StipeKey: h.stripePubKey,
+		},
 	}))
 }
 
@@ -87,7 +114,7 @@ func (h *UsersHandler) login(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	user, err := h.svc.VerifyLogin(r.Context(), email, password)
+	user, err := h.auth.VerifyLogin(r.Context(), email, password)
 	if err != nil {
 		w.WriteHeader(ErrorStatus(err))
 		Render(r.Context(), w, components.LoginForm(components.LoginFormData{
@@ -135,7 +162,7 @@ func (h *UsersHandler) register(w http.ResponseWriter, r *http.Request) {
 		Password: password,
 	}
 
-	if err := h.svc.CreateUser(r.Context(), user); err != nil {
+	if err := h.auth.CreateUser(r.Context(), user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -190,7 +217,7 @@ func (h *UsersHandler) editAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.svc.UpdateUser(r.Context(), user.GUID, &domain.User{
+	user, err := h.auth.UpdateUser(r.Context(), user.GUID, &domain.User{
 		Name:  name,
 		Email: email,
 	})
@@ -274,7 +301,7 @@ func (h *UsersHandler) editPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := h.svc.VerifyLogin(r.Context(), user.Email, oldPassword); err != nil {
+	if _, err := h.auth.VerifyLogin(r.Context(), user.Email, oldPassword); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		data.Alerts = components.AlertListData{
 			Alerts: []components.Alert{{
@@ -286,7 +313,7 @@ func (h *UsersHandler) editPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.svc.UpdatePassword(r.Context(), user.GUID, newPassword); err != nil {
+	if err := h.auth.UpdatePassword(r.Context(), user.GUID, newPassword); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		data.Alerts = components.AlertListData{
 			Alerts: []components.Alert{{
@@ -311,7 +338,7 @@ func (h *UsersHandler) editPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UsersHandler) initiateGoogleOauthFlow(w http.ResponseWriter, r *http.Request) {
-	authURL, err := h.svc.InitiateOauthFlow(r.Context())
+	authURL, err := h.auth.InitiateOauthFlow(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -332,7 +359,7 @@ func (h *UsersHandler) oauthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isValid, err := h.svc.VerifyOauthState(r.Context(), state)
+	isValid, err := h.auth.VerifyOauthState(r.Context(), state)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -342,7 +369,7 @@ func (h *UsersHandler) oauthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.svc.IdentifyOauthUser(r.Context(), code)
+	user, err := h.auth.IdentifyOauthUser(r.Context(), code)
 	if err != nil {
 		w.WriteHeader(ErrorStatus(err))
 		Render(r.Context(), w, components.LoginForm(components.LoginFormData{

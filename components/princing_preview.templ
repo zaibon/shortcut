@@ -1,0 +1,22 @@
+package components
+
+import "github.com/zaibon/shortcut/domain"
+
+type PricingData struct {
+	User        *domain.User
+	CountryCode string
+	StipeKey    string
+}
+
+templ PricingPreview(data PricingData) {
+	<div class="grow flex flex-col bg-gray-100 justify-center gap-y-10">
+		// <h2 class="text-3xl font-medium text-gray-700 ml-96 underline">Pick you poison...</h2>//todo: change to a better title
+		<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+		<stripe-pricing-table
+			pricing-table-id="prctbl_1PUfjCP50s8HRVgs1dNHmKR5"
+			publishable-key={ data.StipeKey }
+			client-reference-id={ data.User.GUID.String() }
+			customer-email={ data.User.Email }
+		></stripe-pricing-table>
+	</div>
+}

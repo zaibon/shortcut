@@ -8,6 +8,13 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Customer struct {
+	UserID    pgtype.UUID      `json:"user_id"`
+	StripeID  string           `json:"stripe_id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+}
+
 type Oauth2State struct {
 	State     string           `json:"state"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
@@ -18,6 +25,17 @@ type Session struct {
 	Key    string      `json:"key"`
 	Data   []byte      `json:"data"`
 	Expiry pgtype.Int4 `json:"expiry"`
+}
+
+type Subscription struct {
+	StripeID          string           `json:"stripe_id"`
+	CustomerID        pgtype.UUID      `json:"customer_id"`
+	StripePriceID     string           `json:"stripe_price_id"`
+	StripeProductName string           `json:"stripe_product_name"`
+	Status            string           `json:"status"`
+	Quantity          int32            `json:"quantity"`
+	CreatedAt         pgtype.Timestamp `json:"created_at"`
+	UpdatedAt         pgtype.Timestamp `json:"updated_at"`
 }
 
 type Url struct {

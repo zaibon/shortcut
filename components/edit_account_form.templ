@@ -10,24 +10,33 @@ type EditAccountFormData struct {
 }
 
 templ EditAccountForm(data EditAccountFormData) {
-	<form
-		class="w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg"
-		hx-post="/auth/edit-account"
-		hx-disabled-elt="#submit-btn"
-		hx-on:htmx:after-request="this.reset()"
-		hx-swap="outerHTML"
-	>
-		<div class="flex flex-col mb-4">
-			<h1 class="text-lg text-gray-500 font-semibold">Account</h1>
-			<span class="text-gray-300">Edit your information</span>
-		</div>
-		@InputText(InputTextProp{Type: "text", Name: "name", Label: "Your full name", PlaceHolder: "Jane Doe", Value: data.User.Name, Required: true, Disabled: data.Disabled})
-		@InputText(InputTextProp{Type: "email", Name: "email", Label: "Your email", PlaceHolder: "jane.doe@mail.com", Value: data.User.Email, Required: true, Disabled: data.Disabled})
-		@AlertList(data.Alerts)
-		@show(!data.Disabled) {
-			<button id="submit-btn" class="text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center">Submit</button>
+	<div class="w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg flex flex-col">
+		<form
+			hx-post="/auth/edit-account"
+			hx-disabled-elt="#submit-btn"
+			hx-on:htmx:after-request="this.reset()"
+			hx-swap="outerHTML"
+		>
+			<div class="flex flex-col mb-4">
+				<h1 class="text-lg text-gray-500 font-semibold">Account</h1>
+				<span class="text-gray-300">Edit your information</span>
+			</div>
+			@InputText(InputTextProp{Type: "text", Name: "name", Label: "Your full name", PlaceHolder: "Jane Doe", Value: data.User.Name, Required: true, Disabled: data.Disabled})
+			@InputText(InputTextProp{Type: "email", Name: "email", Label: "Your email", PlaceHolder: "jane.doe@mail.com", Value: data.User.Email, Required: true, Disabled: data.Disabled})
+			@AlertList(data.Alerts)
+			@show(!data.Disabled) {
+				<button id="submit-btn" class="text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center">Submit</button>
+			}
+		</form>
+		if data.User.IsOauth {
+			<div class="w-full mx-auto">
+				<div class="bg-sky-100 border border-sky-400 text-sky-700 px-4 py-3 rounded relative text-center" role="alert">
+					<strong class="font-bold">Info</strong>
+					<span class="block sm:inline">You are using an your Google account, you can't change your information from here.</span>
+				</div>
+			</div>
 		}
-	</form>
+	</div>
 }
 
 templ show(show bool) {

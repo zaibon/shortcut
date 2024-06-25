@@ -32,7 +32,7 @@ func EditAccountForm(data EditAccountFormData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg\" hx-post=\"/auth/edit-account\" hx-disabled-elt=\"#submit-btn\" hx-on:htmx:after-request=\"this.reset()\" hx-swap=\"outerHTML\"><div class=\"flex flex-col mb-4\"><h1 class=\"text-lg text-gray-500 font-semibold\">Account</h1><span class=\"text-gray-300\">Edit your information</span></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg flex flex-col\"><form hx-post=\"/auth/edit-account\" hx-disabled-elt=\"#submit-btn\" hx-on:htmx:after-request=\"this.reset()\" hx-swap=\"outerHTML\"><div class=\"flex flex-col mb-4\"><h1 class=\"text-lg text-gray-500 font-semibold\">Account</h1><span class=\"text-gray-300\">Edit your information</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -68,6 +68,16 @@ func EditAccountForm(data EditAccountFormData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</form>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.User.IsOauth {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full mx-auto\"><div class=\"bg-sky-100 border border-sky-400 text-sky-700 px-4 py-3 rounded relative text-center\" role=\"alert\"><strong class=\"font-bold\">Info</strong> <span class=\"block sm:inline\">You are using an your Google account, you can't change your information from here.</span></div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
