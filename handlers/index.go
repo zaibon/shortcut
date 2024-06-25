@@ -82,7 +82,7 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 	short, err := h.svc.Shorten(ctx, url, user.ID)
 	if err != nil {
 		log.Error("failed to shorten url", slog.Any("error", err))
-		//TODO: show toast
+		toast.Danger(w, "Failed to shorten URL", "Something wrong happened, try again.")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
