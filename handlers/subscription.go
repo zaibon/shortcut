@@ -63,7 +63,7 @@ func (h *subscriptionHandlers) webhook(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-	case "customer.subscription.updated":
+	case "customer.subscription.updated", "customer.subscription.deleted":
 		if err := h.handleSubscriptionUpdated(r.Context(), event); err != nil {
 			log.Error("Error handling subscription updated", "err", err)
 			w.WriteHeader(http.StatusInternalServerError)
