@@ -11,7 +11,7 @@ templ URLList(urls []string) {
 }
 
 templ ShortURL(url string) {
-	<a href={ templ.URL(url) } targer="blank" class="text-base font-normal text-blue-600 hover:underline">{ url }</a>
+	<a href={ templ.URL(url) } target="_blank" rel="noopener noreferrer" class="text-base font-normal text-blue-600 hover:underline">{ url }</a>
 }
 
 templ AddedURL(url string) {
