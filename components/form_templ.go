@@ -11,8 +11,9 @@ import "io"
 import "bytes"
 
 type FormData struct {
-	URL    string
-	Errors map[string]error
+	URL      string
+	Errors   map[string]error
+	ShortURL string
 }
 
 func IndexForm(data FormData) templ.Component {
@@ -38,9 +39,25 @@ func IndexForm(data FormData) templ.Component {
 			Value:       data.URL,
 			Required:    true,
 			Error:       data.Errors["long_url"],
+		}, templ.Attributes{
+			"hx-get":     "/link-title",
+			"hx-trigger": "keyup changed delay:200ms",
+			"hx-target":  "#url-title",
+			"hx-swap":    "innerHTML",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
+		}
+		if data.ShortURL != "" {
+			templ_7745c5c3_Err = ShortURL(data.ShortURL).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"url-title\"></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		templ_7745c5c3_Var2 := templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -48,9 +65,16 @@ func IndexForm(data FormData) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Shorten")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+			if data.ShortURL != "" {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Shorten another link")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Shorten")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 			if !templ_7745c5c3_IsBuffer {
 				_, templ_7745c5c3_Err = io.Copy(templ_7745c5c3_W, templ_7745c5c3_Buffer)
@@ -61,7 +85,7 @@ func IndexForm(data FormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</form>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</form><script>\n\tdocument.getElementById(\"long_url\").addEventListener(\"keyup\",(e)=>{\n\t\tconsole.log(\"keyup\",e)\n\t} )\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

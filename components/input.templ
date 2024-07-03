@@ -11,7 +11,7 @@ type InputTextProp struct {
 	Disabled    bool
 }
 
-templ InputText(prop InputTextProp) {
+templ InputText(prop InputTextProp, attrs ...templ.Attributes) {
 	<div class="mb-5">
 		if prop.Label != "" {
 			<label for={ prop.Name } class="block mb-2 text-sm font-medium text-gray-900">
@@ -30,6 +30,9 @@ templ InputText(prop InputTextProp) {
 			disabled?={ prop.Disabled }
 			if prop.Value!="" {
 				value={ prop.Value }
+			}
+			if len(attrs) > 0 {
+				{ attrs[0]... }
 			}
 		/>
 		if prop.Error != nil {

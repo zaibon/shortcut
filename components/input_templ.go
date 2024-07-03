@@ -21,7 +21,7 @@ type InputTextProp struct {
 	Disabled    bool
 }
 
-func InputText(prop InputTextProp) templ.Component {
+func InputText(prop InputTextProp, attrs ...templ.Attributes) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -163,6 +163,12 @@ func InputText(prop InputTextProp) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
+		if len(attrs) > 0 {
+			templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, attrs[0])
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -175,7 +181,7 @@ func InputText(prop InputTextProp) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(prop.Error.Error())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/input.templ`, Line: 37, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/input.templ`, Line: 40, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {

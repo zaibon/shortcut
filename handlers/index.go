@@ -17,9 +17,10 @@ import (
 )
 
 type ShortURLService interface {
-	Shorten(ctx context.Context, url string, userID domain.ID) (string, error)
+	Shorten(ctx context.Context, url string, title string, userID domain.ID) (string, error)
 	List(ctx context.Context, authorID domain.ID) ([]domain.URL, error)
 	Expand(ctx context.Context, short string) (domain.URL, error)
+	ExtractTitle(url string) string
 
 	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error)
 
@@ -40,13 +41,12 @@ func (h *Handler) Routes(r chi.Router) {
 	r.Get("/", h.index)
 	r.Get("/favicon.ico", h.favicon)
 	r.Post("/shorten-url", h.shorten)
+	r.Get("/link-title", h.linkTitle)
 	r.Get("/{shortID}", h.redirect)
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticated)
 		r.Get("/links", h.myLinks)
-		// r.Get("/links/{slug}", h.urlStatDetail)
-		// r.Get("/stats-table", h.statsTable)
 
 		r.Get("/statistics/clicks/{slug}", h.numberClicks)
 	})
@@ -64,6 +64,7 @@ func (h *Handler) favicon(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	url := r.FormValue("long_url")
+	title := r.FormValue("title")
 
 	if errs := validateURL(url); len(errs) > 0 {
 		Render(r.Context(), w, components.IndexForm(components.FormData{
@@ -79,7 +80,7 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	short, err := h.svc.Shorten(ctx, url, user.ID)
+	short, err := h.svc.Shorten(ctx, url, title, user.ID)
 	if err != nil {
 		log.Error("failed to shorten url", slog.Any("error", err))
 		toast.Danger(w, "Failed to shorten URL", "Something wrong happened, try again.")
@@ -88,7 +89,10 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	toast.Success(w, "Success", fmt.Sprintf("URL shortened to %s", short), `<a href="/links"></a>`)
-	Render(r.Context(), w, components.IndexForm(components.FormData{}))
+	Render(r.Context(), w, components.IndexForm(components.FormData{
+		URL:      url,
+		ShortURL: short,
+	}))
 	Render(r.Context(), w, components.AddedURL(short))
 }
 
@@ -113,6 +117,28 @@ func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	http.Redirect(w, r, url.Long, http.StatusMovedPermanently)
+}
+
+func (h *Handler) linkTitle(w http.ResponseWriter, r *http.Request) {
+	url := r.URL.Query().Get("long_url")
+	if url == "" {
+		http.Error(w, "url is required", http.StatusBadRequest)
+		return
+	}
+
+	title := h.svc.ExtractTitle(url)
+	if title == "" {
+		http.Error(w, "failed to extract title", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	Render(r.Context(), w, components.InputText(components.InputTextProp{
+		Name:     "title",
+		Label:    "Title",
+		Value:    title,
+		Required: true,
+	}))
 }
 
 func validateURL(url string) map[string]error {
