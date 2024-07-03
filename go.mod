@@ -26,7 +26,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.4 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
@@ -44,7 +43,6 @@ require (
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
-	github.com/stripe/stripe-go/v78 v78.12.0 // indirect
 	github.com/unknwon/com v1.0.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20240312152122-5f08fbb34913 // indirect
 	go.opencensus.io v0.24.0 // indirect
@@ -54,8 +52,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
-	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
@@ -77,11 +73,13 @@ require (
 
 require (
 	cloud.google.com/go/storage v1.42.0
-	github.com/a-h/templ v0.2.707
+	github.com/a-h/templ v0.2.731
+	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/oschwald/geoip2-golang v1.11.0
-	github.com/samber/lo v1.39.0
 	github.com/stretchr/testify v1.9.0
+	github.com/stripe/stripe-go/v78 v78.12.0
 	golang.org/x/net v0.26.0
+	golang.org/x/oauth2 v0.21.0
 )
