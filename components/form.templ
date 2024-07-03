@@ -1,8 +1,9 @@
 package components
 
 type FormData struct {
-	URL    string
-	Errors map[string]error
+	URL      string
+	Errors   map[string]error
+	ShortURL string
 }
 
 templ IndexForm(data FormData) {
@@ -13,9 +14,28 @@ templ IndexForm(data FormData) {
 			Value:       data.URL,
 			Required:    true,
 			Error:       data.Errors["long_url"],
+		}, templ.Attributes{
+			"hx-get":     "/link-title",
+			"hx-trigger": "keyup changed delay:200ms",
+			"hx-target":  "#url-title",
+			"hx-swap":    "innerHTML",
 		})
+		if data.ShortURL != "" {
+			@ShortURL(data.ShortURL)
+		} else {
+			<div id="url-title"></div>
+		}
 		@Button(ButtonProp{Type: "submit"}) {
-			Shorten
+			if data.ShortURL != "" {
+				Shorten another link
+			} else {
+				Shorten
+			}
 		}
 	</form>
+	<script>
+	document.getElementById("long_url").addEventListener("keyup",(e)=>{
+		console.log("keyup",e)
+	} )
+	</script>
 }

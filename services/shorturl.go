@@ -39,19 +39,26 @@ func NewShortURL(repo URLStore, shortDomain string) *shortURL {
 	}
 }
 
-func (s *shortURL) Shorten(ctx context.Context, url string, userID domain.ID) (string, error) {
+// Shorten creates a new short URL, if title is empty it will try to extract it from the URL.
+func (s *shortURL) Shorten(ctx context.Context, url, title string, userID domain.ID) (string, error) {
 	shortURL, err := generateShortID(idLength)
 	if err != nil {
 		return "", err
 	}
 
-	title := ExtractTitle(url)
+	if title == "" {
+		title = ExtractTitle(url)
+	}
 
 	if _, err := s.repo.Add(ctx, title, shortURL, url, domain.ID(userID)); err != nil {
 		return "", err
 	}
 
 	return s.toURL(shortURL), nil
+}
+
+func (s *shortURL) ExtractTitle(url string) string {
+	return ExtractTitle(url)
 }
 
 func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]domain.URL, error) {
