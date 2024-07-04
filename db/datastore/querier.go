@@ -32,6 +32,7 @@ type Querier interface {
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)
 	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
 	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error)
+	UpdateTitle(ctx context.Context, arg UpdateTitleParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 

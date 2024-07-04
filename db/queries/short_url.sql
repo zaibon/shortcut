@@ -13,3 +13,9 @@ ORDER BY id DESC;
 SELECT *
 FROM urls
 WHERE urls.short_url = @short_url;
+
+-- name: UpdateTitle :exec
+UPDATE urls
+SET title = @title
+WHERE urls.short_url = @short_url
+AND urls.author_id = @author_id;

@@ -94,3 +94,21 @@ func (q *Queries) ListShortURLs(ctx context.Context, authorID int32) ([]Url, err
 	}
 	return items, nil
 }
+
+const updateTitle = `-- name: UpdateTitle :exec
+UPDATE urls
+SET title = $1
+WHERE urls.short_url = $2
+AND urls.author_id = $3
+`
+
+type UpdateTitleParams struct {
+	Title    string `json:"title"`
+	ShortUrl string `json:"short_url"`
+	AuthorID int32  `json:"author_id"`
+}
+
+func (q *Queries) UpdateTitle(ctx context.Context, arg UpdateTitleParams) error {
+	_, err := q.db.Exec(ctx, updateTitle, arg.Title, arg.ShortUrl, arg.AuthorID)
+	return err
+}

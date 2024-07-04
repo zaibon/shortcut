@@ -8,9 +8,11 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "fmt"
-import "github.com/zaibon/shortcut/components"
-import "github.com/zaibon/shortcut/components/icons"
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/components"
+	"github.com/zaibon/shortcut/components/icons"
+)
 
 type MyLinkPageData struct {
 	URLs       []URLStat
@@ -59,7 +61,7 @@ func MyLinksPage(data MyLinkPageData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"grow flex flex-col bg-gray-100\"><div class=\"flex flex-row pt-4 pl-16 gap-x-2\"><h1 class=\"text-2xl font-extrabold\">My links</h1><a href=\"/\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"grow flex flex-col bg-gray-100 p-4\"><div class=\"flex flex-row pt-4 pl-16 gap-x-2 mb-4\"><h1 class=\"text-2xl font-extrabold\">My links</h1><a href=\"/\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -96,7 +98,7 @@ func MyLinksPage(data MyLinkPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a></div><div class=\"flex flex-col lg:grid lg:grid-flow-row lg:grid-cols-3 lg:grid-rows-3\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a></div><div class=\"flex flex-col lg:grid lg:grid-flow-row lg:grid-cols-3 lg:grid-rows-3 lg:gap-10\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -22,6 +22,9 @@ type ShortURLService interface {
 	Expand(ctx context.Context, short string) (domain.URL, error)
 	ExtractTitle(url string) string
 
+	UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) error
+
+	Get(ctx context.Context, authorID domain.ID, slug string) (domain.URL, error)
 	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error)
 
 	TrackRedirect(ctx context.Context, urlID domain.ID, r *http.Request) error
@@ -40,14 +43,16 @@ func NewURLHandlers(shortURL ShortURLService) *Handler {
 func (h *Handler) Routes(r chi.Router) {
 	r.Get("/", h.index)
 	r.Get("/favicon.ico", h.favicon)
-	r.Post("/shorten-url", h.shorten)
 	r.Get("/link-title", h.linkTitle)
 	r.Get("/{shortID}", h.redirect)
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticated)
+		r.Post("/shorten-url", h.shorten)
 		r.Get("/links", h.myLinks)
+		r.Get("/links/{slug}/edit", h.titleEdit)
 
+		r.Patch("/links/{slug}", h.updateTitle)
 		r.Get("/statistics/clicks/{slug}", h.numberClicks)
 	})
 }

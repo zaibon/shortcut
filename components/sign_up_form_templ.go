@@ -26,7 +26,7 @@ func SignUpForm() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg\" hx-post=\"/auth/register\" hx-disabled-elt=\"#submit-btn\" hx-on:htmx:after-request=\"this.reset()\"><h1 class=\"text-lg mb-5 text-gray-500 font-semibold\">Sign Up</h1>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"flex flex-col w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg gap-y-2\" hx-post=\"/auth/register\" hx-disabled-elt=\"#submit-btn\" hx-on:htmx:after-request=\"this.reset()\"><h1 class=\"text-lg mb-5 text-gray-500 font-semibold\">Sign Up</h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -46,7 +46,7 @@ func SignUpForm() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"submit-btn\" class=\"text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center\">Submit</button></form>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"submit-btn\" class=\" mt-2 text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center\">Submit</button></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
