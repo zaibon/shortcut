@@ -121,23 +121,22 @@ func (s urlStore) Statistics(ctx context.Context, authorID domain.ID) ([]datasto
 	return rows, err
 }
 
-func (s urlStore) StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error) {
+func (s urlStore) StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (datastore.StatisticPerURLRow, error) {
 	row, err := s.db.StatisticPerURL(ctx, datastore.StatisticPerURLParams{
 		ShortUrl: slug,
 		AuthorID: int32(authorID),
 	})
 	if err != nil {
-		return domain.URLStat{}, fmt.Errorf("failed to get statistics: %w", err)
+		return datastore.StatisticPerURLRow{}, fmt.Errorf("failed to get statistics: %w", err)
 	}
 
-	return domain.URLStat{
-		URL: domain.URL{
-			ID:        domain.ID(row.ID),
-			Long:      row.LongUrl,
-			Short:     row.ShortUrl,
-			Slug:      slug,
-			CreatedAt: row.CreatedAt.Time,
-		},
-		NrVisited: int(row.NrVisits),
-	}, nil
+	return row, nil
+}
+
+func (s urlStore) UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) error {
+	return s.db.UpdateTitle(ctx, datastore.UpdateTitleParams{
+		Title:    title,
+		ShortUrl: slug,
+		AuthorID: int32(authorID),
+	})
 }

@@ -12,7 +12,7 @@ type InputTextProp struct {
 }
 
 templ InputText(prop InputTextProp, attrs ...templ.Attributes) {
-	<div class="mb-5">
+	<div>
 		if prop.Label != "" {
 			<label for={ prop.Name } class="block mb-2 text-sm font-medium text-gray-900">
 				{ prop.Label }
@@ -22,7 +22,9 @@ templ InputText(prop InputTextProp, attrs ...templ.Attributes) {
 			type={ prop.Type }
 			id={ prop.Name }
 			name={ prop.Name }
-			class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+			if !hasClass(attrs...) {
+				class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+			}
 			if prop.PlaceHolder!="" {
 				placeholder={ prop.PlaceHolder }
 			}
@@ -41,4 +43,14 @@ templ InputText(prop InputTextProp, attrs ...templ.Attributes) {
 			</p>
 		}
 	</div>
+}
+
+func hasClass(attrs ...templ.Attributes) bool {
+	if len(attrs) <= 0 {
+		return false
+	}
+	if _, ok := attrs[0]["class"]; ok {
+		return true
+	}
+	return false
 }

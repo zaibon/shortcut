@@ -35,7 +35,7 @@ func EditAccountForm(data EditAccountFormData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg flex flex-col\"><form hx-post=\"/auth/edit-account\" hx-disabled-elt=\"#submit-btn\" hx-on:htmx:after-request=\"this.reset()\" hx-swap=\"outerHTML\"><div class=\"flex flex-col mb-4\"><h1 class=\"text-lg text-gray-500 font-semibold\">Account</h1><span class=\"text-gray-300\">Edit your information</span></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg\"><form class=\"flex flex-col gap-y-2 w-full\" hx-post=\"/auth/edit-account\" hx-disabled-elt=\"#submit-btn\" hx-on:htmx:after-request=\"this.reset()\" hx-swap=\"outerHTML\"><div class=\"flex flex-col mb-4\"><h1 class=\"text-lg text-gray-500 font-semibold\">Account</h1><span class=\"text-gray-300\">Edit your information</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -63,7 +63,7 @@ func EditAccountForm(data EditAccountFormData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"submit-btn\" class=\"text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center\">Submit</button>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"submit-btn\" class=\"mt-2 text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center\">Submit</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -145,7 +145,7 @@ func EditPasswordForm(data EditPasswordFormData) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg\" hx-post=\"/auth/edit-password\" hx-swap=\"outerHTML\" hx-disabled-elt=\"#submit-btn\" hx-on:htmx:after-request=\"this.reset()\"><div class=\"flex flex-col mb-4\"><h1 class=\"text-lg text-gray-500 font-semibold\">Password</h1><span class=\"text-gray-300\">Change your password</span></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"flex flex-col w-full md:w-1/3 mx-auto bg-white p-4 rounded-lg gap-y-2\" hx-post=\"/auth/edit-password\" hx-swap=\"outerHTML\" hx-disabled-elt=\"#submit-btn\" hx-on:htmx:after-request=\"this.reset()\"><div class=\"flex flex-col mb-4\"><h1 class=\"text-lg text-gray-500 font-semibold\">Password</h1><span class=\"text-gray-300\">Change your password</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -165,7 +165,7 @@ func EditPasswordForm(data EditPasswordFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"submit-btn\" class=\"text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center\">Submit</button></form>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"submit-btn\" class=\"mt-2 text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center\">Submit</button></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

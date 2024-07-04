@@ -12,13 +12,13 @@ templ Layout() {
 			<script src="https://unpkg.com/htmx.org@2.0.0/dist/htmx.js" integrity="sha384-Xh+GLLi0SMFPwtHQjT72aPG19QvKB8grnyRbYBNIdHWc2NkCrz65jlU7YrzO6qRp" crossorigin="anonymous"></script>
 			<script src="https://cdn.tailwindcss.com"></script>
 			<script src="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.min.js"></script>
-			<script src="static/js/toast.js" defer></script>
-			<script src="static/js/copycb.js" defer></script>
+			<script src="/static/js/toast.js" defer></script>
+			<script src="/static/js/copycb.js" defer></script>
 			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.css"/>
 			<link rel="apple-touch-icon" sizes="180x180" href="static/img/apple-touch-icon.png"/>
 			<link rel="icon" type="image/png" sizes="32x32" href="static/img/favicon-32x32.png"/>
 			<link rel="icon" type="image/png" sizes="16x16" href="static/img/favicon-16x16.png"/>
-			<link rel="manifest" href="static/img/site.webmanifest"/>
+			<link rel="manifest" href="/static/img/site.webmanifest"/>
 		</head>
 		<body class="h-dvh">
 			<div class="flex min-h-full flex-col bg-gray-100">
@@ -28,7 +28,7 @@ templ Layout() {
 						Name: "ShortBut",
 						Href: "/",
 					},
-					HomeLogo: "static/img/logo.webp",
+					HomeLogo: "/static/img/logo.webp",
 					Links: []components.NarBarLink{
 						{
 							Name: "My Links",

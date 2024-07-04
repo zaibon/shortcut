@@ -24,7 +24,8 @@ type URLStore interface {
 	TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error)
 	InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error
 	Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error)
-	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error)
+	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (datastore.StatisticPerURLRow, error)
+	UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) error
 }
 
 type shortURL struct {
@@ -59,6 +60,22 @@ func (s *shortURL) Shorten(ctx context.Context, url, title string, userID domain
 
 func (s *shortURL) ExtractTitle(url string) string {
 	return ExtractTitle(url)
+}
+
+func (s *shortURL) Get(ctx context.Context, authorID domain.ID, slug string) (domain.URL, error) {
+	row, err := s.repo.Get(ctx, slug)
+	if err != nil {
+		return domain.URL{}, err
+	}
+
+	return domain.URL{
+		Title:     row.Title,
+		ID:        domain.ID(row.ID),
+		Long:      row.LongUrl,
+		Short:     s.toURL(row.ShortUrl),
+		Slug:      row.ShortUrl,
+		CreatedAt: row.CreatedAt.Time,
+	}, nil
 }
 
 func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]domain.URL, error) {
@@ -133,11 +150,12 @@ func (s *shortURL) Statistics(ctx context.Context, authorID domain.ID) ([]domain
 	for i, r := range rows {
 		stats[i] = domain.URLStat{
 			URL: domain.URL{
-				Title: r.Title,
-				ID:    domain.ID(r.ID),
-				Slug:  r.ShortUrl,
-				Long:  r.LongUrl,
-				Short: s.toURL(r.ShortUrl),
+				Title:     r.Title,
+				ID:        domain.ID(r.ID),
+				Slug:      r.ShortUrl,
+				Long:      r.LongUrl,
+				Short:     s.toURL(r.ShortUrl),
+				CreatedAt: r.CreatedAt.Time,
 			},
 			NrVisited: int(r.NrVisits),
 		}
@@ -147,7 +165,26 @@ func (s *shortURL) Statistics(ctx context.Context, authorID domain.ID) ([]domain
 }
 
 func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error) {
-	return s.repo.StatisticsDetail(ctx, authorID, slug)
+	detail, err := s.repo.StatisticsDetail(ctx, authorID, slug)
+	if err != nil {
+		return domain.URLStat{}, fmt.Errorf("failed to get statistics detail: %w", err)
+	}
+
+	return domain.URLStat{
+		URL: domain.URL{
+			ID:        domain.ID(detail.ID),
+			Title:     detail.Title,
+			Long:      detail.LongUrl,
+			Short:     s.toURL(detail.ShortUrl),
+			Slug:      slug,
+			CreatedAt: detail.CreatedAt.Time,
+		},
+		NrVisited: int(detail.NrVisits),
+	}, nil
+}
+
+func (s *shortURL) UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) error {
+	return s.repo.UpdateTitle(ctx, authorID, slug, title)
 }
 
 func generateShortID(length int) (string, error) {

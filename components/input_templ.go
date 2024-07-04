@@ -37,7 +37,7 @@ func InputText(prop InputTextProp, attrs ...templ.Attributes) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mb-5\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -112,9 +112,15 @@ func InputText(prop InputTextProp, attrs ...templ.Attributes) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
+		}
+		if !hasClass(attrs...) {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		if prop.PlaceHolder != "" {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" placeholder=\"")
@@ -124,7 +130,7 @@ func InputText(prop InputTextProp, attrs ...templ.Attributes) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(prop.PlaceHolder)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/input.templ`, Line: 27, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/input.templ`, Line: 29, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -155,7 +161,7 @@ func InputText(prop InputTextProp, attrs ...templ.Attributes) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(prop.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/input.templ`, Line: 32, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/input.templ`, Line: 34, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -184,7 +190,7 @@ func InputText(prop InputTextProp, attrs ...templ.Attributes) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(prop.Error.Error())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/input.templ`, Line: 40, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/input.templ`, Line: 42, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -201,4 +207,14 @@ func InputText(prop InputTextProp, attrs ...templ.Attributes) templ.Component {
 		}
 		return templ_7745c5c3_Err
 	})
+}
+
+func hasClass(attrs ...templ.Attributes) bool {
+	if len(attrs) <= 0 {
+		return false
+	}
+	if _, ok := attrs[0]["class"]; ok {
+		return true
+	}
+	return false
 }
