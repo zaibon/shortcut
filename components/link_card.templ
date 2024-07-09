@@ -66,7 +66,7 @@ templ TitleDetail(title, slug string) {
 		<button hx-get={ fmt.Sprintf("/links/%s/edit", slug) }>
 			@icons.Edit(icons.IconProp{
 				Size:  18,
-				Class: "text-cyan-800 dark:text-white",
+				Class: "text-cyan-800",
 			})
 		</button>
 	</div>
@@ -90,7 +90,7 @@ templ EditTitleForm(title, slug string) {
 		<button type="submit">
 			@icons.Check(icons.IconProp{
 				Size:  18,
-				Class: "text-cyan-800 dark:text-white align-text-top",
+				Class: "text-cyan-800 align-text-top",
 			})
 		</button>
 	</form>

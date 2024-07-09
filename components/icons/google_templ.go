@@ -28,7 +28,7 @@ func Google(prop IconProp) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var2 = []any{fmt.Sprintf("w-[%dpx] h-[%dpx] text-gray-800 dark:text-white %s", prop.Size, prop.Size, prop.Class)}
+		var templ_7745c5c3_Var2 = []any{fmt.Sprintf("w-[%dpx] h-[%dpx] text-gray-800  %s", prop.Size, prop.Size, prop.Class)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

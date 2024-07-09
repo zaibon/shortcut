@@ -65,7 +65,7 @@ func LoginForm(data LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"submit-btn\" class=\"mt-2 text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center\">Submit</button><div class=\"flex flex-row justify-center items-center gap-x-5\"><hr class=\"grow h-px my-8 bg-gray-200 border-0 dark:bg-gray-700\"><span class=\"align-middle\">Or</span><hr class=\"grow h-px my-8 bg-gray-200 border-0 dark:bg-gray-700\"></div><a href=\"/oauth/login\" class=\"inline-flex items-center rounded border border-1 w-full hover:bg-slate-100\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"submit-btn\" class=\"mt-2 text-white bg-cyan-600 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full md:w-auto px-5 py-2.5 text-center\">Submit</button><div class=\"flex flex-row justify-center items-center gap-x-5\"><hr class=\"grow h-px my-8 bg-gray-200 border-0\"><span class=\"align-middle\">Or</span><hr class=\"grow h-px my-8 bg-gray-200 border-0\"></div><a href=\"/oauth/login\" class=\"inline-flex items-center rounded border border-1 w-full hover:bg-slate-100\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -312,7 +312,7 @@ func TitleDetail(title, slug string) templ.Component {
 		}
 		templ_7745c5c3_Err = icons.Edit(icons.IconProp{
 			Size:  18,
-			Class: "text-cyan-800 dark:text-white",
+			Class: "text-cyan-800",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -377,7 +377,7 @@ func EditTitleForm(title, slug string) templ.Component {
 		}
 		templ_7745c5c3_Err = icons.Check(icons.IconProp{
 			Size:  18,
-			Class: "text-cyan-800 dark:text-white align-text-top",
+			Class: "text-cyan-800 align-text-top",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

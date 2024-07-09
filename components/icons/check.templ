@@ -4,7 +4,7 @@ import "fmt"
 
 templ Check(prop IconProp, attrs ...templ.Attributes) {
 	<svg
-		class={ fmt.Sprintf("w-[%dpx] h-[%dpx] text-gray-800 dark:text-white %s", prop.Size, prop.Size, prop.Class) }
+		class={ fmt.Sprintf("w-[%dpx] h-[%dpx] text-gray-800  %s", prop.Size, prop.Size, prop.Class) }
 		aria-hidden="true"
 		xmlns="http://www.w3.org/2000/svg"
 		width="24"
