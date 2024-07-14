@@ -19,13 +19,15 @@ const idLength = 6 //TODO: make this dynamic by reading the amount of url stored
 
 type URLStore interface {
 	Add(ctx context.Context, title, shortURL, longURL string, authorID domain.ID) (domain.ID, error)
-	List(ctx context.Context, authorID domain.ID) ([]datastore.Url, error)
+	List(ctx context.Context, authorID domain.ID, showArchived bool) ([]datastore.Url, error)
 	Get(ctx context.Context, shortID string) (datastore.Url, error)
 	TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error)
 	InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error
 	Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error)
 	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (datastore.StatisticPerURLRow, error)
-	UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) error
+	UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) (datastore.Url, error)
+	ArchiveURL(ctx context.Context, authorID domain.ID, slug string) error
+	UnarchiveURL(ctx context.Context, authorID domain.ID, slug string) error
 }
 
 type shortURL struct {
@@ -69,17 +71,18 @@ func (s *shortURL) Get(ctx context.Context, authorID domain.ID, slug string) (do
 	}
 
 	return domain.URL{
-		Title:     row.Title,
-		ID:        domain.ID(row.ID),
-		Long:      row.LongUrl,
-		Short:     s.toURL(row.ShortUrl),
-		Slug:      row.ShortUrl,
-		CreatedAt: row.CreatedAt.Time,
+		Title:      row.Title,
+		ID:         domain.ID(row.ID),
+		Long:       row.LongUrl,
+		Short:      s.toURL(row.ShortUrl),
+		Slug:       row.ShortUrl,
+		IsArchived: row.IsArchived.Bool,
+		CreatedAt:  row.CreatedAt.Time,
 	}, nil
 }
 
-func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]domain.URL, error) {
-	rows, err := s.repo.List(ctx, authorID)
+func (s *shortURL) List(ctx context.Context, authorID domain.ID, showArchived bool) ([]domain.URL, error) {
+	rows, err := s.repo.List(ctx, authorID, showArchived)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list shorten urls: %w", err)
 	}
@@ -91,12 +94,13 @@ func (s *shortURL) List(ctx context.Context, authorID domain.ID) ([]domain.URL, 
 			}
 		}
 		urls[i] = domain.URL{
-			Title:     v.Title,
-			ID:        domain.ID(v.ID),
-			Long:      v.LongUrl,
-			Short:     s.toURL(v.ShortUrl),
-			Slug:      v.ShortUrl,
-			CreatedAt: v.CreatedAt.Time,
+			Title:      v.Title,
+			ID:         domain.ID(v.ID),
+			Long:       v.LongUrl,
+			Short:      s.toURL(v.ShortUrl),
+			Slug:       v.ShortUrl,
+			IsArchived: v.IsArchived.Bool,
+			CreatedAt:  v.CreatedAt.Time,
 		}
 	}
 
@@ -183,8 +187,26 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 	}, nil
 }
 
-func (s *shortURL) UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) error {
-	return s.repo.UpdateTitle(ctx, authorID, slug, title)
+func (s *shortURL) UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) (domain.URL, error) {
+	row, err := s.repo.UpdateTitle(ctx, authorID, slug, title)
+	if err != nil {
+		return domain.URL{}, fmt.Errorf("failed to update title: %w", err)
+	}
+	return domain.URL{
+		ID:        domain.ID(row.ID),
+		Title:     row.Title,
+		Long:      row.LongUrl,
+		Short:     s.toURL(row.ShortUrl),
+		Slug:      slug,
+		CreatedAt: row.CreatedAt.Time,
+	}, nil
+}
+
+func (s *shortURL) ArchiveURL(ctx context.Context, authorID domain.ID, slug string) error {
+	return s.repo.ArchiveURL(ctx, authorID, slug)
+}
+func (s *shortURL) UnarchiveURL(ctx context.Context, authorID domain.ID, slug string) error {
+	return s.repo.UnarchiveURL(ctx, authorID, slug)
 }
 
 func generateShortID(length int) (string, error) {

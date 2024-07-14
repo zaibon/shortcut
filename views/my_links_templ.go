@@ -15,20 +15,29 @@ import (
 )
 
 type MyLinkPageData struct {
-	URLs       []URLStat
-	Autoreload bool
+	URLs         []URLStat
+	Autoreload   bool
+	ShowArchived bool
 }
 
 type URLStat struct {
-	Title     string
-	Slug      string
-	Short     string
-	Long      string
-	CreatedAt string
+	Title      string
+	Slug       string
+	Short      string
+	Long       string
+	IsArchived bool
+	CreatedAt  string
 }
 
 func toggle(b bool) string {
 	return fmt.Sprintf("/statistics?autoreload=%v", !b)
+}
+
+func title(b bool) string {
+	if b {
+		return "My archived links"
+	}
+	return "My links"
 }
 
 func MyLinksPage(data MyLinkPageData) templ.Component {
@@ -61,11 +70,24 @@ func MyLinksPage(data MyLinkPageData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"grow flex flex-col bg-gray-100 p-4\"><div class=\"flex flex-row pt-4 pl-16 gap-x-2 mb-4\"><h1 class=\"text-2xl font-extrabold\">My links</h1><a href=\"/\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"grow flex flex-col bg-gray-100 p-4\"><div class=\"flex flex-row pt-4 pl-16 mb-4\"><div class=\"flex flex-row gap-x-2\"><h1 class=\"text-2xl font-extrabold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var3 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(title(data.ShowArchived))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/my_links.templ`, Line: 42, Col: 67}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h1><a href=\"/\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var4 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 				if !templ_7745c5c3_IsBuffer {
@@ -94,21 +116,34 @@ func MyLinksPage(data MyLinkPageData) templ.Component {
 				Type:     "text",
 				WithIcon: true,
 				Class:    "text-white text-cyan-700 bg-cyan-700 hover:bg-cyan-600",
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a></div><div class=\"flex flex-col lg:grid lg:grid-flow-row lg:grid-cols-3 lg:grid-rows-3 lg:gap-10\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.Toggle(components.ToggleProp{
+				Label:     "Show archivewwd",
+				IsChecked: data.ShowArchived,
+				ID:        "toggle-archived",
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div id=\"list-links\" class=\"flex flex-col lg:grid lg:grid-flow-row lg:grid-cols-3 lg:grid-rows-3 lg:gap-10\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, url := range data.URLs {
 				templ_7745c5c3_Err = components.LinkCard(components.LinkCardData{
-					Title:     url.Title,
-					Short:     url.Short,
-					Long:      url.Long,
-					CreatedAt: url.CreatedAt,
-					Slug:      url.Slug,
+					Title:      url.Title,
+					Short:      url.Short,
+					Long:       url.Long,
+					CreatedAt:  url.CreatedAt,
+					Slug:       url.Slug,
+					IsArchived: url.IsArchived,
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

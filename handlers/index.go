@@ -18,16 +18,19 @@ import (
 
 type ShortURLService interface {
 	Shorten(ctx context.Context, url string, title string, userID domain.ID) (string, error)
-	List(ctx context.Context, authorID domain.ID) ([]domain.URL, error)
+	List(ctx context.Context, authorID domain.ID, showArchived bool) ([]domain.URL, error)
 	Expand(ctx context.Context, short string) (domain.URL, error)
 	ExtractTitle(url string) string
 
-	UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) error
+	UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) (domain.URL, error)
 
 	Get(ctx context.Context, authorID domain.ID, slug string) (domain.URL, error)
 	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error)
 
 	TrackRedirect(ctx context.Context, urlID domain.ID, r *http.Request) error
+
+	ArchiveURL(ctx context.Context, authorID domain.ID, slug string) error
+	UnarchiveURL(ctx context.Context, authorID domain.ID, slug string) error
 }
 
 type Handler struct {
@@ -53,6 +56,8 @@ func (h *Handler) Routes(r chi.Router) {
 		r.Get("/links/{slug}/edit", h.titleEdit)
 
 		r.Patch("/links/{slug}", h.updateTitle)
+		r.Patch("/archive/{slug}", h.archiveURL)
+		r.Patch("/unarchive/{slug}", h.unarchiveURL)
 		r.Get("/statistics/clicks/{slug}", h.numberClicks)
 	})
 }

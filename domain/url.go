@@ -3,12 +3,13 @@ package domain
 import "time"
 
 type URL struct {
-	ID        ID
-	Title     string
-	Long      string
-	Short     string
-	Slug      string
-	CreatedAt time.Time
+	ID         ID
+	Title      string
+	Long       string
+	Short      string
+	Slug       string
+	IsArchived bool
+	CreatedAt  time.Time
 }
 
 type URLStat struct {

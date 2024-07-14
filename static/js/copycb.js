@@ -23,3 +23,10 @@ const copyContent = async (copyContent, copyIcon, doneIcon) => {
         console.log('failed to copy!', err);
     }
 }
+
+document.getElementById("toggle-archived").addEventListener("change", function () {
+    const isChecked = this.checked;
+    var queryParams = new URLSearchParams(window.location.search);
+    queryParams.set("archived", isChecked);
+    document.location.search = queryParams.toString();
+});

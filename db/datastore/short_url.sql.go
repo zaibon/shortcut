@@ -7,12 +7,14 @@ package datastore
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addShortURL = `-- name: AddShortURL :one
 INSERT INTO urls (title,short_url, long_url, author_id) 
 VALUES ($1, $2, $3, $4)
-RETURNING id, short_url, long_url, author_id, created_at, title
+RETURNING id, short_url, long_url, author_id, created_at, title, is_archived
 `
 
 type AddShortURLParams struct {
@@ -37,12 +39,30 @@ func (q *Queries) AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, 
 		&i.AuthorID,
 		&i.CreatedAt,
 		&i.Title,
+		&i.IsArchived,
 	)
 	return i, err
 }
 
+const archiveURL = `-- name: ArchiveURL :exec
+UPDATE urls
+SET is_archived = true
+WHERE urls.short_url = $1
+AND urls.author_id = $2
+`
+
+type ArchiveURLParams struct {
+	ShortUrl string `json:"short_url"`
+	AuthorID int32  `json:"author_id"`
+}
+
+func (q *Queries) ArchiveURL(ctx context.Context, arg ArchiveURLParams) error {
+	_, err := q.db.Exec(ctx, archiveURL, arg.ShortUrl, arg.AuthorID)
+	return err
+}
+
 const getShortURL = `-- name: GetShortURL :one
-SELECT id, short_url, long_url, author_id, created_at, title
+SELECT id, short_url, long_url, author_id, created_at, title, is_archived
 FROM urls
 WHERE urls.short_url = $1
 `
@@ -57,19 +77,26 @@ func (q *Queries) GetShortURL(ctx context.Context, shortUrl string) (Url, error)
 		&i.AuthorID,
 		&i.CreatedAt,
 		&i.Title,
+		&i.IsArchived,
 	)
 	return i, err
 }
 
 const listShortURLs = `-- name: ListShortURLs :many
-SELECT id, short_url, long_url, author_id, created_at, title
+SELECT id, short_url, long_url, author_id, created_at, title, is_archived
 FROM urls
 WHERE urls.author_id = $1
+AND urls.is_archived = $2
 ORDER BY id DESC
 `
 
-func (q *Queries) ListShortURLs(ctx context.Context, authorID int32) ([]Url, error) {
-	rows, err := q.db.Query(ctx, listShortURLs, authorID)
+type ListShortURLsParams struct {
+	AuthorID   int32       `json:"author_id"`
+	IsArchived pgtype.Bool `json:"is_archived"`
+}
+
+func (q *Queries) ListShortURLs(ctx context.Context, arg ListShortURLsParams) ([]Url, error) {
+	rows, err := q.db.Query(ctx, listShortURLs, arg.AuthorID, arg.IsArchived)
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +111,7 @@ func (q *Queries) ListShortURLs(ctx context.Context, authorID int32) ([]Url, err
 			&i.AuthorID,
 			&i.CreatedAt,
 			&i.Title,
+			&i.IsArchived,
 		); err != nil {
 			return nil, err
 		}
@@ -95,11 +123,29 @@ func (q *Queries) ListShortURLs(ctx context.Context, authorID int32) ([]Url, err
 	return items, nil
 }
 
-const updateTitle = `-- name: UpdateTitle :exec
+const unarchiveURL = `-- name: UnarchiveURL :exec
+UPDATE urls
+SET is_archived = false
+WHERE urls.short_url = $1
+AND urls.author_id = $2
+`
+
+type UnarchiveURLParams struct {
+	ShortUrl string `json:"short_url"`
+	AuthorID int32  `json:"author_id"`
+}
+
+func (q *Queries) UnarchiveURL(ctx context.Context, arg UnarchiveURLParams) error {
+	_, err := q.db.Exec(ctx, unarchiveURL, arg.ShortUrl, arg.AuthorID)
+	return err
+}
+
+const updateTitle = `-- name: UpdateTitle :one
 UPDATE urls
 SET title = $1
 WHERE urls.short_url = $2
 AND urls.author_id = $3
+RETURNING id, short_url, long_url, author_id, created_at, title, is_archived
 `
 
 type UpdateTitleParams struct {
@@ -108,7 +154,17 @@ type UpdateTitleParams struct {
 	AuthorID int32  `json:"author_id"`
 }
 
-func (q *Queries) UpdateTitle(ctx context.Context, arg UpdateTitleParams) error {
-	_, err := q.db.Exec(ctx, updateTitle, arg.Title, arg.ShortUrl, arg.AuthorID)
-	return err
+func (q *Queries) UpdateTitle(ctx context.Context, arg UpdateTitleParams) (Url, error) {
+	row := q.db.QueryRow(ctx, updateTitle, arg.Title, arg.ShortUrl, arg.AuthorID)
+	var i Url
+	err := row.Scan(
+		&i.ID,
+		&i.ShortUrl,
+		&i.LongUrl,
+		&i.AuthorID,
+		&i.CreatedAt,
+		&i.Title,
+		&i.IsArchived,
+	)
+	return i, err
 }
