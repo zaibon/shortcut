@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
+	ArchiveURL(ctx context.Context, arg ArchiveURLParams) error
 	GetCustomer(ctx context.Context, userID pgtype.UUID) (Customer, error)
 	// Description: Get customer by stripe id
 	GetCustomerByStripeId(ctx context.Context, stripeID string) (Customer, error)
@@ -25,14 +26,15 @@ type Querier interface {
 	InsertUserOauth(ctx context.Context, arg InsertUserOauthParams) (User, error)
 	InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error)
 	ListCustomerSubscription(ctx context.Context, arg ListCustomerSubscriptionParams) ([]Subscription, error)
-	ListShortURLs(ctx context.Context, authorID int32) ([]Url, error)
+	ListShortURLs(ctx context.Context, arg ListShortURLsParams) ([]Url, error)
 	ListStatisticsPerAuthor(ctx context.Context, authorID int32) ([]ListStatisticsPerAuthorRow, error)
 	ListVisits(ctx context.Context) ([]Visit, error)
 	StatisticPerURL(ctx context.Context, arg StatisticPerURLParams) (StatisticPerURLRow, error)
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)
+	UnarchiveURL(ctx context.Context, arg UnarchiveURLParams) error
 	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
 	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error)
-	UpdateTitle(ctx context.Context, arg UpdateTitleParams) error
+	UpdateTitle(ctx context.Context, arg UpdateTitleParams) (Url, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 

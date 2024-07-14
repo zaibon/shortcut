@@ -34,8 +34,14 @@ func (s *urlStore) Add(ctx context.Context, title, shortURL, longURL string, aut
 	return domain.ID(url.ID), nil
 }
 
-func (s *urlStore) List(ctx context.Context, authorID domain.ID) ([]datastore.Url, error) {
-	rows, err := s.db.ListShortURLs(ctx, int32(authorID))
+func (s *urlStore) List(ctx context.Context, authorID domain.ID, showArchived bool) ([]datastore.Url, error) {
+	rows, err := s.db.ListShortURLs(ctx, datastore.ListShortURLsParams{
+		AuthorID: int32(authorID),
+		IsArchived: pgtype.Bool{
+			Bool:  showArchived,
+			Valid: true,
+		},
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list shorten urls: %w", err)
 	}
@@ -133,9 +139,23 @@ func (s urlStore) StatisticsDetail(ctx context.Context, authorID domain.ID, slug
 	return row, nil
 }
 
-func (s urlStore) UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) error {
+func (s urlStore) UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) (datastore.Url, error) {
 	return s.db.UpdateTitle(ctx, datastore.UpdateTitleParams{
 		Title:    title,
+		ShortUrl: slug,
+		AuthorID: int32(authorID),
+	})
+}
+
+func (s urlStore) ArchiveURL(ctx context.Context, authorID domain.ID, slug string) error {
+	return s.db.ArchiveURL(ctx, datastore.ArchiveURLParams{
+		ShortUrl: slug,
+		AuthorID: int32(authorID),
+	})
+}
+
+func (s urlStore) UnarchiveURL(ctx context.Context, authorID domain.ID, slug string) error {
+	return s.db.UnarchiveURL(ctx, datastore.UnarchiveURLParams{
 		ShortUrl: slug,
 		AuthorID: int32(authorID),
 	})

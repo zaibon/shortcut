@@ -39,12 +39,13 @@ type Subscription struct {
 }
 
 type Url struct {
-	ID        int32            `json:"id"`
-	ShortUrl  string           `json:"short_url"`
-	LongUrl   string           `json:"long_url"`
-	AuthorID  int32            `json:"author_id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	Title     string           `json:"title"`
+	ID         int32            `json:"id"`
+	ShortUrl   string           `json:"short_url"`
+	LongUrl    string           `json:"long_url"`
+	AuthorID   int32            `json:"author_id"`
+	CreatedAt  pgtype.Timestamp `json:"created_at"`
+	Title      string           `json:"title"`
+	IsArchived pgtype.Bool      `json:"is_archived"`
 }
 
 type User struct {

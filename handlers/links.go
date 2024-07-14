@@ -22,7 +22,10 @@ func (h *Handler) myLinks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	urls, err := h.svc.List(r.Context(), user.ID)
+	archived := r.URL.Query().Get("archived")
+	showArchived := archived == "true"
+
+	urls, err := h.svc.List(r.Context(), user.ID, showArchived)
 	if err != nil {
 		log.Error("failed to get statistics", slog.Any("error", err))
 		http.Error(w, "failed to get statistics", http.StatusInternalServerError)
@@ -30,16 +33,18 @@ func (h *Handler) myLinks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := views.MyLinkPageData{
-		URLs:       []views.URLStat{},
-		Autoreload: r.URL.Query().Get("autoreload") == "true",
+		URLs:         []views.URLStat{},
+		Autoreload:   r.URL.Query().Get("autoreload") == "true",
+		ShowArchived: showArchived,
 	}
 	for _, url := range urls {
 		data.URLs = append(data.URLs, views.URLStat{
-			Title:     url.Title,
-			Slug:      url.Slug,
-			Short:     url.Short,
-			Long:      url.Long,
-			CreatedAt: url.CreatedAt.Format(timeFormat),
+			Title:      url.Title,
+			Slug:       url.Slug,
+			Short:      url.Short,
+			Long:       url.Long,
+			IsArchived: url.IsArchived,
+			CreatedAt:  url.CreatedAt.Format(timeFormat),
 		})
 	}
 
@@ -86,7 +91,8 @@ func (h *Handler) updateTitle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.svc.UpdateTitle(r.Context(), user.ID, slug, title); err != nil {
+	url, err := h.svc.UpdateTitle(r.Context(), user.ID, slug, title)
+	if err != nil {
 		log.Error("failed to update title", slog.Any("error", err))
 		toast.Danger(w, "Failed to update title", "Something wrong happened, try again.")
 		http.Error(w, "failed to update title", http.StatusInternalServerError)
@@ -95,5 +101,48 @@ func (h *Handler) updateTitle(w http.ResponseWriter, r *http.Request) {
 
 	toast.Success(w, "Title updated", "")
 	w.WriteHeader(http.StatusOK)
-	Render(r.Context(), w, components.TitleDetail(title, slug))
+	Render(r.Context(), w, components.TitleDetail(title, slug, url.IsArchived))
+}
+
+func (h *Handler) archiveURL(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+	if slug == "" {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if err := h.svc.ArchiveURL(r.Context(), user.ID, slug); err != nil {
+		log.Error("failed to archive url", slog.Any("error", err))
+		http.Error(w, "failed to archive url", http.StatusInternalServerError)
+		return
+	}
+	toast.Success(w, "Success", "URL archived", "")
+}
+
+func (h *Handler) unarchiveURL(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+	if slug == "" {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if err := h.svc.UnarchiveURL(r.Context(), user.ID, slug); err != nil {
+		log.Error("failed to archive url", slog.Any("error", err))
+		http.Error(w, "failed to archive url", http.StatusInternalServerError)
+		return
+	}
+
+	toast.Success(w, "Success", "URL unarchived", "")
 }
