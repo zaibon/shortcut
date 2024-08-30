@@ -125,7 +125,7 @@ func MyLinksPage(data MyLinkPageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = components.Toggle(components.ToggleProp{
-				Label:     "Show archivewwd",
+				Label:     "Show archived",
 				IsChecked: data.ShowArchived,
 				ID:        "toggle-archived",
 			}).Render(ctx, templ_7745c5c3_Buffer)

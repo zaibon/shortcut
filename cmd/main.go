@@ -44,6 +44,10 @@ func (c config) DBString() string {
 	return fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s timezone=UTC sslmode=disable", c.DBUser, c.DBPassword, c.DBHost, c.DBPort, c.DBName)
 }
 
+func (c config) DBStringSafe() string {
+	return fmt.Sprintf("user=%s password=***** host=%s port=%d dbname=%s timezone=UTC sslmode=disable", c.DBUser, c.DBHost, c.DBPort, c.DBName)
+}
+
 var c config
 
 func main() {

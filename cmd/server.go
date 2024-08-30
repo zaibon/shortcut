@@ -184,6 +184,12 @@ func runServer(ctx context.Context, c config) error {
 		return fmt.Errorf("unable to connect to database: %v", err)
 	}
 	defer dbPool.Close()
+	if err := dbPool.Ping(ctx); err != nil {
+		log.Error("unable to ping database", "err", err)
+		return fmt.Errorf("unable to ping database: %v", err)
+	}
+
+	log.Info("connection to database created")
 
 	// databases
 	urlStore := db.NewURLStore(dbPool)
