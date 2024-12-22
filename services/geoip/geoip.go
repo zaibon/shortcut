@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
 
 	"cloud.google.com/go/storage"
 
@@ -15,28 +16,30 @@ import (
 	geo "github.com/oschwald/geoip2-golang"
 )
 
-//go:embed GeoLite2-City.mmdb
-var b []byte
-
 var db *geo.Reader
 
-//go:embed GeoLite2-City.mmdb
-var dbData []byte
-
 func init() {
-	var err error
-	db, err = geo.FromBytes(b)
-	// path := "GeoLite2-City.mmdb"
-	// if _, err := os.Stat(path); err == nil {
-	// 	db, err = geo.Open(path)
-	if err != nil {
-		log.Printf("failed to load geoip database: %v", err)
+	path := "GeoLite2-City.mmdb"
+	if _, err := os.Stat(path); err == nil {
+		db, err = geo.Open(path)
+		if err != nil {
+			log.Printf("failed to load geoip database: %v", err)
+			return
+		}
+		log.Printf("geoip database loaded")
 	}
-	// }
-	// log.Printf("geoip database loaded")
+}
+
+func isDBLoaded() bool {
+	return db != nil
 }
 
 func DownloadGeoIPDB(bucket, dbFile string) error {
+	if isDBLoaded() {
+		log.Printf("geoip database already loaded")
+		return nil
+	}
+
 	ctx := context.Background()
 
 	client, err := storage.NewClient(ctx)
