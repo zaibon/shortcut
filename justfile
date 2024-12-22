@@ -8,8 +8,8 @@ dev:
 
 build-deps:
     gci --help > /dev/null || go install github.com/daixiang0/gci@v0.13.4
-    templ --help > /dev/null || go install github.com/a-h/templ/cmd/templ@latest
-    sqlc --help > /dev/null || go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+    templ --help > /dev/null || go install github.com/a-h/templ/cmd/templ@v0.2.793
+    sqlc --help > /dev/null || go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.27.0
 
 fmt:
     gci write --custom-order --skip-generated {{ invocation_directory() }} -s standard -s default -s blank -s dot -s alias -s "prefix(github.com/zaibon/shortcut)" 

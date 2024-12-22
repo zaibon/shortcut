@@ -18,10 +18,14 @@ import (
 
 var db *geo.Reader
 
+//go:embed GeoLite2-City.mmdb
+var dbData []byte
+
 func init() {
 	path := "GeoLite2-City.mmdb"
 	if _, err := os.Stat(path); err == nil {
-		db, err = geo.Open(path)
+		// db, err = geo.Open(path)
+		db, err = geo.FromBytes(dbData)
 		if err != nil {
 			log.Printf("failed to load geoip database: %v", err)
 		}
