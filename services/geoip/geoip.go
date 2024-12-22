@@ -20,6 +20,9 @@ var b []byte
 
 var db *geo.Reader
 
+//go:embed GeoLite2-City.mmdb
+var dbData []byte
+
 func init() {
 	var err error
 	db, err = geo.FromBytes(b)
