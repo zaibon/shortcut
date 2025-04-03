@@ -52,39 +52,11 @@ var serverFlags = []cli.Flag{
 		Destination: &c.Port,
 	},
 	&cli.StringFlag{
-		Name:        "db-host",
-		Usage:       "database host",
-		Value:       "localhost",
-		EnvVars:     []string{"SHORTCUT_DB_HOST"},
-		Destination: &c.DBHost,
-	},
-	&cli.IntFlag{
-		Name:        "db-port",
-		Usage:       "database port",
-		Value:       5432,
-		EnvVars:     []string{"SHORTCUT_DB_PORT"},
-		Destination: &c.DBPort,
-	},
-	&cli.StringFlag{
-		Name:        "db-user",
-		Usage:       "database user",
-		Value:       "shortcut",
-		EnvVars:     []string{"SHORTCUT_DB_USER"},
-		Destination: &c.DBUser,
-	},
-	&cli.StringFlag{
-		Name:        "db-password",
-		Usage:       "database password",
-		Value:       "shortcut",
-		EnvVars:     []string{"SHORTCUT_DB_PASSWORD"},
-		Destination: &c.DBPassword,
-	},
-	&cli.StringFlag{
-		Name:        "db-name",
-		Usage:       "database name",
-		Value:       "shortcut",
-		EnvVars:     []string{"SHORTCUT_DB_NAME"},
-		Destination: &c.DBName,
+		Name:        "db",
+		Usage:       "database connection string",
+		Value:       "postgres://localhost:4532",
+		EnvVars:     []string{"SHORTCUT_DB"},
+		Destination: &c.DBConnString,
 	},
 	&cli.StringFlag{
 		Name:        "geoip-bucket",
@@ -179,9 +151,9 @@ func runServer(ctx context.Context, c config) error {
 		}
 	}
 
-	dbPool, err := pgxpool.New(ctx, c.DBString())
+	dbPool, err := pgxpool.New(ctx, c.DBConnString)
 	if err != nil {
-		return fmt.Errorf("unable to connect to database: %v", err)
+		return fmt.Errorf("unable to connect to database %s: %v", c.SafeDBString(), err)
 	}
 	defer dbPool.Close()
 
@@ -199,7 +171,7 @@ func runServer(ctx context.Context, c config) error {
 	urlHandlers := handlers.NewURLHandlers(shortURL)
 	userHandlers := handlers.NewUsersHandler(userService, stripeService, c.StripePubKey)
 	healthzHandlers := handlers.NewHealtzHandlers(stdlib.OpenDBFromPool(dbPool))
-	subscriptionHandlers := handlers.NewSubscriptionHandlers(c.StripeKey, c.StripeEndpointSecret, stripeService)
+	subscriptionHandlers := handlers.NewSubscriptionHandlers(c.StripeKey, c.StripeEndpointSecret, stripeService, shortURL)
 
 	fs := http.FileServer(static.FileSystem)
 	server := chi.NewRouter()
@@ -213,10 +185,11 @@ func runServer(ctx context.Context, c config) error {
 		r.Use(chiMiddleware.Logger)
 		r.Use(chiMiddleware.Recoverer)
 		r.Use(chiMiddleware.RealIP)
+		// r.Use(middleware.HTMX)
 		r.Use(session.Sessioner(
 			session.Options{
 				Provider:       "postgres",
-				ProviderConfig: c.DBString(),
+				ProviderConfig: c.DBConnString,
 				CookieName:     "shortcut_session",
 				Secure:         c.TLS,
 				SameSite:       http.SameSiteLaxMode,

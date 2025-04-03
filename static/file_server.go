@@ -7,7 +7,7 @@ import (
 	"github.com/zaibon/shortcut/env"
 )
 
-//go:embed img js
+//go:embed img js css
 var staticAssets embed.FS
 
 var FileSystem http.FileSystem

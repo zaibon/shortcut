@@ -1,0 +1,119 @@
+/* Custom styles for Shortcut URL Shortener */
+
+/* Gradient background for hero sections */
+.gradient-bg {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+/* Custom animation for the copy icon */
+.copy-icon-animation {
+  transition: transform 0.2s ease-in-out;
+}
+
+.copy-icon-animation:hover {
+  transform: scale(1.2);
+}
+
+/* Custom styling for the URL input */
+input[type="url"]:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+/* Toast notification styling */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast.bg-red-500 {
+  background-color: #ef4444;
+}
+
+.toast.bg-green-500 {
+  background-color: #10b981;
+}
+
+/* Custom styling for the HTMX indicator */
+.htmx-indicator {
+  opacity: 0;
+  transition: opacity 200ms ease-in;
+}
+.htmx-request .htmx-indicator {
+  opacity: 1;
+}
+.htmx-request.htmx-indicator {
+  opacity: 1;
+}
+
+/* Pulse animation for the features icons */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.feature-icon {
+  animation: pulse 2s infinite;
+}
+
+/* Custom styling for the result box */
+#result {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Flash message animations */
+@keyframes slideInDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.flash-message {
+  animation: slideInDown 0.3s ease-out forwards;
+}
+
+.flash-message.error {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.flash-message.success {
+  background-color: #f0fdf4;
+  border-color: #dcfce7;
+  color: #166534;
+}
+

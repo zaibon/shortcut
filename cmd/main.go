@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
+	"net/url"
 	"os"
 	"syscall"
 
@@ -21,11 +21,7 @@ type config struct {
 
 	// Redis string
 
-	DBHost     string
-	DBPort     int
-	DBUser     string
-	DBPassword string
-	DBName     string
+	DBConnString string
 
 	GeoIPBucket string
 	GeoIPDBFile string
@@ -40,8 +36,9 @@ type config struct {
 	StripeEndpointSecret string
 }
 
-func (c config) DBString() string {
-	return fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s timezone=UTC sslmode=disable", c.DBUser, c.DBPassword, c.DBHost, c.DBPort, c.DBName)
+func (c config) SafeDBString() string {
+	u, _ := url.Parse(c.DBConnString)
+	return u.Redacted()
 }
 
 var c config

@@ -2,8 +2,10 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/zaibon/shortcut/db/datastore"
@@ -34,22 +36,35 @@ func (s *urlStore) Add(ctx context.Context, title, shortURL, longURL string, aut
 	return domain.ID(url.ID), nil
 }
 
-func (s *urlStore) List(ctx context.Context, authorID domain.ID, showArchived bool) ([]datastore.Url, error) {
-	rows, err := s.db.ListShortURLs(ctx, datastore.ListShortURLsParams{
+func (s *urlStore) List(ctx context.Context, authorID domain.ID, search string) ([]datastore.ListStatisticsPerAuthorRow, error) {
+	rows, err := s.db.ListStatisticsPerAuthor(ctx, datastore.ListStatisticsPerAuthorParams{
 		AuthorID: int32(authorID),
-		IsArchived: pgtype.Bool{
-			Bool:  showArchived,
-			Valid: true,
-		},
+		Search:   search,
 	})
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("failed to list shorten urls: %w", err)
 	}
 	return rows, nil
 }
 
-func (s *urlStore) Get(ctx context.Context, shortID string) (datastore.Url, error) {
-	url, err := s.db.GetShortURL(ctx, shortID)
+func (s *urlStore) Delete(ctx context.Context, urlID, authorID domain.ID) error {
+	return s.db.DeleteURL(ctx, datastore.DeleteURLParams{
+		ID:       int32(urlID),
+		AuthorID: int32(authorID),
+	})
+}
+
+func (s *urlStore) Get(ctx context.Context, slug string) (datastore.Url, error) {
+	url, err := s.db.GetShortURL(ctx, slug)
+	if err != nil {
+		return datastore.Url{}, fmt.Errorf("failed to get shorten url: %w", err)
+	}
+
+	return url, nil
+}
+
+func (s *urlStore) GetByID(ctx context.Context, urlID domain.ID) (datastore.Url, error) {
+	url, err := s.db.GetByID(ctx, int32(urlID))
 	if err != nil {
 		return datastore.Url{}, fmt.Errorf("failed to get shorten url: %w", err)
 	}
@@ -119,7 +134,10 @@ func (s urlStore) InsertVisitLocation(ctx context.Context, visitID domain.ID, lo
 }
 
 func (s urlStore) Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error) {
-	rows, err := s.db.ListStatisticsPerAuthor(ctx, int32(authorID))
+	rows, err := s.db.ListStatisticsPerAuthor(ctx, datastore.ListStatisticsPerAuthorParams{
+		AuthorID: int32(authorID),
+		Search:   "",
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list statistics: %w", err)
 	}
@@ -159,4 +177,34 @@ func (s urlStore) UnarchiveURL(ctx context.Context, authorID domain.ID, slug str
 		ShortUrl: slug,
 		AuthorID: int32(authorID),
 	})
+}
+
+func (a urlStore) CountMonthlyURL(ctx context.Context, authorID domain.ID) (int64, error) {
+	return a.db.CountURLThisMonth(ctx, int32(authorID))
+}
+
+func (a urlStore) CountMonthlyVisit(ctx context.Context, authorID domain.ID) (int64, error) {
+	return a.db.CountTotalVisitThisMonth(ctx, int32(authorID))
+}
+
+func (a urlStore) LocationDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.LocationDistributionRow, error) {
+	return a.db.LocationDistribution(ctx, datastore.LocationDistributionParams{
+		UrlID:    int32(urlID),
+		AuthorID: int32(authorID),
+	})
+}
+
+func (a urlStore) BrowserDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.BrowserDistributionRow, error) {
+	return a.db.BrowserDistribution(ctx, datastore.BrowserDistributionParams{
+		UrlID:    int32(urlID),
+		AuthorID: int32(authorID),
+	})
+}
+
+func (a urlStore) UniqueVisitCount(ctx context.Context, urlID domain.ID) (int64, error) {
+	return a.db.UniqueVisitCount(ctx, int32(urlID))
+}
+
+func (a urlStore) TotalVisit(ctx context.Context, urlID domain.ID) (int64, error) {
+	return a.db.TotalVisit(ctx, int32(urlID))
 }

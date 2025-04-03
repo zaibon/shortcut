@@ -1,0 +1,559 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+)
+
+templ URLDetail(url domain.URLStat) {
+	@Layout() {
+		<main class="flex-grow">
+			<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+				<!-- URL Details Header -->
+				<div class="px-4 py-5 sm:px-6 bg-white shadow sm:rounded-lg mb-6">
+					<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+						<div>
+							<div class="flex items-center">
+								<h1 class="text-2xl font-bold text-gray-900">URL Analytics</h1>
+								<span class="ml-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+									Active
+								</span>
+							</div>
+							<div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
+								<div class="mt-2 flex items-center text-sm text-gray-500">
+									<i class="fas fa-calendar-alt flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"></i>
+									Created on { url.CreatedAt.Format(timeFormat) }
+								</div>
+								// <div class="mt-2 flex items-center text-sm text-gray-500">
+								// 	<i class="fas fa-clock flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"></i>
+								// 	Expires on June 15, 2024
+								// </div>
+							</div>
+						</div>
+						<div class="mt-4 sm:mt-0 flex space-x-3">
+							// <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+							// 	<i class="fas fa-qrcode -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
+							// 	QR Code
+							// </button>
+							// <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+							// 	<i class="fas fa-edit -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
+							// 	Edit
+							// </button>
+							<button type="button" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+								<i class="fas fa-share -ml-1 mr-2 h-5 w-5 text-white"></i>
+								Share
+							</button>
+						</div>
+					</div>
+				</div>
+				<!-- URL Information -->
+				<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">
+							URL Information
+						</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+							<div class="sm:col-span-1">
+								<dt class="text-sm font-medium text-gray-500">
+									Original URL
+								</dt>
+								<dd class="mt-1 text-sm text-gray-900 break-all">
+									<a href={ templ.SafeURL(url.Long) } class="text-indigo-600 hover:text-indigo-900" target="_blank">
+										{ url.Long }
+									</a>
+								</dd>
+							</div>
+							<div class="sm:col-span-1">
+								<dt class="text-sm font-medium text-gray-500">
+									Shortened URL
+								</dt>
+								<dd class="mt-1 text-sm text-gray-900">
+									<div class="flex items-center">
+										<a href={ templ.SafeURL(url.Short) } class="text-indigo-600 hover:text-indigo-900" target="_blank">
+											{ url.Short }
+										</a>
+										<button class="ml-2 text-gray-400 hover:text-gray-600" onclick={ templ.JSFuncCall("copyToClipboard", url.Short) }>
+											<i class="fas fa-copy"></i>
+										</button>
+									</div>
+								</dd>
+							</div>
+							<div class="sm:col-span-1">
+								<dt class="text-sm font-medium text-gray-500">
+									Total Clicks
+								</dt>
+								<dd class="mt-1 text-sm text-gray-900">
+									<span class="text-2xl font-bold text-indigo-600">{ fmt.Sprintf("%d",url.NrVisited) }</span>
+								</dd>
+							</div>
+							<div class="sm:col-span-1">
+								<dt class="text-sm font-medium text-gray-500">
+									Unique Visitors
+								</dt>
+								<dd class="mt-1 text-sm text-gray-900">
+									<span class="text-2xl font-bold text-indigo-600">{ fmt.Sprintf("%d",url.UniqueVisitors) }</span>
+								</dd>
+							</div>
+						</dl>
+					</div>
+				</div>
+				<!-- Click Analytics -->
+				<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<div class="flex items-center justify-between">
+							<h3 class="text-lg leading-6 font-medium text-gray-900">
+								Click Analytics
+							</h3>
+							<div class="flex space-x-2">
+								<div class="relative inline-block text-left" x-data="{ open: false }">
+									<div>
+										<button @click="open = !open" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="time-range-button" aria-expanded="true" aria-haspopup="true">
+											<span x-text="timeRange === 'day' ? 'Today' : timeRange === 'week' ? 'This Week' : timeRange === 'month' ? 'This Month' : 'All Time'">This Week</span>
+											<svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+												<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+											</svg>
+										</button>
+									</div>
+									<div
+										x-show="open"
+										@click.away="open = false"
+										class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+										role="menu"
+										aria-orientation="vertical"
+										aria-labelledby="time-range-button"
+										tabindex="-1"
+									>
+										<div class="py-1" role="none">
+											<a @click="timeRange = 'day'; open = false; updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">Today</a>
+											<a @click="timeRange = 'week'; open = false; updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">This Week</a>
+											<a @click="timeRange = 'month'; open = false; updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">This Month</a>
+											<a @click="timeRange = 'all'; open = false; updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">All Time</a>
+										</div>
+									</div>
+								</div>
+								<div class="inline-flex rounded-md shadow-sm" role="group">
+									<button @click="chartType = 'line'; updateChart()" type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700" :class="{ 'bg-indigo-50 text-indigo-700': chartType === 'line' }">
+										<i class="fas fa-chart-line mr-2"></i>
+										Line
+									</button>
+									<button @click="chartType = 'bar'; updateChart()" type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700" :class="{ 'bg-indigo-50 text-indigo-700': chartType === 'bar' }">
+										<i class="fas fa-chart-bar mr-2"></i>
+										Bar
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="h-80">
+							<canvas id="clicksChart"></canvas>
+						</div>
+					</div>
+				</div>
+				<!-- Geographic Distribution -->
+				<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+					<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+						<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+							<h3 class="text-lg leading-6 font-medium text-gray-900">
+								Geographic Distribution
+							</h3>
+						</div>
+						<div class="px-4 py-5 sm:p-6">
+							<div class="h-80 relative">
+								<img src="https://via.placeholder.com/800x400?text=World+Map+Visualization" alt="World map with click distribution" class="w-full h-full object-contain"/>
+								<div class="absolute inset-0 flex items-center justify-center">
+									<span class="px-4 py-2 bg-white bg-opacity-75 rounded-md text-sm text-gray-700">
+										Pro feature: Upgrade to see geographic data
+									</span>
+								</div>
+							</div>
+							<div class="mt-6">
+								<h4 class="text-sm font-medium text-gray-500 mb-3">Top Countries</h4>
+								<div class="space-y-2">
+									for _, item:= range url.LocationDistribution {
+										<div class="flex items-center">
+											<span class="w-20 text-sm text-gray-500">{ item.Country }</span>
+											<div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
+												<div class="h-full bg-indigo-600 rounded-full" style={ fmt.Sprintf("width: %f%%", item.Percentage) }></div>
+											</div>
+											<span class="ml-3 text-sm text-gray-700">{ fmt.Sprintf("%.2f", item.Percentage) }%</span>
+										</div>
+									}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+						<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+							<h3 class="text-lg leading-6 font-medium text-gray-900">
+								Referrer Sources
+							</h3>
+						</div>
+						<div class="px-4 py-5 sm:p-6">
+							<div class="h-80">
+								<canvas id="referrerChart"></canvas>
+							</div>
+							<div class="mt-6">
+								<h4 class="text-sm font-medium text-gray-500 mb-3">Top Referrers</h4>
+								<div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+									<table class="min-w-full divide-y divide-gray-300">
+										<thead class="bg-gray-50">
+											<tr>
+												<th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Source</th>
+												<th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Clicks</th>
+												<th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Percentage</th>
+											</tr>
+										</thead>
+										<tbody class="divide-y divide-gray-200 bg-white">
+											for _, referrer := range url.Referrers {
+												<tr>
+													<td class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-900 sm:pl-6">{ referrer.Source }</td>
+													<td class="whitespace-nowrap px-3 py-2 text-sm text-gray-500 text-right">{ fmt.Sprintf("%d",referrer.ClickCount) }</td>
+													<td class="whitespace-nowrap px-3 py-2 text-sm text-gray-500 text-right">{ fmt.Sprintf("%.2f",referrer.Percentage) }%</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Device & Browser Data -->
+				<div class="grid grid-cols-1 gap-6 mt-6 lg:grid-cols-2">
+					<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+						<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+							<h3 class="text-lg leading-6 font-medium text-gray-900">
+								Device Types
+							</h3>
+						</div>
+						<div class="px-4 py-5 sm:p-6">
+							<div class="h-64">
+								<canvas id="deviceChart"></canvas>
+							</div>
+							<div class="mt-6 grid grid-cols-2 gap-4 text-center">
+								{{ mobile := url.Devices[domain.DeviceKindMobile] }}
+								{{ desktop := url.Devices[domain.DeviceKindDesktop] }}
+								<div class="bg-gray-50 p-4 rounded-lg">
+									<i class="fas fa-mobile-alt text-3xl text-indigo-600 mb-2"></i>
+									<div class="text-sm font-medium text-gray-900">{ mobile.Type }</div>
+									<div class="text-lg font-semibold text-indigo-600">{ fmt.Sprintf("%.2f", mobile.Percentage) }%</div>
+								</div>
+								<div class="bg-gray-50 p-4 rounded-lg">
+									<i class="fas fa-desktop-alt text-3xl text-indigo-600 mb-2"></i>
+									<div class="text-sm font-medium text-gray-900">{ desktop.Type }</div>
+									<div class="text-lg font-semibold text-indigo-600">{ fmt.Sprintf("%.2f", desktop.Percentage) }%</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+						<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+							<h3 class="text-lg leading-6 font-medium text-gray-900">
+								Browsers
+							</h3>
+						</div>
+						<div class="px-4 py-5 sm:p-6">
+							<div class="h-64">
+								<canvas id="browserChart"></canvas>
+							</div>
+							<div class="mt-6">
+								<h4 class="text-sm font-medium text-gray-500 mb-3">Browser Details</h4>
+								<div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+									<table class="min-w-full divide-y divide-gray-300">
+										<thead class="bg-gray-50">
+											<tr>
+												<th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Browser</th>
+												<th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Version</th>
+												<th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Platform</th>
+												// <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Clicks</th>
+												<th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Percentage</th>
+											</tr>
+										</thead>
+										<tbody class="divide-y divide-gray-200 bg-white">
+											for _, browser := range url.Browsers {
+												<tr>
+													<td class="whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{ browser.Name }</td>
+													<td class="whitespace-nowrap px-3 py-2 text-sm text-gray-500">{ browser.Version }</td>
+													<td class="whitespace-nowrap px-3 py-2 text-sm text-gray-500">{ browser.Platform }</td>
+													// <td class="whitespace-nowrap px-3 py-2 text-sm text-gray-500 text-right">{br}</td>
+													<td class="whitespace-nowrap px-3 py-2 text-sm text-gray-500 text-right">{ fmt.Sprintf("%.2f%%", browser.Percentage) }</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							</div>
+							// <h4 class="text-sm font-medium text-gray-500 mb-3">Top Browsers</h4>
+							// <div class="space-y-2">
+							// 	for _, browser := range url.Browsers {
+							// 		<div class="flex items-center">
+							// 			<span class="w-20 text-sm text-gray-500">{ browser.Name }</span>
+							// 			<div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
+							// 				<div class="h-full bg-indigo-600 rounded-full" style={ fmt.Sprintf("width: %f%%", browser.Percentage) }></div>
+							// 			</div>
+							// 			<span class="ml-3 text-sm text-gray-700">{ fmt.Sprintf("%.2f",browser.Percentage) }%</span>
+							// 		</div>
+							// 	}
+							// </div>
+							// </div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+		<script>
+    // Copy to clipboard function
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Show a toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast bg-green-500';
+        toast.textContent = 'Copied to clipboard!';
+        document.body.appendChild(toast);
+        
+        // Show toast
+        setTimeout(() => {
+          toast.classList.add('show');
+        }, 100);
+        
+        // Hide and remove toast
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => {
+            document.body.removeChild(toast);
+          }, 300);
+        }, 3000);
+      }).catch(err => {
+        console.error('Could not copy text: ', err);
+      });
+    }
+
+    // Initialize charts when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      initCharts();
+    });
+
+    function initCharts() {
+      // Clicks over time chart
+      const clicksCtx = document.getElementById('clicksChart').getContext('2d');
+      window.clicksChart = new Chart(clicksCtx, {
+        type: 'line',
+        data: {
+          datasets: [{
+            label: 'Clicks',
+            data: generateClickData('week'),
+            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+            borderColor: 'rgba(99, 102, 241, 1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'day'
+              },
+              title: {
+                display: true,
+                text: 'Date'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Clicks'
+              }
+            }
+          }
+        }
+      });
+
+      // Referrer chart
+      const referrerCtx = document.getElementById('referrerChart').getContext('2d');
+      window.referrerChart = new Chart(referrerCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Direct', 'Google', 'Twitter', 'Facebook', 'LinkedIn'],
+          datasets: [{
+            data: [35, 26, 20, 12, 7],
+            backgroundColor: [
+              'rgba(99, 102, 241, 0.8)',
+              'rgba(139, 92, 246, 0.8)',
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(245, 158, 11, 0.8)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+
+      // Device chart
+      const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+      window.deviceChart = new Chart(deviceCtx, {
+        type: 'pie',
+        data: {
+          labels: ['Mobile', 'Desktop', 'Tablet'],
+          datasets: [{
+            data: [58, 32, 10],
+            backgroundColor: [
+              'rgba(99, 102, 241, 0.8)',
+              'rgba(139, 92, 246, 0.8)',
+              'rgba(59, 130, 246, 0.8)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+
+      // Browser chart
+      const browserCtx = document.getElementById('browserChart').getContext('2d');
+      window.browserChart = new Chart(browserCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Chrome', 'Safari', 'Firefox', 'Edge', 'Other'],
+          datasets: [{
+            label: 'Usage',
+            data: [62, 18, 12, 6, 2],
+            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                callback: function(value) {
+                  return value + '%';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Generate random click data for the chart
+    function generateClickData(timeRange) {
+      const data = [];
+      const now = new Date();
+      let startDate;
+      
+      switch(timeRange) {
+        case 'day':
+          startDate = new Date(now);
+          startDate.setHours(0, 0, 0, 0);
+          for (let i = 0; i < 24; i++) {
+            const date = new Date(startDate);
+            date.setHours(i);
+            data.push({
+              x: date,
+              y: Math.floor(Math.random() * 50) + 10
+            });
+          }
+          break;
+        case 'week':
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 7);
+          for (let i = 0; i <= 7; i++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            data.push({
+              x: date,
+              y: Math.floor(Math.random() * 200) + 50
+            });
+          }
+          break;
+        case 'month':
+          startDate = new Date(now);
+          startDate.setDate(1);
+          const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+          for (let i = 0; i < daysInMonth; i++) {
+            const date = new Date(startDate);
+            date.setDate(i + 1);
+            data.push({
+              x: date,
+              y: Math.floor(Math.random() * 150) + 30
+            });
+          }
+          break;
+        case 'all':
+          startDate = new Date(now);
+          startDate.setMonth(now.getMonth() - 6);
+          for (let i = 0; i <= 6; i++) {
+            const date = new Date(startDate);
+            date.setMonth(startDate.getMonth() + i);
+            data.push({
+              x: date,
+              y: Math.floor(Math.random() * 1000) + 200
+            });
+          }
+          break;
+      }
+      
+      return data;
+    }
+
+    // Update chart based on selected time range and chart type
+    function updateChart() {
+      const timeRange = Alpine.store('timeRange');
+      const chartType = Alpine.store('chartType');
+      
+      // Update data
+      window.clicksChart.data.datasets[0].data = generateClickData(timeRange);
+      
+      // Update chart type
+      window.clicksChart.config.type = chartType;
+      
+      // Update time unit based on range
+      let timeUnit = 'day';
+      if (timeRange === 'day') {
+        timeUnit = 'hour';
+      } else if (timeRange === 'all') {
+        timeUnit = 'month';
+      }
+      
+      window.clicksChart.options.scales.x.time.unit = timeUnit;
+      
+      // Update chart
+      window.clicksChart.update();
+    }
+  </script>
+	}
+}

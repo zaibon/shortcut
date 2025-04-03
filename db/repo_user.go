@@ -35,6 +35,13 @@ func (s *userStore) InsertUser(ctx context.Context, user datastore.InsertUserPar
 }
 
 func (s *userStore) InsertUserOauth(ctx context.Context, user datastore.InsertUserOauthParams) error {
+	if !user.Guid.Valid || user.Guid.Bytes == uuid.Nil {
+		user.Guid = pgtype.UUID{
+			Bytes: uuid.Must(uuid.NewV7()),
+			Valid: true,
+		}
+	}
+
 	_, err := s.db.InsertUserOauth(ctx, user)
 	if err != nil {
 		return fmt.Errorf(

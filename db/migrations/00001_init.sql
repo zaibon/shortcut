@@ -16,7 +16,9 @@ CREATE TABLE IF NOT EXISTS urls (
     long_url TEXT NOT NULL,
     author_id INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (author_id) REFERENCES users(id)
+    FOREIGN KEY (author_id) REFERENCES users(id) 
+                            ON DELETE CASCADE ON UPDATE CASCADE
+                            DEFERRABLE INITIALLY DEFERRED
 );
 
 -- Table to store visit statistics
@@ -27,6 +29,8 @@ CREATE TABLE IF NOT EXISTS visits (
     ip_address TEXT,
     user_agent TEXT,
     FOREIGN KEY (url_id) REFERENCES urls(id)
+                         ON DELETE CASCADE ON UPDATE CASCADE
+                         DEFERRABLE INITIALLY DEFERRED
 );
 
 -- Index to improve query performance for visits by url_id

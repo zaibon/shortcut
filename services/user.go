@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -173,18 +174,18 @@ func (s *userService) IdentifyOauthUser(ctx context.Context, code string) (*doma
 	}
 
 	user, err := s.store.GetUser(ctx, userInfo.Email)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("failed to identify user %s: %w", user.Email, err)
 	}
-	if errors.Is(err, sql.ErrNoRows) {
+	if errors.Is(err, pgx.ErrNoRows) {
 		if err := s.store.InsertUserOauth(ctx, datastore.InsertUserOauthParams{
-			Guid: pgtype.UUID{
-				Bytes: uuid.Must(uuid.NewV7()),
-				Valid: true,
-			},
 			Username: userInfo.Name,
-			Email:    user.Email,
+			Email:    userInfo.Email,
 		}); err != nil {
+			return nil, fmt.Errorf("failed to identify user %s: %w", userInfo.Email, err)
+		}
+		user, err = s.store.GetUser(ctx, userInfo.Email)
+		if err != nil {
 			return nil, fmt.Errorf("failed to identify user %s: %w", userInfo.Email, err)
 		}
 	}

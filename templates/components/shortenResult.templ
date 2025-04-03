@@ -1,0 +1,27 @@
+package components
+
+templ ShortenURL(url string) {
+	<div id="result" class="mt-6 sm:mx-auto sm:max-w-xl bg-gray-50 p-4 rounded-lg border border-gray-200">
+		<div class="flex flex-col sm:flex-row items-center justify-between">
+			<div class="mb-3 sm:mb-0">
+				<p class="text-sm text-gray-500">Your shortened URL:</p>
+				<div class="flex items-center mt-1">
+					<a
+						href="{ url }"
+						class="text-indigo-600 font-medium"
+						target="_blank"
+					>{ url }</a>
+					<button id="copyButton" class="ml-2 text-gray-400 hover:text-gray-600">
+						<i class="fas fa-copy"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+    document.getElementById('copyButton').addEventListener('click', function() {
+        copyToClipboard("{{ url }}");
+        // showFlashMessage('URL copied to clipboard!', 'success')
+    });
+    </script>
+}

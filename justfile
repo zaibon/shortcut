@@ -1,15 +1,10 @@
 watch:
-    templ generate --watch --proxy=http://localhost:8080 --open-browser=false
+    go tool templ generate --watch --proxy=http://localhost:8080 --open-browser=false
 
 dev:
   #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
   just watch
   air
-
-build-deps:
-    gci --help > /dev/null || go install github.com/daixiang0/gci@v0.13.4
-    templ --help > /dev/null || go install github.com/a-h/templ/cmd/templ@latest
-    sqlc --help > /dev/null || go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
 fmt:
     gci write --custom-order --skip-generated {{ invocation_directory() }} -s standard -s default -s blank -s dot -s alias -s "prefix(github.com/zaibon/shortcut)" 

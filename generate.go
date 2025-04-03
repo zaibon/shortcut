@@ -1,3 +1,0 @@
-package shortcut
-
-//go:generate templ generate ./...

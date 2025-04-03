@@ -7,8 +7,12 @@
     "[templ]": {
         "editor.defaultFormatter": "a-h.templ"
     },
+    "[gohtml]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
     "emmet.includeLanguages": {
-        "templ": "html"
+        "templ": "html",
+        "gohtml": "html"
     },
     "tailwindCSS.includeLanguages": {
         "templ": "html"

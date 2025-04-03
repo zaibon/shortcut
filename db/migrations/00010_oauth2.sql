@@ -16,6 +16,6 @@ ALTER TABLE users ALTER COLUMN password_salt DROP NOT NULL;
 DROP TABLE oauth2_state;
 
 ALTER TABLE users DROP COLUMN is_oauth;
-ALTER TABLE users ALTER COLUMN password SET NOT NULL;
-ALTER TABLE users ALTER COLUMN password_salt SET NOT NULL;
+-- ALTER TABLE users ALTER COLUMN password SET NOT NULL;
+-- ALTER TABLE users ALTER COLUMN password_salt SET NOT NULL;
 -- +goose StatementEnd

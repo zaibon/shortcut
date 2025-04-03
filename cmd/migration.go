@@ -13,46 +13,22 @@ import (
 
 var migrationScan = []cli.Flag{
 	&cli.StringFlag{
-		Name:        "db-host",
-		Usage:       "database host",
-		Value:       "localhost",
-		EnvVars:     []string{"SHORTCUT_DB_HOST"},
-		Destination: &c.DBHost,
-	},
-	&cli.IntFlag{
-		Name:        "db-port",
-		Usage:       "database port",
-		Value:       5432,
-		EnvVars:     []string{"SHORTCUT_DB_PORT"},
-		Destination: &c.DBPort,
-	},
-	&cli.StringFlag{
-		Name:        "db-user",
-		Usage:       "database user",
-		Value:       "shortcut",
-		EnvVars:     []string{"SHORTCUT_DB_USER"},
-		Destination: &c.DBUser,
-	},
-	&cli.StringFlag{
-		Name:        "db-password",
-		Usage:       "database password",
-		Value:       "shortcut",
-		EnvVars:     []string{"SHORTCUT_DB_PASSWORD"},
-		Destination: &c.DBPassword,
-	},
-	&cli.StringFlag{
-		Name:        "db-name",
-		Usage:       "database name",
-		Value:       "shortcut",
-		EnvVars:     []string{"SHORTCUT_DB_NAME"},
-		Destination: &c.DBName,
+		Name:        "db",
+		Usage:       "database connection string",
+		Value:       "postgres://localhost:4532",
+		EnvVars:     []string{"SHORTCUT_DB"},
+		Destination: &c.DBConnString,
 	},
 }
 
 func runMigration(cCtx *cli.Context, c config) error {
 	ctx := context.Background()
+	config, err := pgxpool.ParseConfig(c.DBConnString)
+	if err != nil {
+		return fmt.Errorf("unable to parse database connection string: %v", err)
+	}
 
-	dbPool, err := pgxpool.New(ctx, c.DBString())
+	dbPool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		return fmt.Errorf("unable to connect to database: %v", err)
 	}

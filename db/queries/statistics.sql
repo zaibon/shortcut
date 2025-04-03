@@ -43,6 +43,11 @@ FROM
 LEFT JOIN visits v ON u.id = v.url_id
 WHERE
 	u.author_id = @author_id
+	AND (
+		@search = ''
+		-- OR to_tsvector(regexp_replace(long_url, '^(https?://)?(www\.)?', '', 'i')) @@ to_tsquery(@search)
+		OR long_url ILIKE '%' || @search || '%'
+	)
 GROUP BY
 	u.short_url, u.id
 ORDER BY
@@ -70,3 +75,83 @@ LIMIT 1;
 SELECT *
 FROM visits
 ORDER BY id DESC;
+
+-- name: CountURLThisMonth :one
+SELECT count(*)
+FROM urls
+WHERE author_id = @author_id
+AND created_at BETWEEN date_trunc('month', CURRENT_DATE) AND date_trunc('month', CURRENT_DATE) + INTERVAL '1 month';
+
+
+-- name: CountTotalVisitThisMonth :one
+SELECT count(visits.*)
+FROM visits
+JOIN urls ON urls.id = visits.url_id
+WHERE urls.author_id = @author_id
+AND created_at BETWEEN date_trunc('month', CURRENT_DATE) AND date_trunc('month', CURRENT_DATE) + INTERVAL '1 month';
+
+-- SQL query to get the location distribution data for a specific URL
+-- name: LocationDistribution :many
+SELECT
+    vl.country_name,
+    count(vl.visit_id) AS visit_count,
+    (count(vl.visit_id) * 100.0 / total_visits.total)::float AS percentage
+FROM
+    visit_locations vl
+JOIN
+    visits v ON vl.visit_id = v.id
+JOIN
+    urls u ON v.url_id = u.id
+CROSS JOIN (SELECT count(*) as total FROM visits WHERE visits.url_id = @url_id) AS total_visits
+WHERE
+	u.author_id = @author_id
+AND
+    u.id = @url_id -- Replace 'your_short_url' with the actual short URL
+GROUP BY
+    vl.country_name, total_visits.total
+ORDER BY
+    visit_count DESC;
+
+
+-- SQL query to get the distribution of browsers for a specific URL
+-- name: BrowserDistribution :many
+SELECT
+    v.user_agent,
+    count(v.id) AS visit_count,
+    (count(v.id) * 100.0 / total_visits.total)::float AS percentage
+FROM
+    visits v
+JOIN
+    urls u ON v.url_id = u.id
+CROSS JOIN (
+  SELECT count(*) AS total
+  FROM visits
+  JOIN urls ON urls.id = visits.url_id
+  WHERE urls.id = @url_id
+) AS total_visits
+WHERE
+	u.author_id = @author_id
+AND
+    u.id = @url_id
+GROUP BY
+    v.user_agent, total_visits.total
+ORDER BY
+    visit_count DESC;
+
+-- name: UniqueVisitCount :one
+SELECT 
+	count(*)
+FROM
+	visits
+WHERE
+	url_id = @url_id
+GROUP BY 
+	url_id, ip_address;
+
+
+-- name: TotalVisit :one
+SELECT count(*)
+FROM
+	visits
+WHERE
+	url_id = @url_id;

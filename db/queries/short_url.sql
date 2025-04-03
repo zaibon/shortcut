@@ -15,6 +15,16 @@ SELECT *
 FROM urls
 WHERE urls.short_url = @short_url;
 
+-- name: GetByID :one
+SELECT *
+FROM urls
+WHERE urls.id = @id;
+
+-- name: DeleteURL :exec
+DELETE FROM urls
+WHERE id = @id
+AND urls.author_id = @author_id;
+
 -- name: UpdateTitle :one
 UPDATE urls
 SET title = @title
