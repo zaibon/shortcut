@@ -31,6 +31,9 @@ type config struct {
 	GoogleOauthClientID string
 	GoogleOauthSecret   string
 
+	GithubOauthClientID string
+	GithubOauthSecret   string
+
 	StripeKey            string
 	StripePubKey         string
 	StripeEndpointSecret string

@@ -89,10 +89,7 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 
 	if errs := validateURL(url); len(errs) > 0 {
-		htmx.TriggerCustom(
-			"flash",
-			errs["long_url"].Error(),
-			map[string]any{"type": "error"})
+		addFlash(w, r, errs["long_url"].Error(), flashTypeError)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -106,16 +103,12 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 	short, err := h.svc.Shorten(ctx, url, title, user.ID)
 	if err != nil {
 		log.Error("failed to shorten url", slog.Any("error", err))
-		htmx.TriggerCustom("flash", "Failed to shorten URL\nSomething wrong happened, try again.", map[string]any{
-			"type": "error",
-		})
+		addFlash(w, r, "Failed to shorten URL\nSomething wrong happened, try again.", flashTypeError)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	htmx.TriggerCustom("flash", fmt.Sprintf("URL shortened to %s", short), map[string]any{
-		"type": "info",
-	})
+	addFlash(w, r, fmt.Sprintf("URL shortened to %s", short), flashTypeInfo)
 
 	components.ShortenURL(short).Render(ctx, w)
 	// tmpl := templates.Get(ctx, "components/shortenResult")

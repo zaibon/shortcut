@@ -407,7 +407,7 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 		BrowserChart: func(data []datastore.BrowserDistributionRow) []domain.TwoDimension {
 			m := map[string]int{}
 			for _, v := range data {
-				m[v.Name.String] += int(v.VisitCount)
+				m[v.Name.String] += int(v.Percentage)
 			}
 
 			s := make([]domain.TwoDimension, 0, len(m))

@@ -93,6 +93,20 @@ var serverFlags = []cli.Flag{
 		Destination: &c.GoogleOauthSecret,
 	},
 	&cli.StringFlag{
+		Name:        "github-oauth-client-id",
+		Usage:       "Github OAuth client ID",
+		Value:       "",
+		EnvVars:     []string{"SHORTCUT_GITHUB_OAUTH_CLIENT_ID"},
+		Destination: &c.GithubOauthClientID,
+	},
+	&cli.StringFlag{
+		Name:        "github-oauth-secret",
+		Usage:       "Github OAuth secret",
+		Value:       "",
+		EnvVars:     []string{"SHORTCUT_GITHUB_OAUTH_SECRET"},
+		Destination: &c.GithubOauthSecret,
+	},
+	&cli.StringFlag{
 		Name:        "stripe-key",
 		Usage:       "Stripe secret key",
 		Value:       "",
@@ -167,7 +181,10 @@ func runServer(ctx context.Context, c config) error {
 
 	// services
 	shortURL := services.NewShortURL(urlStore, c.redirectURL())
-	userService := services.NewUser(userStore, c.Domain, c.TLS, c.GoogleOauthClientID, c.GoogleOauthSecret)
+	userService := services.NewUser(userStore, c.Domain, c.TLS,
+		c.GoogleOauthClientID, c.GoogleOauthSecret,
+		c.GithubOauthClientID, c.GithubOauthSecret,
+	)
 	stripeService := services.NewStripeService(c.StripeKey, subscriptionStore, c.Domain, c.TLS)
 
 	// HTTP handlers

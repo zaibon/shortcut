@@ -27,9 +27,8 @@ type Querier interface {
 	GetShortURL(ctx context.Context, shortUrl string) (Url, error)
 	GetUser(ctx context.Context, email string) (User, error)
 	InsertCustomer(ctx context.Context, arg InsertCustomerParams) (Customer, error)
-	InsertOauth2State(ctx context.Context, state string) error
+	InsertOauth2State(ctx context.Context, arg InsertOauth2StateParams) error
 	InsertSubscription(ctx context.Context, arg InsertSubscriptionParams) (Subscription, error)
-	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
 	InsertUserOauth(ctx context.Context, arg InsertUserOauthParams) (User, error)
 	InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error)
 	ListCustomerSubscription(ctx context.Context, arg ListCustomerSubscriptionParams) ([]Subscription, error)
@@ -43,10 +42,8 @@ type Querier interface {
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)
 	UnarchiveURL(ctx context.Context, arg UnarchiveURLParams) error
 	UniqueVisitCount(ctx context.Context, urlID int32) (int64, error)
-	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
 	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error)
 	UpdateTitle(ctx context.Context, arg UpdateTitleParams) (Url, error)
-	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpsertBrowser(ctx context.Context, arg UpsertBrowserParams) (Browser, error)
 	VisitOverTime(ctx context.Context, arg VisitOverTimeParams) ([]VisitOverTimeRow, error)
 }

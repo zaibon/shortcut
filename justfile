@@ -1,7 +1,7 @@
 watch:
     go tool templ generate --watch --proxy=http://localhost:8080 --open-browser=false
 
-dev:
+dev: generate
   #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
   just watch
   air

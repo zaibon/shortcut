@@ -135,7 +135,7 @@ func NavBar() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if user == nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"flex space-x-4\"><a href=\"/login\" class=\"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium\">Log in</a> <a href=\"/signup\" class=\"bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium\">Sign up</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"flex space-x-4\"><a href=\"/auth\" class=\"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium\">Log in</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -171,7 +171,7 @@ func NavBar() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if user == nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"pt-4 pb-3 border-t border-gray-200\"><div class=\"flex items-center px-4\"><div class=\"flex-shrink-0\"><a href=\"/login\" class=\"text-gray-500 hover:text-gray-700 block px-3 py-2 rounded-md text-base font-medium\">Log in</a></div><div class=\"ml-3\"><a href=\"/signup\" class=\"bg-indigo-600 text-white hover:bg-indigo-700 block px-3 py-2 rounded-md text-base font-medium\">Sign up</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"pt-4 pb-3 border-t border-gray-200\"><div class=\"flex items-center px-4\"><div class=\"flex-shrink-0\"><a href=\"/auth\" class=\"text-gray-500 hover:text-gray-700 block px-3 py-2 rounded-md text-base font-medium\">Log in</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

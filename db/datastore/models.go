@@ -28,6 +28,7 @@ type Oauth2State struct {
 	State     string           `json:"state"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	ExpireAt  pgtype.Timestamp `json:"expire_at"`
+	Provider  string           `json:"provider"`
 }
 
 type Session struct {
