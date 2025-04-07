@@ -180,6 +180,7 @@ templ URLDetail(url domain.URLStat) {
 						</div>
 						<div class="px-4 py-5 sm:p-6">
 							<div class="h-64">
+								@templ.JSONScript("deviceChartData", url.DeviceChart)
 								<canvas id="deviceChart"></canvas>
 							</div>
 							<div class="mt-6 grid grid-cols-2 gap-4 text-center">
@@ -206,6 +207,7 @@ templ URLDetail(url domain.URLStat) {
 						</div>
 						<div class="px-4 py-5 sm:p-6">
 							<div class="h-64">
+								@templ.JSONScript("browserChartData", url.BrowserChart)
 								<canvas id="browserChart"></canvas>
 							</div>
 							<div class="mt-6">
@@ -254,106 +256,92 @@ templ URLDetail(url domain.URLStat) {
 			</div>
 		</main>
 		<script>
-//       // Device chart
-//       const deviceCtx = document.getElementById('deviceChart').getContext('2d');
-//       window.deviceChart = new Chart(deviceCtx, {
-//         type: 'pie',
-//         data: {
-//           labels: ['Mobile', 'Desktop', 'Tablet'],
-//           datasets: [{
-//             data: [58, 32, 10],
-//             backgroundColor: [
-//               'rgba(99, 102, 241, 0.8)',
-//               'rgba(139, 92, 246, 0.8)',
-//               'rgba(59, 130, 246, 0.8)'
-//             ],
-//             borderWidth: 1
-//           }]
-//         },
-//         options: {
-//           responsive: true,
-//           maintainAspectRatio: false,
-//           plugins: {
-//             legend: {
-//               position: 'bottom'
-//             }
-//           }
-//         }
-//       });
+		function load2dData(name){
+			// Device chart
+			const labels = []
+			const data = []
+			const input = JSON.parse(document.getElementById(name).textContent);
+			input.forEach(item => {
+				labels.push(item.Label);
+				data.push(item.Value);
+			});
 
-//       // Browser chart
-//       const browserCtx = document.getElementById('browserChart').getContext('2d');
-//       window.browserChart = new Chart(browserCtx, {
-//         type: 'bar',
-//         data: {
-//           labels: ['Chrome', 'Safari', 'Firefox', 'Edge', 'Other'],
-//           datasets: [{
-//             label: 'Usage',
-//             data: [62, 18, 12, 6, 2],
-//             backgroundColor: 'rgba(99, 102, 241, 0.8)',
-//             borderWidth: 1
-//           }]
-//         },
-//         options: {
-//           responsive: true,
-//           maintainAspectRatio: false,
-//           plugins: {
-//             legend: {
-//               display: false
-//             }
-//           },
-//           scales: {
-//             y: {
-//               beginAtZero: true,
-//               max: 100,
-//               ticks: {
-//                 callback: function(value) {
-//                   return value + '%';
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       });
-//     }
+			return {labels, data}
+		}
 
-//     // Generate random click data for the chart
-//     function generateClickData(timeRange) {
-//       const data = [];
-// 	  const input = JSON.parse(document.getElementById('visitOverTime').textContent);
-// 	  return input.map((p) => {
-// 		return {
-// 			"x": p.Time,
-// 			"y": p.Count,	
-// 		}
-// 	  })
-//     };
+		function initDeviceChart(){
+			const {labels, data} = load2dData('deviceChartData');
+			const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+			window.deviceChart = new Chart(deviceCtx, {
+				type: 'pie',
+				data: {
+				labels: labels,
+				datasets: [{
+					data: data,
+					backgroundColor: [
+					'rgba(99, 102, 241, 0.8)',
+					'rgba(139, 92, 246, 0.8)',
+					'rgba(59, 130, 246, 0.8)'
+					],
+					borderWidth: 1
+				}]
+				},
+				options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+					position: 'bottom'
+					}
+				}
+				}
+			});
+		}
 
-//     // Update chart based on selected time range and chart type
-//     function updateChart() {
-//       const timeRange = Alpine.store('timeRange');
-//       const chartType = Alpine.store('chartType');
-      
-//       // Update data
-//       window.clicksChart.data.datasets[0].data = generateClickData(timeRange);
-      
-//       // Update chart type
-//       window.clicksChart.config.type = chartType;
-      
-//       // Update time unit based on range
-//       let timeUnit = 'day';
-//       if (timeRange === 'day') {
-//         timeUnit = 'hour';
-//       } else if (timeRange === 'all') {
-//         timeUnit = 'month';
-//       }
-      
-//       window.clicksChart.options.scales.x.time.unit = timeUnit;
-      
-//       // Update chart
-//       window.clicksChart.update();
-//     }
-  </script>
+		function initBrowserChart(){
+			// Browser chart
+			const {labels, data} = load2dData('browserChartData');
+			const browserCtx = document.getElementById('browserChart').getContext('2d');
+			window.browserChart = new Chart(browserCtx, {
+				type: 'bar',
+				data: {
+				labels: labels,
+				datasets: [{
+					label: 'Usage',
+					data: data,
+					backgroundColor: 'rgba(99, 102, 241, 0.8)',
+					borderWidth: 1
+				}]
+				},
+				options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+					display: false
+					}
+				},
+				scales: {
+					y: {
+					beginAtZero: true,
+					max: 100,
+					ticks: {
+						callback: function(value) {
+						return value + '%';
+						}
+					}
+					}
+				}
+				}
+			});
+		}
+
+		document.addEventListener('DOMContentLoaded', function() {
+			// Device chart
+			initDeviceChart();
+			initBrowserChart();
+		});
+</script>
 	}
 }
 
@@ -364,7 +352,10 @@ templ ClickOverTimeChart(urlID domain.ID, data []domain.TimeSeriesData) {
 	<div
 		class="bg-white shadow overflow-hidden sm:rounded-lg mb-6"
 	>
-		<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+		<div
+			class="px-4 py-5 sm:px-6 border-b border-gray-200"
+			x-data="{timeRange: 'day', chartType:'line'}"
+		>
 			<div class="flex items-center justify-between">
 				<h3 class="text-lg leading-6 font-medium text-gray-900">
 					Click Analytics

@@ -367,6 +367,27 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 				},
 			}
 		}(bd),
+		DeviceChart: func(data []datastore.BrowserDistributionRow) []domain.TwoDimension {
+			mobile := 0
+			desktop := 0
+			for _, v := range data {
+				if v.Mobile.Bool {
+					mobile++
+				} else {
+					desktop++
+				}
+			}
+			return []domain.TwoDimension{
+				{
+					Label: "Desktop",
+					Value: desktop,
+				},
+				{
+					Label: "Mobile",
+					Value: mobile,
+				},
+			}
+		}(bd),
 		Browsers: func(data []datastore.BrowserDistributionRow) []domain.BrowserStats {
 			s := make([]domain.BrowserStats, len(data))
 			for i, v := range data {
@@ -382,6 +403,21 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 			}
 			return s
 
+		}(bd),
+		BrowserChart: func(data []datastore.BrowserDistributionRow) []domain.TwoDimension {
+			m := map[string]int{}
+			for _, v := range data {
+				m[v.Name.String] += int(v.VisitCount)
+			}
+
+			s := make([]domain.TwoDimension, 0, len(m))
+			for k, v := range m {
+				s = append(s, domain.TwoDimension{
+					Label: k,
+					Value: v,
+				})
+			}
+			return s
 		}(bd),
 		VisitPerDay: visitsPerDay,
 	}
