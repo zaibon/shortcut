@@ -1,167 +1,247 @@
 package templates
 
-templ AccountPage() {
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+)
+
+templ AccountPage(user domain.User, linkedProviders []domain.AccountProvider) {
 	@Layout() {
 		<main class="flex-grow">
 			<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-				<!-- Account settings -->
-				<div class="md:grid md:grid-cols-3 md:gap-6">
-					<div class="md:col-span-1">
-						<div class="px-4 sm:px-0">
-							<h3 class="text-lg font-medium leading-6 text-gray-900">Profile</h3>
-							<p class="mt-1 text-sm text-gray-600">
-								This information will be displayed publicly so be careful what you share.
+				<!-- Account Header -->
+				<div class="md:flex md:items-center md:justify-between mb-8">
+					<div class="flex-1 min-w-0">
+						<h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+							Your Account
+						</h2>
+					</div>
+				</div>
+				<!-- Profile Information -->
+				<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+					<div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+						<div>
+							<h3 class="text-lg leading-6 font-medium text-gray-900">
+								Profile Information
+							</h3>
+							<p class="mt-1 max-w-2xl text-sm text-gray-500">
+								Personal details from your connected account.
 							</p>
 						</div>
+						<div class="flex-shrink-0">
+							<img class="h-16 w-16 rounded-full" src={ user.Avatar } alt="Profile photo"/>
+						</div>
 					</div>
-					<div class="mt-5 md:mt-0 md:col-span-2">
-						<form action="#" method="POST" hx-post="/api/update-profile" hx-swap="none">
-							<div class="shadow sm:rounded-md sm:overflow-hidden">
-								<div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-									<div>
-										<label class="block text-sm font-medium text-gray-700">
-											Photo
-										</label>
-										<div class="mt-1 flex items-center">
-											<span class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100">
-												<img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Profile photo"/>
-											</span>
-											<button type="button" class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-												Change
-											</button>
-										</div>
-									</div>
-									<div class="grid grid-cols-6 gap-6">
-										<div class="col-span-6 sm:col-span-3">
-											<label for="first-name" class="block text-sm font-medium text-gray-700">First name</label>
-											<input type="text" name="first-name" id="first-name" autocomplete="given-name" value="Tom" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"/>
-										</div>
-										<div class="col-span-6 sm:col-span-3">
-											<label for="last-name" class="block text-sm font-medium text-gray-700">Last name</label>
-											<input type="text" name="last-name" id="last-name" autocomplete="family-name" value="Cook" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"/>
-										</div>
-										<div class="col-span-6 sm:col-span-4">
-											<label for="email-address" class="block text-sm font-medium text-gray-700">Email address</label>
-											<input type="text" name="email-address" id="email-address" autocomplete="email" value="tom@example.com" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"/>
-										</div>
-									</div>
-								</div>
-								<div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-									<button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-										Save
-									</button>
-								</div>
+					<div class="border-t border-gray-200">
+						<dl>
+							<div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+								<dt class="text-sm font-medium text-gray-500">
+									Username
+								</dt>
+								<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+									{ user.Name }
+								</dd>
 							</div>
-						</form>
+							<div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+								<dt class="text-sm font-medium text-gray-500">
+									Email address
+								</dt>
+								<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+									{ user.Email }
+								</dd>
+							</div>
+							<div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+								<dt class="text-sm font-medium text-gray-500">
+									Account created
+								</dt>
+								<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+									{ user.CreatedAt.Format(timeFormat) }
+								</dd>
+							</div>
+							<div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+								<dt class="text-sm font-medium text-gray-500">
+									Subscription plan
+								</dt>
+								<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+										Free
+									</span>
+									<a href="subscription.html" class="ml-2 text-xs text-indigo-600 hover:text-indigo-500">
+										Upgrade plan
+									</a>
+								</dd>
+							</div>
+						</dl>
 					</div>
 				</div>
-				<div class="hidden sm:block" aria-hidden="true">
-					<div class="py-5">
-						<div class="border-t border-gray-200"></div>
+				<!-- Connected Accounts Section -->
+				<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+					<div class="px-4 py-5 sm:px-6">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">
+							Connected Accounts
+						</h3>
+						<p class="mt-1 max-w-2xl text-sm text-gray-500">
+							Authentication providers linked to your account.
+						</p>
 					</div>
-				</div>
-				<div class="mt-10 sm:mt-0">
-					<div class="md:grid md:grid-cols-3 md:gap-6">
-						<div class="md:col-span-1">
-							<div class="px-4 sm:px-0">
-								<h3 class="text-lg font-medium leading-6 text-gray-900">Password</h3>
-								<p class="mt-1 text-sm text-gray-600">
-									Update your password to keep your account secure.
+					<div class="border-t border-gray-200">
+						<div class="px-4 py-5 sm:p-6">
+							<div class="space-y-4">
+								for _,p:= range linkedProviders {
+									<!-- Google Account -->
+									<div class="flex items-center justify-between">
+										<div class="flex items-center">
+											switch p.Provider {
+												case domain.OauthProviderGoogle:
+													<i class="fab fa-google text-lg text-red-500 mr-3"></i>
+												case domain.OauthProviderGithub:
+													<i class="fab fa-github text-lg text-gray-900 mr-3"></i>
+											}
+											<div>
+												<p class="text-sm font-medium text-gray-900">{ titleCase(string(p.Provider)) }</p>
+												// <p class="text-xs text-gray-500">tom@example.com</p>
+											</div>
+										</div>
+										<div>
+											if p.Connected {
+												<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+													Connected
+												</span>
+											} else {
+												<a href={ templ.SafeURL(fmt.Sprintf("/oauth/login/%s", p.Provider)) } class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+													Link account
+												</a>
+											}
+										</div>
+									</div>
+								}
+							</div>
+							<div class="mt-6 text-sm text-gray-500">
+								<p>
+									<i class="fas fa-info-circle text-indigo-500 mr-1"></i>
+									Your account information is managed through your connected authentication provider.
 								</p>
 							</div>
 						</div>
-						<div class="mt-5 md:mt-0 md:col-span-2">
-							<form action="#" method="POST" hx-post="/api/update-password" hx-swap="none">
-								<div class="shadow overflow-hidden sm:rounded-md">
-									<div class="px-4 py-5 bg-white sm:p-6">
-										<div class="grid grid-cols-6 gap-6">
-											<div class="col-span-6 sm:col-span-4">
-												<label for="current-password" class="block text-sm font-medium text-gray-700">Current password</label>
-												<input type="password" name="current-password" id="current-password" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"/>
-											</div>
-											<div class="col-span-6 sm:col-span-4">
-												<label for="new-password" class="block text-sm font-medium text-gray-700">New password</label>
-												<input type="password" name="new-password" id="new-password" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"/>
-											</div>
-											<div class="col-span-6 sm:col-span-4">
-												<label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm password</label>
-												<input type="password" name="confirm-password" id="confirm-password" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"/>
-											</div>
-										</div>
-									</div>
-									<div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-										<button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-											Update Password
-										</button>
-									</div>
-								</div>
-							</form>
-						</div>
 					</div>
 				</div>
-				<div class="hidden sm:block" aria-hidden="true">
-					<div class="py-5">
-						<div class="border-t border-gray-200"></div>
-					</div>
-				</div>
-				<div class="mt-10 sm:mt-0">
-					<div class="md:grid md:grid-cols-3 md:gap-6">
-						<div class="md:col-span-1">
-							<div class="px-4 sm:px-0">
-								<h3 class="text-lg font-medium leading-6 text-gray-900">Notifications</h3>
-								<p class="mt-1 text-sm text-gray-600">
-									Decide which communications you'd like to receive.
-								</p>
-							</div>
-						</div>
-						<div class="mt-5 md:mt-0 md:col-span-2">
-							<form action="#" method="POST" hx-post="/api/update-notifications" hx-swap="none">
-								<div class="shadow overflow-hidden sm:rounded-md">
-									<div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-										<fieldset>
-											<legend class="text-base font-medium text-gray-900">By Email</legend>
-											<div class="mt-4 space-y-4">
-												<div class="flex items-start">
-													<div class="flex items-center h-5">
-														<input id="comments" name="comments" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" checked/>
-													</div>
-													<div class="ml-3 text-sm">
-														<label for="comments" class="font-medium text-gray-700">URL activity</label>
-														<p class="text-gray-500">Get notified when your URLs receive significant traffic.</p>
-													</div>
-												</div>
-												<div class="flex items-start">
-													<div class="flex items-center h-5">
-														<input id="candidates" name="candidates" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" checked/>
-													</div>
-													<div class="ml-3 text-sm">
-														<label for="candidates" class="font-medium text-gray-700">Account updates</label>
-														<p class="text-gray-500">Get notified about important account updates.</p>
-													</div>
-												</div>
-												<div class="flex items-start">
-													<div class="flex items-center h-5">
-														<input id="offers" name="offers" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"/>
-													</div>
-													<div class="ml-3 text-sm">
-														<label for="offers" class="font-medium text-gray-700">Marketing and offers</label>
-														<p class="text-gray-500">Get notified about new features and special offers.</p>
-													</div>
-												</div>
-											</div>
-										</fieldset>
-									</div>
-									<div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-										<button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-											Save
-										</button>
-									</div>
-								</div>
-							</form>
-						</div>
-					</div>
-				</div>
+				// <!-- Account Security Section -->
+				// <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+				// 	<div class="px-4 py-5 sm:px-6">
+				// 		<h3 class="text-lg leading-6 font-medium text-gray-900">
+				// 			Account Security
+				// 		</h3>
+				// 		<p class="mt-1 max-w-2xl text-sm text-gray-500">
+				// 			Security settings and recent activity.
+				// 		</p>
+				// 	</div>
+				// 	<div class="border-t border-gray-200">
+				// 		<div class="px-4 py-5 sm:p-6">
+				// 			<!-- Two-Factor Authentication Status -->
+				// 			<div class="flex items-center justify-between mb-6">
+				// 				<div>
+				// 					<h4 class="text-sm font-medium text-gray-900">Two-factor authentication</h4>
+				// 					<p class="text-xs text-gray-500 mt-1">Extra security for your account</p>
+				// 				</div>
+				// 				<div>
+				// 					<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+				// 						Not enabled
+				// 					</span>
+				// 				</div>
+				// 			</div>
+				// 			<!-- Recent Account Activity -->
+				// 			<div>
+				// 				<h4 class="text-sm font-medium text-gray-900 mb-3">Recent account activity</h4>
+				// 				<div class="bg-gray-50 rounded-md p-4">
+				// 					<div class="space-y-4">
+				// 						<div class="flex justify-between">
+				// 							<div>
+				// 								<p class="text-xs font-medium text-gray-900">Sign in with Google</p>
+				// 								<p class="text-xs text-gray-500">Chrome on Windows • New York, USA</p>
+				// 							</div>
+				// 							<p class="text-xs text-gray-500">Today, 10:32 AM</p>
+				// 						</div>
+				// 						<div class="flex justify-between">
+				// 							<div>
+				// 								<p class="text-xs font-medium text-gray-900">Sign in with Google</p>
+				// 								<p class="text-xs text-gray-500">Safari on iPhone • New York, USA</p>
+				// 							</div>
+				// 							<p class="text-xs text-gray-500">Yesterday, 4:15 PM</p>
+				// 						</div>
+				// 						<div class="flex justify-between">
+				// 							<div>
+				// 								<p class="text-xs font-medium text-gray-900">Sign in with Google</p>
+				// 								<p class="text-xs text-gray-500">Chrome on macOS • New York, USA</p>
+				// 							</div>
+				// 							<p class="text-xs text-gray-500">Jun 12, 2023, 9:24 AM</p>
+				// 						</div>
+				// 					</div>
+				// 				</div>
+				// 			</div>
+				// 		</div>
+				// 	</div>
+				// </div>
+				// <!-- Notification Preferences -->
+				// <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+				// 	<div class="px-4 py-5 sm:px-6">
+				// 		<h3 class="text-lg leading-6 font-medium text-gray-900">
+				// 			Notification Preferences
+				// 		</h3>
+				// 		<p class="mt-1 max-w-2xl text-sm text-gray-500">
+				// 			Your current communication settings.
+				// 		</p>
+				// 	</div>
+				// 	<div class="border-t border-gray-200">
+				// 		<div class="px-4 py-5 sm:p-6">
+				// 			<div class="space-y-4">
+				// 				<div class="flex items-start">
+				// 					<div class="flex-shrink-0 mt-0.5">
+				// 						<i class="fas fa-check-circle text-green-500"></i>
+				// 					</div>
+				// 					<div class="ml-3">
+				// 						<p class="text-sm font-medium text-gray-900">URL activity</p>
+				// 						<p class="text-xs text-gray-500">Notifications about significant traffic to your URLs</p>
+				// 					</div>
+				// 				</div>
+				// 				<div class="flex items-start">
+				// 					<div class="flex-shrink-0 mt-0.5">
+				// 						<i class="fas fa-check-circle text-green-500"></i>
+				// 					</div>
+				// 					<div class="ml-3">
+				// 						<p class="text-sm font-medium text-gray-900">Account updates</p>
+				// 						<p class="text-xs text-gray-500">Important information about your account</p>
+				// 					</div>
+				// 				</div>
+				// 				<div class="flex items-start">
+				// 					<div class="flex-shrink-0 mt-0.5">
+				// 						<i class="fas fa-times-circle text-gray-400"></i>
+				// 					</div>
+				// 					<div class="ml-3">
+				// 						<p class="text-sm font-medium text-gray-900">Marketing and offers</p>
+				// 						<p class="text-xs text-gray-500">New features and special offers</p>
+				// 					</div>
+				// 				</div>
+				// 			</div>
+				// 		</div>
+				// 	</div>
+				// </div>
+				// <!-- Data and Privacy -->
+				// <div class="mt-8 flex justify-end">
+				// 	<a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">
+				// 		Download your data
+				// 	</a>
+				// 	<span class="mx-2 text-gray-500">•</span>
+				// 	<a href="#" class="text-sm text-red-600 hover:text-red-500">
+				// 		Delete account
+				// 	</a>
+				// </div>
 			</div>
 		</main>
 	}
+}
+
+func titleCase(s string) string {
+	return cases.Title(language.English).String(s)
 }

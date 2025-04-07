@@ -66,6 +66,8 @@ func (h *Handler) Routes(r chi.Router) {
 		r.Get("/urls/{slug}", h.linkDetail)
 		r.Get("/urls/{id}/clicks", h.clickChart)
 		r.Delete("/urls/{id}", h.deleteURL)
+
+		
 		// 	r.Get("/links/{slug}/edit", h.titleEdit)
 
 		// 	r.Patch("/links/{slug}", h.updateTitle)
@@ -96,7 +98,7 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 
 	user := middleware.UserFromContext(ctx)
 	if user == nil { // this should not happen
-		htmx.Redirect("/login")
+		htmx.Redirect("/auth")
 		return
 	}
 

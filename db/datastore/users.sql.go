@@ -31,25 +31,100 @@ func (q *Queries) GetOauth2State(ctx context.Context, state string) (Oauth2State
 	return i, err
 }
 
-const getUser = `-- name: GetUser :one
-SELECT id, username, email, password, created_at, password_salt, is_oauth, guid
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, username, email, created_at, is_oauth, guid, updated_at
 FROM users
 WHERE users.email = $1
 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, email)
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
 		&i.Email,
-		&i.Password,
 		&i.CreatedAt,
-		&i.PasswordSalt,
 		&i.IsOauth,
 		&i.Guid,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUserByGUID = `-- name: GetUserByGUID :one
+SELECT id, username, email, created_at, is_oauth, guid, updated_at
+FROM users
+WHERE users.guid = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByGUID(ctx context.Context, guid pgtype.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByGUID, guid)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.CreatedAt,
+		&i.IsOauth,
+		&i.Guid,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUserProvider = `-- name: GetUserProvider :one
+SELECT id, user_id, provider, provider_user_id, created_at, updated_at
+FROM user_providers
+WHERE user_id = $1
+AND provider = $2
+LIMIT 1
+`
+
+type GetUserProviderParams struct {
+	UserID   pgtype.UUID `json:"user_id"`
+	Provider string      `json:"provider"`
+}
+
+func (q *Queries) GetUserProvider(ctx context.Context, arg GetUserProviderParams) (UserProvider, error) {
+	row := q.db.QueryRow(ctx, getUserProvider, arg.UserID, arg.Provider)
+	var i UserProvider
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Provider,
+		&i.ProviderUserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUserProviderByProviderUserId = `-- name: GetUserProviderByProviderUserId :one
+SELECT id, user_id, provider, provider_user_id, created_at, updated_at
+FROM user_providers
+WHERE provider = $1
+AND provider_user_id = $2
+LIMIT 1
+`
+
+type GetUserProviderByProviderUserIdParams struct {
+	Provider       string `json:"provider"`
+	ProviderUserID string `json:"provider_user_id"`
+}
+
+func (q *Queries) GetUserProviderByProviderUserId(ctx context.Context, arg GetUserProviderByProviderUserIdParams) (UserProvider, error) {
+	row := q.db.QueryRow(ctx, getUserProviderByProviderUserId, arg.Provider, arg.ProviderUserID)
+	var i UserProvider
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Provider,
+		&i.ProviderUserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -72,7 +147,8 @@ func (q *Queries) InsertOauth2State(ctx context.Context, arg InsertOauth2StatePa
 const insertUserOauth = `-- name: InsertUserOauth :one
 INSERT INTO users (guid, username, email, is_oauth)
 VALUES ($1, $2, $3, true)
-RETURNING id, username, email, password, created_at, password_salt, is_oauth, guid
+ON CONFLICT (email) DO UPDATE SET username = $2
+RETURNING id, username, email, created_at, is_oauth, guid, updated_at
 `
 
 type InsertUserOauthParams struct {
@@ -88,11 +164,70 @@ func (q *Queries) InsertUserOauth(ctx context.Context, arg InsertUserOauthParams
 		&i.ID,
 		&i.Username,
 		&i.Email,
-		&i.Password,
 		&i.CreatedAt,
-		&i.PasswordSalt,
 		&i.IsOauth,
 		&i.Guid,
+		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const insertUserProvider = `-- name: InsertUserProvider :one
+INSERT INTO user_providers (user_id, provider, provider_user_id)
+VALUES ($1, $2, $3)
+RETURNING id, user_id, provider, provider_user_id, created_at, updated_at
+`
+
+type InsertUserProviderParams struct {
+	UserID         pgtype.UUID `json:"user_id"`
+	Provider       string      `json:"provider"`
+	ProviderUserID string      `json:"provider_user_id"`
+}
+
+func (q *Queries) InsertUserProvider(ctx context.Context, arg InsertUserProviderParams) (UserProvider, error) {
+	row := q.db.QueryRow(ctx, insertUserProvider, arg.UserID, arg.Provider, arg.ProviderUserID)
+	var i UserProvider
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Provider,
+		&i.ProviderUserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const listUserProviders = `-- name: ListUserProviders :many
+SELECT id, user_id, provider, provider_user_id, created_at, updated_at
+FROM user_providers
+WHERE user_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListUserProviders(ctx context.Context, userID pgtype.UUID) ([]UserProvider, error) {
+	rows, err := q.db.Query(ctx, listUserProviders, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []UserProvider{}
+	for rows.Next() {
+		var i UserProvider
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Provider,
+			&i.ProviderUserID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

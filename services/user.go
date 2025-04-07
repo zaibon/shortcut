@@ -19,12 +19,16 @@ import (
 )
 
 type userStore interface {
-	InsertUserOauth(ctx context.Context, user datastore.InsertUserOauthParams) error
+	InsertUserOauth(ctx context.Context, user datastore.InsertUserOauthParams) (domain.GUID, error)
 	GetUser(ctx context.Context, email string) (datastore.User, error)
 
 	// oauth
 	InsertOauthState(ctx context.Context, state string, provider domain.OauthProvider) error
 	GetOauthState(ctx context.Context, state string) (datastore.Oauth2State, error)
+	InsertUserProvider(ctx context.Context, userID domain.GUID, provider domain.OauthProvider, providerUserID string) error
+
+	GetUserProvider(ctx context.Context, userID uuid.UUID, provider domain.OauthProvider) (datastore.UserProvider, error)
+	GetUserProviderByProviderUserId(ctx context.Context, provider domain.OauthProvider, providerUserID string) (datastore.UserProvider, error)
 }
 
 var (
@@ -60,7 +64,7 @@ func NewUser(store userStore, ownDomain string, tls bool,
 			Endpoint:     github.Endpoint, //FIXME: use github endpoint
 			RedirectURL:  oauthRedirectURL(ownDomain, tls),
 			Scopes: []string{
-				"read:user", " user:email",
+				"read:user", "user:email",
 			},
 		},
 	}
@@ -100,33 +104,53 @@ func (s *userService) IdentifyOauthUser(ctx context.Context, code string, provid
 		return nil, err
 	}
 
-	user, err := s.store.GetUser(ctx, userInfo.Email)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+	_, errProvider := s.store.GetUserProviderByProviderUserId(ctx, provider, userInfo.ProviderID())
+	if errProvider != nil && !errors.Is(errProvider, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("failed to get user provider: %w", err)
+	}
+
+	user, errUser := s.store.GetUser(ctx, userInfo.ProviderEmail())
+	if errUser != nil && !errors.Is(errUser, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("failed to identify user %s: %w", user.Email, err)
 	}
 
-	if errors.Is(err, pgx.ErrNoRows) { // user not found, create it
-		if err := s.store.InsertUserOauth(ctx, datastore.InsertUserOauthParams{
-			Username: userInfo.Name,
-			Email:    userInfo.Email,
-		}); err != nil {
-			return nil, fmt.Errorf("failed to identify user %s: %w", userInfo.Email, err)
-		}
-		user, err = s.store.GetUser(ctx, userInfo.Email)
+	// user not found, create it
+	if errors.Is(errProvider, pgx.ErrNoRows) && errors.Is(errUser, pgx.ErrNoRows) {
+
+		userID, err := s.store.InsertUserOauth(ctx, datastore.InsertUserOauthParams{
+			Username: userInfo.ProviderName(),
+			Email:    userInfo.ProviderEmail(),
+		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to identify user %s: %w", userInfo.Email, err)
+			return nil, fmt.Errorf("failed to identify user %s: %w", userInfo.ProviderEmail(), err)
 		}
+
+		if err := s.store.InsertUserProvider(ctx, userID, provider, userInfo.ProviderID()); err != nil {
+			return nil, fmt.Errorf("failed to insert user provider: %w", err)
+		}
+	}
+
+	// user with this email exists, but not with this provider, link accounts
+	if errUser == nil && errors.Is(errProvider, pgx.ErrNoRows) {
+		if err := s.store.InsertUserProvider(ctx, domain.GUID(user.Guid.Bytes), provider, userInfo.ProviderID()); err != nil {
+			return nil, fmt.Errorf("failed to insert user provider: %w", err)
+		}
+	}
+
+	user, err = s.store.GetUser(ctx, userInfo.ProviderEmail())
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("failed to identify user %s: %w", user.Email, err)
 	}
 
 	return &domain.User{
 		GUID:      domain.GUID(user.Guid.Bytes),
 		ID:        domain.ID(user.ID),
-		Name:      user.Username,
-		Email:     user.Email,
-		Password:  "",
-		Avatar:    userInfo.Avatar,
+		Name:      userInfo.ProviderName(),
+		Email:     userInfo.ProviderEmail(),
+		Avatar:    userInfo.Avatar(),
 		CreatedAt: user.CreatedAt.Time,
 		IsOauth:   true,
+		Provider:  provider,
 	}, nil
 }
 
@@ -144,50 +168,80 @@ func (s *userService) InitiateOauthFlow(ctx context.Context, provider domain.Oau
 	return oauthConfig.AuthCodeURL(state), nil
 }
 
-func getUserInfo(ctx context.Context, oauthConfig *oauth2.Config, token *oauth2.Token, provider domain.OauthProvider) (domain.User, error) {
+func getUserInfo(ctx context.Context, oauthConfig *oauth2.Config, token *oauth2.Token, provider domain.OauthProvider) (UserProvider, error) {
 	client := oauthConfig.Client(ctx, token)
 	var resp *http.Response
 	var err error
-	var user domain.User
+	var user UserProvider
 
 	switch provider {
 	case domain.OauthProviderGoogle:
 		resp, err = client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 		if err != nil {
-			return domain.User{}, fmt.Errorf("failed to get user info: %w", err)
+			return nil, fmt.Errorf("failed to get user info: %w", err)
 		}
 		defer resp.Body.Close()
 
 		var googleUserInfo domain.GoogleUserInfo
 		if err := json.NewDecoder(resp.Body).Decode(&googleUserInfo); err != nil {
-			return domain.User{}, fmt.Errorf("failed to decode user info: %w", err)
+			return nil, fmt.Errorf("failed to decode user info: %w", err)
 		}
-		user = domain.User{
-			Email:  googleUserInfo.Email,
-			Name:   googleUserInfo.Name,
-			Avatar: googleUserInfo.Picture,
-		}
+		user = googleUserInfo
+
 	case domain.OauthProviderGithub:
 		resp, err = client.Get("https://api.github.com/user")
 		if err != nil {
-			return domain.User{}, fmt.Errorf("failed to get user info: %w", err)
+			return nil, fmt.Errorf("failed to get user info: %w", err)
 		}
 		defer resp.Body.Close()
 
 		var githubUserInfo domain.GithubUserInfo
 		if err := json.NewDecoder(resp.Body).Decode(&githubUserInfo); err != nil {
-			return domain.User{}, fmt.Errorf("failed to decode user info: %w", err)
+			return nil, fmt.Errorf("failed to decode user info: %w", err)
 		}
-		user = domain.User{
-			Email:  githubUserInfo.Email,
-			Name:   githubUserInfo.Name,
-			Avatar: githubUserInfo.AvatarURL,
+
+		if githubUserInfo.Email == "" {
+			resp, err = client.Get("https://api.github.com/user/emails")
+			if err != nil {
+				return nil, fmt.Errorf("failed to get user emails: %w", err)
+			}
+			defer resp.Body.Close()
+
+			var githubEmails []domain.GithubEmail
+			if err := json.NewDecoder(resp.Body).Decode(&githubEmails); err != nil {
+				return nil, fmt.Errorf("failed to decode user emails: %w", err)
+			}
+			for _, email := range githubEmails {
+				if email.Primary {
+					githubUserInfo.Email = email.Email
+					break
+				}
+			}
 		}
+		user = githubUserInfo
+
 	default:
-		return domain.User{}, fmt.Errorf("unsupported oauth provider: %s", provider)
+		return nil, fmt.Errorf("unsupported oauth provider: %s", provider)
 	}
 
 	return user, nil
+}
+
+func (s *userService) ListConnectedProvider(ctx context.Context, userID domain.GUID) ([]domain.AccountProvider, error) {
+	ap := make([]domain.AccountProvider, 2)
+
+	for i, p := range []domain.OauthProvider{
+		domain.OauthProviderGithub,
+		domain.OauthProviderGoogle,
+	} {
+		_, err := s.store.GetUserProvider(ctx, uuid.UUID(userID), p)
+		ap[i] = domain.AccountProvider{
+			Provider:  p,
+			Connected: err == nil,
+		}
+	}
+
+	return ap, nil
 }
 
 func oauthRedirectURL(domain string, tls bool) string {
@@ -197,4 +251,11 @@ func oauthRedirectURL(domain string, tls bool) string {
 	} else {
 		return fmt.Sprintf("http://%s", url)
 	}
+}
+
+type UserProvider interface {
+	ProviderID() string
+	ProviderName() string
+	ProviderEmail() string
+	Avatar() string
 }

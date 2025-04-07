@@ -14,3 +14,8 @@ func IsValidProvider(p string) bool {
 	}
 	return false
 }
+
+type AccountProvider struct {
+	Provider  OauthProvider
+	Connected bool
+}

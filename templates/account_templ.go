@@ -8,7 +8,14 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func AccountPage() templ.Component {
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+)
+
+func AccountPage(user domain.User, linkedProviders []domain.AccountProvider) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -41,7 +48,122 @@ func AccountPage() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-grow\"><div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\"><!-- Account settings --><div class=\"md:grid md:grid-cols-3 md:gap-6\"><div class=\"md:col-span-1\"><div class=\"px-4 sm:px-0\"><h3 class=\"text-lg font-medium leading-6 text-gray-900\">Profile</h3><p class=\"mt-1 text-sm text-gray-600\">This information will be displayed publicly so be careful what you share.</p></div></div><div class=\"mt-5 md:mt-0 md:col-span-2\"><form action=\"#\" method=\"POST\" hx-post=\"/api/update-profile\" hx-swap=\"none\"><div class=\"shadow sm:rounded-md sm:overflow-hidden\"><div class=\"px-4 py-5 bg-white space-y-6 sm:p-6\"><div><label class=\"block text-sm font-medium text-gray-700\">Photo</label><div class=\"mt-1 flex items-center\"><span class=\"inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100\"><img src=\"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80\" alt=\"Profile photo\"></span> <button type=\"button\" class=\"ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Change</button></div></div><div class=\"grid grid-cols-6 gap-6\"><div class=\"col-span-6 sm:col-span-3\"><label for=\"first-name\" class=\"block text-sm font-medium text-gray-700\">First name</label> <input type=\"text\" name=\"first-name\" id=\"first-name\" autocomplete=\"given-name\" value=\"Tom\" class=\"mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md\"></div><div class=\"col-span-6 sm:col-span-3\"><label for=\"last-name\" class=\"block text-sm font-medium text-gray-700\">Last name</label> <input type=\"text\" name=\"last-name\" id=\"last-name\" autocomplete=\"family-name\" value=\"Cook\" class=\"mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md\"></div><div class=\"col-span-6 sm:col-span-4\"><label for=\"email-address\" class=\"block text-sm font-medium text-gray-700\">Email address</label> <input type=\"text\" name=\"email-address\" id=\"email-address\" autocomplete=\"email\" value=\"tom@example.com\" class=\"mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md\"></div></div></div><div class=\"px-4 py-3 bg-gray-50 text-right sm:px-6\"><button type=\"submit\" class=\"inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Save</button></div></div></form></div></div><div class=\"hidden sm:block\" aria-hidden=\"true\"><div class=\"py-5\"><div class=\"border-t border-gray-200\"></div></div></div><div class=\"mt-10 sm:mt-0\"><div class=\"md:grid md:grid-cols-3 md:gap-6\"><div class=\"md:col-span-1\"><div class=\"px-4 sm:px-0\"><h3 class=\"text-lg font-medium leading-6 text-gray-900\">Password</h3><p class=\"mt-1 text-sm text-gray-600\">Update your password to keep your account secure.</p></div></div><div class=\"mt-5 md:mt-0 md:col-span-2\"><form action=\"#\" method=\"POST\" hx-post=\"/api/update-password\" hx-swap=\"none\"><div class=\"shadow overflow-hidden sm:rounded-md\"><div class=\"px-4 py-5 bg-white sm:p-6\"><div class=\"grid grid-cols-6 gap-6\"><div class=\"col-span-6 sm:col-span-4\"><label for=\"current-password\" class=\"block text-sm font-medium text-gray-700\">Current password</label> <input type=\"password\" name=\"current-password\" id=\"current-password\" class=\"mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md\"></div><div class=\"col-span-6 sm:col-span-4\"><label for=\"new-password\" class=\"block text-sm font-medium text-gray-700\">New password</label> <input type=\"password\" name=\"new-password\" id=\"new-password\" class=\"mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md\"></div><div class=\"col-span-6 sm:col-span-4\"><label for=\"confirm-password\" class=\"block text-sm font-medium text-gray-700\">Confirm password</label> <input type=\"password\" name=\"confirm-password\" id=\"confirm-password\" class=\"mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md\"></div></div></div><div class=\"px-4 py-3 bg-gray-50 text-right sm:px-6\"><button type=\"submit\" class=\"inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Update Password</button></div></div></form></div></div></div><div class=\"hidden sm:block\" aria-hidden=\"true\"><div class=\"py-5\"><div class=\"border-t border-gray-200\"></div></div></div><div class=\"mt-10 sm:mt-0\"><div class=\"md:grid md:grid-cols-3 md:gap-6\"><div class=\"md:col-span-1\"><div class=\"px-4 sm:px-0\"><h3 class=\"text-lg font-medium leading-6 text-gray-900\">Notifications</h3><p class=\"mt-1 text-sm text-gray-600\">Decide which communications you'd like to receive.</p></div></div><div class=\"mt-5 md:mt-0 md:col-span-2\"><form action=\"#\" method=\"POST\" hx-post=\"/api/update-notifications\" hx-swap=\"none\"><div class=\"shadow overflow-hidden sm:rounded-md\"><div class=\"px-4 py-5 bg-white space-y-6 sm:p-6\"><fieldset><legend class=\"text-base font-medium text-gray-900\">By Email</legend><div class=\"mt-4 space-y-4\"><div class=\"flex items-start\"><div class=\"flex items-center h-5\"><input id=\"comments\" name=\"comments\" type=\"checkbox\" class=\"focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded\" checked></div><div class=\"ml-3 text-sm\"><label for=\"comments\" class=\"font-medium text-gray-700\">URL activity</label><p class=\"text-gray-500\">Get notified when your URLs receive significant traffic.</p></div></div><div class=\"flex items-start\"><div class=\"flex items-center h-5\"><input id=\"candidates\" name=\"candidates\" type=\"checkbox\" class=\"focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded\" checked></div><div class=\"ml-3 text-sm\"><label for=\"candidates\" class=\"font-medium text-gray-700\">Account updates</label><p class=\"text-gray-500\">Get notified about important account updates.</p></div></div><div class=\"flex items-start\"><div class=\"flex items-center h-5\"><input id=\"offers\" name=\"offers\" type=\"checkbox\" class=\"focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded\"></div><div class=\"ml-3 text-sm\"><label for=\"offers\" class=\"font-medium text-gray-700\">Marketing and offers</label><p class=\"text-gray-500\">Get notified about new features and special offers.</p></div></div></div></fieldset></div><div class=\"px-4 py-3 bg-gray-50 text-right sm:px-6\"><button type=\"submit\" class=\"inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Save</button></div></div></form></div></div></div></div></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-grow\"><div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\"><!-- Account Header --><div class=\"md:flex md:items-center md:justify-between mb-8\"><div class=\"flex-1 min-w-0\"><h2 class=\"text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate\">Your Account</h2></div></div><!-- Profile Information --><div class=\"bg-white shadow overflow-hidden sm:rounded-lg mb-8\"><div class=\"px-4 py-5 sm:px-6 flex justify-between items-center\"><div><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Profile Information</h3><p class=\"mt-1 max-w-2xl text-sm text-gray-500\">Personal details from your connected account.</p></div><div class=\"flex-shrink-0\"><img class=\"h-16 w-16 rounded-full\" src=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(user.Avatar)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/account.templ`, Line: 34, Col: 60}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" alt=\"Profile photo\"></div></div><div class=\"border-t border-gray-200\"><dl><div class=\"bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6\"><dt class=\"text-sm font-medium text-gray-500\">Username</dt><dd class=\"mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/account.templ`, Line: 44, Col: 20}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</dd></div><div class=\"bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6\"><dt class=\"text-sm font-medium text-gray-500\">Email address</dt><dd class=\"mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/account.templ`, Line: 52, Col: 21}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</dd></div><div class=\"bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6\"><dt class=\"text-sm font-medium text-gray-500\">Account created</dt><dd class=\"mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(user.CreatedAt.Format(timeFormat))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/account.templ`, Line: 60, Col: 44}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</dd></div><div class=\"bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6\"><dt class=\"text-sm font-medium text-gray-500\">Subscription plan</dt><dd class=\"mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2\"><span class=\"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800\">Free</span> <a href=\"subscription.html\" class=\"ml-2 text-xs text-indigo-600 hover:text-indigo-500\">Upgrade plan</a></dd></div></dl></div></div><!-- Connected Accounts Section --><div class=\"bg-white shadow overflow-hidden sm:rounded-lg mb-8\"><div class=\"px-4 py-5 sm:px-6\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Connected Accounts</h3><p class=\"mt-1 max-w-2xl text-sm text-gray-500\">Authentication providers linked to your account.</p></div><div class=\"border-t border-gray-200\"><div class=\"px-4 py-5 sm:p-6\"><div class=\"space-y-4\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, p := range linkedProviders {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<!-- Google Account --> <div class=\"flex items-center justify-between\"><div class=\"flex items-center\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				switch p.Provider {
+				case domain.OauthProviderGoogle:
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<i class=\"fab fa-google text-lg text-red-500 mr-3\"></i>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				case domain.OauthProviderGithub:
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<i class=\"fab fa-github text-lg text-gray-900 mr-3\"></i>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div><p class=\"text-sm font-medium text-gray-900\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var7 string
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(titleCase(string(p.Provider)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/account.templ`, Line: 103, Col: 88}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</p></div></div><div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if p.Connected {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800\">Connected</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<a href=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var8 templ.SafeURL = templ.SafeURL(fmt.Sprintf("/oauth/login/%s", p.Provider))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var8)))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Link account</a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"mt-6 text-sm text-gray-500\"><p><i class=\"fas fa-info-circle text-indigo-500 mr-1\"></i> Your account information is managed through your connected authentication provider.</p></div></div></div></div></div></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -53,6 +175,10 @@ func AccountPage() templ.Component {
 		}
 		return nil
 	})
+}
+
+func titleCase(s string) string {
+	return cases.Title(language.English).String(s)
 }
 
 var _ = templruntime.GeneratedTemplate

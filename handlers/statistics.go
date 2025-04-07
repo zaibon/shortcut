@@ -3,7 +3,7 @@ package handlers
 // func (h *Handler) numberClicks(w http.ResponseWriter, r *http.Request) {
 // 	user := middleware.UserFromContext(r.Context())
 // 	if user == nil { // this should not happen
-// 		HXRedirect(r.Context(), w, "/login")
+// 		HXRedirect(r.Context(), w, "/auth")
 // 		return
 // 	}
 

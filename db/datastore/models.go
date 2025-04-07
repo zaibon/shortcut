@@ -59,14 +59,22 @@ type Url struct {
 }
 
 type User struct {
-	ID           int32            `json:"id"`
-	Username     string           `json:"username"`
-	Email        string           `json:"email"`
-	Password     []byte           `json:"password"`
-	CreatedAt    pgtype.Timestamp `json:"created_at"`
-	PasswordSalt []byte           `json:"password_salt"`
-	IsOauth      pgtype.Bool      `json:"is_oauth"`
-	Guid         pgtype.UUID      `json:"guid"`
+	ID        int32            `json:"id"`
+	Username  string           `json:"username"`
+	Email     string           `json:"email"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	IsOauth   pgtype.Bool      `json:"is_oauth"`
+	Guid      pgtype.UUID      `json:"guid"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+}
+
+type UserProvider struct {
+	ID             pgtype.UUID      `json:"id"`
+	UserID         pgtype.UUID      `json:"user_id"`
+	Provider       string           `json:"provider"`
+	ProviderUserID string           `json:"provider_user_id"`
+	CreatedAt      pgtype.Timestamp `json:"created_at"`
+	UpdatedAt      pgtype.Timestamp `json:"updated_at"`
 }
 
 type Visit struct {

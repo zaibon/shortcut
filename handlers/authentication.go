@@ -19,6 +19,7 @@ type AuthService interface {
 	InitiateOauthFlow(ctx context.Context, provider domain.OauthProvider) (string, error)
 	IdentifyOauthUser(ctx context.Context, code string, provider domain.OauthProvider) (*domain.User, error)
 	VerifyOauthState(ctx context.Context, state string) (bool, domain.OauthProvider, error)
+	ListConnectedProvider(ctx context.Context, userID domain.GUID) ([]domain.AccountProvider, error)
 }
 
 type UsersHandler struct {
@@ -57,38 +58,16 @@ func (h *UsersHandler) authPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UsersHandler) myAccount(w http.ResponseWriter, r *http.Request) {
-	// user := middleware.UserFromContext(r.Context())
+	user := middleware.UserFromContext(r.Context())
+	linkedProviders, err := h.auth.ListConnectedProvider(r.Context(), user.GUID)
+	if err != nil {
+		slog.Error("failed to get connected provider", "error", err)
+		http.Error(w, "failed to get connected provider", http.StatusInternalServerError)
+		return
+	}
 
-	// subscription, err := h.stripe.GetSubscription(r.Context(), user)
-	// if err != nil && !errors.Is(err, services.ErrNotSubscription) {
-	// 	slog.Error("failed to get subscription detail", "err", err)
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// var customerPortalURL string
-	// if errors.Is(err, services.ErrNotSubscription) {
-	// 	subscription = nil
-	// } else {
-	// 	customerPortalURL, err = h.stripe.GenerateCustomerPortalURL(r.Context(), user)
-	// 	if err != nil {
-	// 		slog.Error("failed to generate customer portal URL", "err", err)
-	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// }
-
-	templates.AccountPage().
+	templates.AccountPage(*user, linkedProviders).
 		Render(r.Context(), w)
-	// Render(r.Context(), w, views.MyAccount(views.MyAccountData{
-	// 	User:                  user,
-	// 	Subscription:          subscription,
-	// 	CustomterDashboardURL: customerPortalURL,
-	// 	PricingData: components.PricingData{
-	// 		User:     user,
-	// 		StipeKey: h.stripePubKey,
-	// 	},
-	// }))
 }
 
 func (h *UsersHandler) logout(w http.ResponseWriter, r *http.Request) {

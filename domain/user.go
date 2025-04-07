@@ -2,6 +2,7 @@ package domain
 
 import (
 	"encoding/gob"
+	"fmt"
 	"time"
 )
 
@@ -17,10 +18,10 @@ type User struct {
 	GUID      GUID
 	Name      string
 	Email     string
-	Password  string
 	Avatar    string
 	CreatedAt time.Time
 	IsOauth   bool
+	Provider  OauthProvider
 }
 
 type GoogleUserInfo struct {
@@ -31,6 +32,21 @@ type GoogleUserInfo struct {
 	FamilyName    string `json:"family_name"`
 	Picture       string `json:"picture"`
 	EmailVerified bool   `json:"email_verified"`
+}
+
+func (g GoogleUserInfo) ProviderID() string {
+	return g.Email
+}
+
+func (g GoogleUserInfo) ProviderName() string {
+	return g.Name
+}
+
+func (g GoogleUserInfo) ProviderEmail() string {
+	return g.Email
+}
+func (g GoogleUserInfo) Avatar() string {
+	return g.Picture
 }
 
 type GithubUserInfo struct {
@@ -78,4 +94,27 @@ type GithubUserInfo struct {
 		PrivateRepos  int    `json:"private_repos"`
 		Collaborators int    `json:"collaborators"`
 	} `json:"plan"`
+}
+
+func (g GithubUserInfo) ProviderID() string {
+	return fmt.Sprintf("%d", g.ID)
+}
+
+func (g GithubUserInfo) ProviderName() string {
+	return g.Login
+}
+
+func (g GithubUserInfo) ProviderEmail() string {
+	return g.Email
+}
+
+func (g GithubUserInfo) Avatar() string {
+	return g.AvatarURL
+}
+
+type GithubEmail struct {
+	Email      string `json:"email"`
+	Verified   bool   `json:"verified"`
+	Primary    bool   `json:"primary"`
+	Visibility string `json:"visibility"`
 }

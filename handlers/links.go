@@ -34,7 +34,7 @@ func (h *Handler) myLinks(w http.ResponseWriter, r *http.Request) {
 
 	user := middleware.UserFromContext(r.Context())
 	if user == nil {
-		htmx.Redirect("/login")
+		htmx.Redirect("/auth")
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *Handler) urlSort(w http.ResponseWriter, r *http.Request) {
 
 	user := middleware.UserFromContext(r.Context())
 	if user == nil {
-		htmx.Redirect("/login")
+		htmx.Redirect("/auth")
 		return
 	}
 
@@ -95,7 +95,7 @@ func (h *Handler) urlSearch(w http.ResponseWriter, r *http.Request) {
 
 	user := middleware.UserFromContext(r.Context())
 	if user == nil {
-		htmx.Redirect("/login")
+		htmx.Redirect("/auth")
 		return
 	}
 
@@ -125,7 +125,7 @@ func (h *Handler) deleteURL(w http.ResponseWriter, r *http.Request) {
 	htmx := h.htmx.NewHandler(w, r)
 	user := middleware.UserFromContext(r.Context())
 	if user == nil {
-		htmx.Redirect("/login")
+		htmx.Redirect("/auth")
 		return
 	}
 
@@ -254,7 +254,7 @@ func sortUrls(urls []domain.URLStat, filter string) []domain.URLStat {
 // func (h *Handler) titleEdit(w http.ResponseWriter, r *http.Request) {
 // 	user := middleware.UserFromContext(r.Context())
 // 	if user == nil { // this should not happen
-// 		HXRedirect(r.Context(), w, "/login")
+// 		HXRedirect(r.Context(), w, "/auth")
 // 		return
 // 	}
 
@@ -273,7 +273,7 @@ func sortUrls(urls []domain.URLStat, filter string) []domain.URLStat {
 // func (h *Handler) updateTitle(w http.ResponseWriter, r *http.Request) {
 // 	user := middleware.UserFromContext(r.Context())
 // 	if user == nil { // this should not happen
-// 		HXRedirect(r.Context(), w, "/login")
+// 		HXRedirect(r.Context(), w, "/auth")
 // 		return
 // 	}
 
