@@ -133,7 +133,6 @@ ORDER BY
 -- SQL query to get the distribution of browsers for a specific URL
 -- name: BrowserDistribution :many
 SELECT
---   v.user_agent,
 	browsers.name,
 	browsers.version,
 	browsers.platform,
@@ -182,3 +181,18 @@ FROM
 	visits
 WHERE
 	url_id = @url_id;
+
+
+-- name: VisitOverTime :many
+SELECT
+    date_trunc(@time_trunc, visited_at)::timestamp AS visit_date,
+    COUNT(*) AS visit_count
+FROM
+    visits
+WHERE
+    url_id = @url_id
+    AND visited_at BETWEEN @start_date AND @end_date
+GROUP BY
+    visit_date
+ORDER BY
+    visit_date;

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -169,6 +170,47 @@ func (h *Handler) linkDetail(w http.ResponseWriter, r *http.Request) {
 	if err := templates.URLDetail(url).
 		Render(r.Context(), w); err != nil {
 		log.Error("failed to render page", slog.Any("error", err))
+	}
+}
+
+func (h *Handler) clickChart(w http.ResponseWriter, r *http.Request) {
+	sID := chi.URLParam(r, "id")
+	urlID, err := strconv.ParseInt(sID, 10, 32)
+	if err != nil {
+		log.Error("failed to parse url id", slog.Any("error", err))
+		http.Error(w, "failed to parse url id", http.StatusBadRequest)
+		return
+	}
+
+	now := time.Now()
+	period := domain.Period{
+		Until: time.Now(),
+	}
+
+	timeRange := r.URL.Query().Get("range")
+
+	switch timeRange {
+	case "day":
+		period.Since = now.AddDate(0, 0, -1)
+	case "week":
+		period.Since = now.AddDate(0, 0, -7)
+	case "month":
+		period.Since = now.AddDate(0, -1, 0)
+	default:
+		period.Since = now.AddDate(0, 0, -7)
+	}
+
+	data, err := h.svc.ClickOverTime(r.Context(), domain.ID(urlID), period, timeRange)
+	if err != nil {
+		log.Error("failed to get click over time", slog.Any("error", err))
+		http.Error(w, "failed to get click over time", http.StatusInternalServerError)
+		return
+	}
+
+	if err := templates.ChartData("visitOverTime", data).
+		Render(r.Context(), w); err != nil {
+		log.Error("failed to render page", slog.Any("error", err))
+
 	}
 }
 

@@ -60,8 +60,6 @@ type BrowserDistributionRow struct {
 }
 
 // SQL query to get the distribution of browsers for a specific URL
-//
-//	v.user_agent,
 func (q *Queries) BrowserDistribution(ctx context.Context, arg BrowserDistributionParams) ([]BrowserDistributionRow, error) {
 	rows, err := q.db.Query(ctx, browserDistribution, arg.UrlID, arg.AuthorID)
 	if err != nil {
@@ -519,4 +517,56 @@ func (q *Queries) UpsertBrowser(ctx context.Context, arg UpsertBrowserParams) (B
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const visitOverTime = `-- name: VisitOverTime :many
+SELECT
+    date_trunc($1, visited_at)::timestamp AS visit_date,
+    COUNT(*) AS visit_count
+FROM
+    visits
+WHERE
+    url_id = $2
+    AND visited_at BETWEEN $3 AND $4
+GROUP BY
+    visit_date
+ORDER BY
+    visit_date
+`
+
+type VisitOverTimeParams struct {
+	TimeTrunc string           `json:"time_trunc"`
+	UrlID     int32            `json:"url_id"`
+	StartDate pgtype.Timestamp `json:"start_date"`
+	EndDate   pgtype.Timestamp `json:"end_date"`
+}
+
+type VisitOverTimeRow struct {
+	VisitDate  pgtype.Timestamp `json:"visit_date"`
+	VisitCount int64            `json:"visit_count"`
+}
+
+func (q *Queries) VisitOverTime(ctx context.Context, arg VisitOverTimeParams) ([]VisitOverTimeRow, error) {
+	rows, err := q.db.Query(ctx, visitOverTime,
+		arg.TimeTrunc,
+		arg.UrlID,
+		arg.StartDate,
+		arg.EndDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []VisitOverTimeRow{}
+	for rows.Next() {
+		var i VisitOverTimeRow
+		if err := rows.Scan(&i.VisitDate, &i.VisitCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

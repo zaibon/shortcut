@@ -252,3 +252,33 @@ func (a urlStore) GetBrowser(ctx context.Context, name, version, platform string
 		Mobile:   row.Mobile,
 	}, nil
 }
+
+func (a urlStore) VisitOverTime(ctx context.Context, urlID domain.ID, period domain.Period, timeTrunc string) ([]domain.TimeSeriesData, error) {
+	row, err := a.db.VisitOverTime(ctx, datastore.VisitOverTimeParams{
+		UrlID: int32(urlID),
+		StartDate: pgtype.Timestamp{
+			Time:             period.Since,
+			InfinityModifier: pgtype.Finite,
+			Valid:            true,
+		},
+		EndDate: pgtype.Timestamp{
+			Time:             period.Until,
+			InfinityModifier: pgtype.Finite,
+			Valid:            true,
+		},
+		TimeTrunc: timeTrunc,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get visit per day: %w", err)
+	}
+
+	result := make([]domain.TimeSeriesData, 0, len(row))
+	for _, r := range row {
+		result = append(result, domain.TimeSeriesData{
+			Time:  r.VisitDate.Time,
+			Count: r.VisitCount,
+		})
+	}
+
+	return result, nil
+}

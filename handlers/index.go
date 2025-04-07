@@ -29,6 +29,8 @@ type ShortURLService interface {
 	Get(ctx context.Context, authorID domain.ID, slug string) (domain.URL, error)
 	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (domain.URLStat, error)
 
+	ClickOverTime(ctx context.Context, urlID domain.ID, period domain.Period, timeRange string) ([]domain.TimeSeriesData, error)
+
 	TrackRedirect(ctx context.Context, urlID domain.ID, r *http.Request) error
 
 	// ArchiveURL(ctx context.Context, authorID domain.ID, slug string) error
@@ -61,7 +63,8 @@ func (h *Handler) Routes(r chi.Router) {
 		r.With(middleware.PaginateParams).Get("/urls", h.myLinks)
 		r.With(middleware.PaginateParams).Get("/urls-sort", h.urlSort)
 		r.With(middleware.PaginateParams).Get("/urls-search", h.urlSearch)
-		r.With(middleware.PaginateParams).Get("/urls/{slug}", h.linkDetail)
+		r.Get("/urls/{slug}", h.linkDetail)
+		r.Get("/urls/{id}/clicks", h.clickChart)
 		r.Delete("/urls/{id}", h.deleteURL)
 		// 	r.Get("/links/{slug}/edit", h.titleEdit)
 

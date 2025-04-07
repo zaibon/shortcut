@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mssola/user_agent"
@@ -44,6 +45,7 @@ type URLStore interface {
 
 	CountMonthlyURL(ctx context.Context, authorID domain.ID) (int64, error)
 	CountMonthlyVisit(ctx context.Context, authorID domain.ID) (int64, error)
+	VisitOverTime(ctx context.Context, urlID domain.ID, period domain.Period, timeTrunc string) ([]domain.TimeSeriesData, error)
 
 	LocationDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.LocationDistributionRow, error)
 	BrowserDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.BrowserDistributionRow, error)
@@ -239,11 +241,12 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 	urlID := domain.ID(url.ID)
 
 	var (
-		g, gCtx = errgroup.WithContext(ctx)
-		ld      []datastore.LocationDistributionRow
-		bd      []datastore.BrowserDistributionRow
-		total   int64
-		unique  int64
+		g, gCtx      = errgroup.WithContext(ctx)
+		ld           []datastore.LocationDistributionRow
+		bd           []datastore.BrowserDistributionRow
+		visitsPerDay []domain.TimeSeriesData
+		total        int64
+		unique       int64
 	)
 
 	g.Go(func() error {
@@ -291,6 +294,28 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 		if errors.Is(err, pgx.ErrNoRows) {
 			unique = 0
 		}
+		return nil
+	})
+
+	g.Go(func() error {
+		var err error
+
+		now := time.Now().Truncate(time.Hour)
+		since := now.AddDate(0, 0, -1).Truncate(time.Hour)
+		until := now
+		period := domain.Period{Since: since, Until: until}
+
+		visitsPerDay, err = s.repo.VisitOverTime(gCtx, urlID, period, "hour")
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get unique visit count: %w", err)
+		}
+
+		if errors.Is(err, pgx.ErrNoRows) {
+			visitsPerDay = []domain.TimeSeriesData{}
+		}
+
+		visitsPerDay = fillData(visitsPerDay, period, time.Hour)
+
 		return nil
 	})
 
@@ -358,9 +383,61 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 			return s
 
 		}(bd),
+		VisitPerDay: visitsPerDay,
 	}
 
 	return stats, nil
+}
+
+func (s *shortURL) ClickOverTime(ctx context.Context, urlID domain.ID, period domain.Period, timeRange string) ([]domain.TimeSeriesData, error) {
+	timeTrunc := "hour"
+	trunc := time.Hour
+	switch timeRange {
+	case "day":
+		timeTrunc = "hour"
+		trunc = time.Hour
+	case "week":
+		timeTrunc = "day"
+		trunc = time.Hour * 24
+	case "month":
+		timeTrunc = "day"
+		trunc = time.Hour * 24
+	}
+	data, err := s.repo.VisitOverTime(ctx, urlID, period, timeTrunc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get visit over time: %w", err)
+	}
+
+	data = fillData(data, period, trunc)
+
+	return data, nil
+}
+
+func fillData(data []domain.TimeSeriesData, period domain.Period, trunc time.Duration) []domain.TimeSeriesData {
+	var (
+		current = period.Since.Truncate(trunc)
+		end     = period.Until.Truncate(trunc)
+		newData = []domain.TimeSeriesData{}
+	)
+
+	for current.Before(end) || current.Equal(end) {
+		found := false
+		for _, d := range data {
+			if d.Time.Equal(current) {
+				newData = append(newData, d)
+				found = true
+				break
+			}
+		}
+		if !found {
+			newData = append(newData, domain.TimeSeriesData{
+				Time:  current,
+				Count: 0,
+			})
+		}
+		current = current.Add(trunc)
+	}
+	return newData
 }
 
 // func (s *shortURL) UpdateTitle(ctx context.Context, authorID domain.ID, slug, title string) (domain.URL, error) {

@@ -146,83 +146,78 @@ func URLDetail(url domain.URLStat) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></dd></div></dl></div></div><!-- Click Analytics --><div class=\"bg-white shadow overflow-hidden sm:rounded-lg mb-6\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><div class=\"flex items-center justify-between\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Click Analytics</h3><div class=\"flex space-x-2\"><div class=\"relative inline-block text-left\" x-data=\"{ open: false }\"><div><button @click=\"open = !open\" type=\"button\" class=\"inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\" id=\"time-range-button\" aria-expanded=\"true\" aria-haspopup=\"true\"><span x-text=\"timeRange === &#39;day&#39; ? &#39;Today&#39; : timeRange === &#39;week&#39; ? &#39;This Week&#39; : timeRange === &#39;month&#39; ? &#39;This Month&#39; : &#39;All Time&#39;\">This Week</span> <svg class=\"-mr-1 ml-2 h-5 w-5\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"currentColor\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z\" clip-rule=\"evenodd\"></path></svg></button></div><div x-show=\"open\" @click.away=\"open = false\" class=\"origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none\" role=\"menu\" aria-orientation=\"vertical\" aria-labelledby=\"time-range-button\" tabindex=\"-1\"><div class=\"py-1\" role=\"none\"><a @click=\"timeRange = &#39;day&#39;; open = false; updateChart()\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900\" role=\"menuitem\" tabindex=\"-1\">Today</a> <a @click=\"timeRange = &#39;week&#39;; open = false; updateChart()\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900\" role=\"menuitem\" tabindex=\"-1\">This Week</a> <a @click=\"timeRange = &#39;month&#39;; open = false; updateChart()\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900\" role=\"menuitem\" tabindex=\"-1\">This Month</a> <a @click=\"timeRange = &#39;all&#39;; open = false; updateChart()\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900\" role=\"menuitem\" tabindex=\"-1\">All Time</a></div></div></div><div class=\"inline-flex rounded-md shadow-sm\" role=\"group\"><button @click=\"chartType = &#39;line&#39;; updateChart()\" type=\"button\" class=\"inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700\" :class=\"{ &#39;bg-indigo-50 text-indigo-700&#39;: chartType === &#39;line&#39; }\"><i class=\"fas fa-chart-line mr-2\"></i> Line</button> <button @click=\"chartType = &#39;bar&#39;; updateChart()\" type=\"button\" class=\"inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700\" :class=\"{ &#39;bg-indigo-50 text-indigo-700&#39;: chartType === &#39;bar&#39; }\"><i class=\"fas fa-chart-bar mr-2\"></i> Bar</button></div></div></div></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-80\"><canvas id=\"clicksChart\"></canvas></div></div></div><!-- Geographic Distribution --><div class=\"grid grid-cols-1 gap-6 lg:grid-cols-2\"><div class=\"bg-white shadow overflow-hidden sm:rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Geographic Distribution</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-80 relative\"><img src=\"https://via.placeholder.com/800x400?text=World+Map+Visualization\" alt=\"World map with click distribution\" class=\"w-full h-full object-contain\"><div class=\"absolute inset-0 flex items-center justify-center\"><span class=\"px-4 py-2 bg-white bg-opacity-75 rounded-md text-sm text-gray-700\">Pro feature: Upgrade to see geographic data</span></div></div><div class=\"mt-6\"><h4 class=\"text-sm font-medium text-gray-500 mb-3\">Top Countries</h4><div class=\"space-y-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></dd></div></dl></div></div><!-- Click Analytics -->")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = ClickOverTimeChart(url.ID, url.VisitPerDay).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<!-- Geographic Distribution --><div class=\"grid grid-cols-1 gap-6 lg:grid-cols-2\"><div class=\"bg-white shadow overflow-hidden sm:rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Geographic Distribution</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-80 relative\"><img src=\"https://via.placeholder.com/800x400?text=World+Map+Visualization\" alt=\"World map with click distribution\" class=\"w-full h-full object-contain\"><div class=\"absolute inset-0 flex items-center justify-center\"><span class=\"px-4 py-2 bg-white bg-opacity-75 rounded-md text-sm text-gray-700\">Pro feature: Upgrade to see geographic data</span></div></div><div class=\"mt-6\"><h4 class=\"text-sm font-medium text-gray-500 mb-3\">Top Countries</h4><div class=\"space-y-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, item := range url.LocationDistribution {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"flex items-center\"><span class=\"w-20 text-sm text-gray-500\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"flex items-center\"><span class=\"w-20 text-sm text-gray-500\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(item.Country)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 177, Col: 66}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 126, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span><div class=\"flex-1 h-4 bg-gray-200 rounded-full overflow-hidden\"><div class=\"h-full bg-indigo-600 rounded-full\" style=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span><div class=\"flex-1 h-4 bg-gray-200 rounded-full overflow-hidden\"><div class=\"h-full bg-indigo-600 rounded-full\" style=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width: %f%%", item.Percentage))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 179, Col: 110}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 128, Col: 110}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"></div></div><span class=\"ml-3 text-sm text-gray-700\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"></div></div><span class=\"ml-3 text-sm text-gray-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.Percentage))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 181, Col: 90}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 130, Col: 90}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "%</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "%</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div></div></div><div class=\"bg-white shadow overflow-hidden sm:rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Referrer Sources</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-80\"><canvas id=\"referrerChart\"></canvas></div><div class=\"mt-6\"><h4 class=\"text-sm font-medium text-gray-500 mb-3\">Top Referrers</h4><div class=\"overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg\"><table class=\"min-w-full divide-y divide-gray-300\"><thead class=\"bg-gray-50\"><tr><th scope=\"col\" class=\"py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6\">Source</th><th scope=\"col\" class=\"px-3 py-3.5 text-right text-sm font-semibold text-gray-900\">Clicks</th><th scope=\"col\" class=\"px-3 py-3.5 text-right text-sm font-semibold text-gray-900\">Percentage</th></tr></thead> <tbody class=\"divide-y divide-gray-200 bg-white\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div></div><div class=\"bg-white shadow overflow-hidden sm:rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Referrer Sources</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-80\"><canvas id=\"referrerChart\"></canvas></div><div class=\"mt-6\"><h4 class=\"text-sm font-medium text-gray-500 mb-3\">Top Referrers</h4><div class=\"overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg\"><table class=\"min-w-full divide-y divide-gray-300\"><thead class=\"bg-gray-50\"><tr><th scope=\"col\" class=\"py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6\">Source</th><th scope=\"col\" class=\"px-3 py-3.5 text-right text-sm font-semibold text-gray-900\">Clicks</th><th scope=\"col\" class=\"px-3 py-3.5 text-right text-sm font-semibold text-gray-900\">Percentage</th></tr></thead> <tbody class=\"divide-y divide-gray-200 bg-white\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, referrer := range url.Referrers {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<tr><td class=\"whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-900 sm:pl-6\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<tr><td class=\"whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-900 sm:pl-6\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(referrer.Source)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 212, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 161, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td class=\"whitespace-nowrap px-3 py-2 text-sm text-gray-500 text-right\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var15 string
-				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", referrer.ClickCount))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 213, Col: 125}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -230,106 +225,106 @@ func URLDetail(url domain.URLStat) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				var templ_7745c5c3_Var15 string
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", referrer.ClickCount))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 162, Col: 125}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><td class=\"whitespace-nowrap px-3 py-2 text-sm text-gray-500 text-right\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", referrer.Percentage))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 214, Col: 127}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 163, Col: 127}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "%</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "%</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</tbody></table></div></div></div></div></div><!-- Device & Browser Data --><div class=\"grid grid-cols-1 gap-6 mt-6 lg:grid-cols-2\"><div class=\"bg-white shadow overflow-hidden sm:rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Device Types</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-64\"><canvas id=\"deviceChart\"></canvas></div><div class=\"mt-6 grid grid-cols-2 gap-4 text-center\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</tbody></table></div></div></div></div></div><!-- Device & Browser Data --><div class=\"grid grid-cols-1 gap-6 mt-6 lg:grid-cols-2\"><div class=\"bg-white shadow overflow-hidden sm:rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Device Types</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-64\"><canvas id=\"deviceChart\"></canvas></div><div class=\"mt-6 grid grid-cols-2 gap-4 text-center\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			mobile := url.Devices[domain.DeviceKindMobile]
 			desktop := url.Devices[domain.DeviceKindDesktop]
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"bg-gray-50 p-4 rounded-lg\"><i class=\"fas fa-mobile-alt text-3xl text-indigo-600 mb-2\"></i><div class=\"text-sm font-medium text-gray-900\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"bg-gray-50 p-4 rounded-lg\"><i class=\"fas fa-mobile-alt text-3xl text-indigo-600 mb-2\"></i><div class=\"text-sm font-medium text-gray-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(mobile.Type)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 241, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 190, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div class=\"text-lg font-semibold text-indigo-600\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><div class=\"text-lg font-semibold text-indigo-600\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", mobile.Percentage))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 242, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 191, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "%</div></div><div class=\"bg-gray-50 p-4 rounded-lg\"><i class=\"fas fa-desktop-alt text-3xl text-indigo-600 mb-2\"></i><div class=\"text-sm font-medium text-gray-900\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "%</div></div><div class=\"bg-gray-50 p-4 rounded-lg\"><i class=\"fas fa-desktop-alt text-3xl text-indigo-600 mb-2\"></i><div class=\"text-sm font-medium text-gray-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(desktop.Type)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 246, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 195, Col: 70}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"text-lg font-semibold text-indigo-600\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><div class=\"text-lg font-semibold text-indigo-600\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", desktop.Percentage))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 247, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 196, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "%</div></div></div></div></div><div class=\"bg-white shadow overflow-hidden sm:rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Browsers</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-64\"><canvas id=\"browserChart\"></canvas></div><div class=\"mt-6\"><h4 class=\"text-sm font-medium text-gray-500 mb-3\">Browser Details</h4><div class=\"overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg\"><table class=\"min-w-full divide-y divide-gray-300\"><thead class=\"bg-gray-50\"><tr><th scope=\"col\" class=\"py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6\">Browser</th><th scope=\"col\" class=\"px-3 py-3.5 text-left text-sm font-semibold text-gray-900\">Version</th><th scope=\"col\" class=\"px-3 py-3.5 text-left text-sm font-semibold text-gray-900\">Platform</th><th scope=\"col\" class=\"px-3 py-3.5 text-right text-sm font-semibold text-gray-900\">Percentage</th></tr></thead> <tbody class=\"divide-y divide-gray-200 bg-white\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "%</div></div></div></div></div><div class=\"bg-white shadow overflow-hidden sm:rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Browsers</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-64\"><canvas id=\"browserChart\"></canvas></div><div class=\"mt-6\"><h4 class=\"text-sm font-medium text-gray-500 mb-3\">Browser Details</h4><div class=\"overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg\"><table class=\"min-w-full divide-y divide-gray-300\"><thead class=\"bg-gray-50\"><tr><th scope=\"col\" class=\"py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6\">Browser</th><th scope=\"col\" class=\"px-3 py-3.5 text-left text-sm font-semibold text-gray-900\">Version</th><th scope=\"col\" class=\"px-3 py-3.5 text-left text-sm font-semibold text-gray-900\">Platform</th><th scope=\"col\" class=\"px-3 py-3.5 text-right text-sm font-semibold text-gray-900\">Percentage</th></tr></thead> <tbody class=\"divide-y divide-gray-200 bg-white\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, stats := range url.Browsers {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<tr><td class=\"whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<tr><td class=\"whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(stats.Browser.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 278, Col: 120}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 227, Col: 120}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td class=\"whitespace-nowrap px-3 py-2 text-sm text-gray-500\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var22 string
-				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(stats.Browser.Version)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 279, Col: 98}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -337,40 +332,158 @@ func URLDetail(url domain.URLStat) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				var templ_7745c5c3_Var22 string
+				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(stats.Browser.Version)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 228, Col: 98}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</td><td class=\"whitespace-nowrap px-3 py-2 text-sm text-gray-500\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 				var templ_7745c5c3_Var23 string
 				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(stats.Browser.Platform)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 280, Col: 99}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 229, Col: 99}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</td><td class=\"whitespace-nowrap px-3 py-2 text-sm text-gray-500 text-right\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</td><td class=\"whitespace-nowrap px-3 py-2 text-sm text-gray-500 text-right\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f%%", stats.Percentage))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 282, Col: 127}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 231, Col: 127}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</tbody></table></div></div></div></div></div></div></main><script>\n    // Copy to clipboard function\n    function copyToClipboard(text) {\n      navigator.clipboard.writeText(text).then(() => {\n        // Show a toast notification\n        const toast = document.createElement('div');\n        toast.className = 'toast bg-green-500';\n        toast.textContent = 'Copied to clipboard!';\n        document.body.appendChild(toast);\n        \n        // Show toast\n        setTimeout(() => {\n          toast.classList.add('show');\n        }, 100);\n        \n        // Hide and remove toast\n        setTimeout(() => {\n          toast.classList.remove('show');\n          setTimeout(() => {\n            document.body.removeChild(toast);\n          }, 300);\n        }, 3000);\n      }).catch(err => {\n        console.error('Could not copy text: ', err);\n      });\n    }\n\n    // Initialize charts when the page loads\n    document.addEventListener('DOMContentLoaded', function() {\n      initCharts();\n    });\n\n    function initCharts() {\n      // Clicks over time chart\n      const clicksCtx = document.getElementById('clicksChart').getContext('2d');\n      window.clicksChart = new Chart(clicksCtx, {\n        type: 'line',\n        data: {\n          datasets: [{\n            label: 'Clicks',\n            data: generateClickData('week'),\n            backgroundColor: 'rgba(99, 102, 241, 0.2)',\n            borderColor: 'rgba(99, 102, 241, 1)',\n            borderWidth: 2,\n            tension: 0.3,\n            fill: true\n          }]\n        },\n        options: {\n          responsive: true,\n          maintainAspectRatio: false,\n          scales: {\n            x: {\n              type: 'time',\n              time: {\n                unit: 'day'\n              },\n              title: {\n                display: true,\n                text: 'Date'\n              }\n            },\n            y: {\n              beginAtZero: true,\n              title: {\n                display: true,\n                text: 'Clicks'\n              }\n            }\n          }\n        }\n      });\n\n      // Referrer chart\n      const referrerCtx = document.getElementById('referrerChart').getContext('2d');\n      window.referrerChart = new Chart(referrerCtx, {\n        type: 'doughnut',\n        data: {\n          labels: ['Direct', 'Google', 'Twitter', 'Facebook', 'LinkedIn'],\n          datasets: [{\n            data: [35, 26, 20, 12, 7],\n            backgroundColor: [\n              'rgba(99, 102, 241, 0.8)',\n              'rgba(139, 92, 246, 0.8)',\n              'rgba(59, 130, 246, 0.8)',\n              'rgba(16, 185, 129, 0.8)',\n              'rgba(245, 158, 11, 0.8)'\n            ],\n            borderWidth: 1\n          }]\n        },\n        options: {\n          responsive: true,\n          maintainAspectRatio: false,\n          plugins: {\n            legend: {\n              position: 'bottom'\n            }\n          }\n        }\n      });\n\n      // Device chart\n      const deviceCtx = document.getElementById('deviceChart').getContext('2d');\n      window.deviceChart = new Chart(deviceCtx, {\n        type: 'pie',\n        data: {\n          labels: ['Mobile', 'Desktop', 'Tablet'],\n          datasets: [{\n            data: [58, 32, 10],\n            backgroundColor: [\n              'rgba(99, 102, 241, 0.8)',\n              'rgba(139, 92, 246, 0.8)',\n              'rgba(59, 130, 246, 0.8)'\n            ],\n            borderWidth: 1\n          }]\n        },\n        options: {\n          responsive: true,\n          maintainAspectRatio: false,\n          plugins: {\n            legend: {\n              position: 'bottom'\n            }\n          }\n        }\n      });\n\n      // Browser chart\n      const browserCtx = document.getElementById('browserChart').getContext('2d');\n      window.browserChart = new Chart(browserCtx, {\n        type: 'bar',\n        data: {\n          labels: ['Chrome', 'Safari', 'Firefox', 'Edge', 'Other'],\n          datasets: [{\n            label: 'Usage',\n            data: [62, 18, 12, 6, 2],\n            backgroundColor: 'rgba(99, 102, 241, 0.8)',\n            borderWidth: 1\n          }]\n        },\n        options: {\n          responsive: true,\n          maintainAspectRatio: false,\n          plugins: {\n            legend: {\n              display: false\n            }\n          },\n          scales: {\n            y: {\n              beginAtZero: true,\n              max: 100,\n              ticks: {\n                callback: function(value) {\n                  return value + '%';\n                }\n              }\n            }\n          }\n        }\n      });\n    }\n\n    // Generate random click data for the chart\n    function generateClickData(timeRange) {\n      const data = [];\n      const now = new Date();\n      let startDate;\n      \n      switch(timeRange) {\n        case 'day':\n          startDate = new Date(now);\n          startDate.setHours(0, 0, 0, 0);\n          for (let i = 0; i < 24; i++) {\n            const date = new Date(startDate);\n            date.setHours(i);\n            data.push({\n              x: date,\n              y: Math.floor(Math.random() * 50) + 10\n            });\n          }\n          break;\n        case 'week':\n          startDate = new Date(now);\n          startDate.setDate(now.getDate() - 7);\n          for (let i = 0; i <= 7; i++) {\n            const date = new Date(startDate);\n            date.setDate(startDate.getDate() + i);\n            data.push({\n              x: date,\n              y: Math.floor(Math.random() * 200) + 50\n            });\n          }\n          break;\n        case 'month':\n          startDate = new Date(now);\n          startDate.setDate(1);\n          const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();\n          for (let i = 0; i < daysInMonth; i++) {\n            const date = new Date(startDate);\n            date.setDate(i + 1);\n            data.push({\n              x: date,\n              y: Math.floor(Math.random() * 150) + 30\n            });\n          }\n          break;\n        case 'all':\n          startDate = new Date(now);\n          startDate.setMonth(now.getMonth() - 6);\n          for (let i = 0; i <= 6; i++) {\n            const date = new Date(startDate);\n            date.setMonth(startDate.getMonth() + i);\n            data.push({\n              x: date,\n              y: Math.floor(Math.random() * 1000) + 200\n            });\n          }\n          break;\n      }\n      \n      return data;\n    }\n\n    // Update chart based on selected time range and chart type\n    function updateChart() {\n      const timeRange = Alpine.store('timeRange');\n      const chartType = Alpine.store('chartType');\n      \n      // Update data\n      window.clicksChart.data.datasets[0].data = generateClickData(timeRange);\n      \n      // Update chart type\n      window.clicksChart.config.type = chartType;\n      \n      // Update time unit based on range\n      let timeUnit = 'day';\n      if (timeRange === 'day') {\n        timeUnit = 'hour';\n      } else if (timeRange === 'all') {\n        timeUnit = 'month';\n      }\n      \n      window.clicksChart.options.scales.x.time.unit = timeUnit;\n      \n      // Update chart\n      window.clicksChart.update();\n    }\n  </script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</tbody></table></div></div></div></div></div></div></main><script>\n//     // Copy to clipboard function\n//     function copyToClipboard(text) {\n//       navigator.clipboard.writeText(text).then(() => {\n//         // Show a toast notification\n//         const toast = document.createElement('div');\n//         toast.className = 'toast bg-green-500';\n//         toast.textContent = 'Copied to clipboard!';\n//         document.body.appendChild(toast);\n        \n//         // Show toast\n//         setTimeout(() => {\n//           toast.classList.add('show');\n//         }, 100);\n        \n//         // Hide and remove toast\n//         setTimeout(() => {\n//           toast.classList.remove('show');\n//           setTimeout(() => {\n//             document.body.removeChild(toast);\n//           }, 300);\n//         }, 3000);\n//       }).catch(err => {\n//         console.error('Could not copy text: ', err);\n//       });\n//     }\n\n//     // Initialize charts when the page loads\n//     document.addEventListener('DOMContentLoaded', function() {\n//       initCharts();\n//     });\n\n//     function initCharts() {\n//       // Referrer chart\n//       const referrerCtx = document.getElementById('referrerChart').getContext('2d');\n//       window.referrerChart = new Chart(referrerCtx, {\n//         type: 'doughnut',\n//         data: {\n//           labels: ['Direct', 'Google', 'Twitter', 'Facebook', 'LinkedIn'],\n//           datasets: [{\n//             data: [35, 26, 20, 12, 7],\n//             backgroundColor: [\n//               'rgba(99, 102, 241, 0.8)',\n//               'rgba(139, 92, 246, 0.8)',\n//               'rgba(59, 130, 246, 0.8)',\n//               'rgba(16, 185, 129, 0.8)',\n//               'rgba(245, 158, 11, 0.8)'\n//             ],\n//             borderWidth: 1\n//           }]\n//         },\n//         options: {\n//           responsive: true,\n//           maintainAspectRatio: false,\n//           plugins: {\n//             legend: {\n//               position: 'bottom'\n//             }\n//           }\n//         }\n//       });\n\n//       // Device chart\n//       const deviceCtx = document.getElementById('deviceChart').getContext('2d');\n//       window.deviceChart = new Chart(deviceCtx, {\n//         type: 'pie',\n//         data: {\n//           labels: ['Mobile', 'Desktop', 'Tablet'],\n//           datasets: [{\n//             data: [58, 32, 10],\n//             backgroundColor: [\n//               'rgba(99, 102, 241, 0.8)',\n//               'rgba(139, 92, 246, 0.8)',\n//               'rgba(59, 130, 246, 0.8)'\n//             ],\n//             borderWidth: 1\n//           }]\n//         },\n//         options: {\n//           responsive: true,\n//           maintainAspectRatio: false,\n//           plugins: {\n//             legend: {\n//               position: 'bottom'\n//             }\n//           }\n//         }\n//       });\n\n//       // Browser chart\n//       const browserCtx = document.getElementById('browserChart').getContext('2d');\n//       window.browserChart = new Chart(browserCtx, {\n//         type: 'bar',\n//         data: {\n//           labels: ['Chrome', 'Safari', 'Firefox', 'Edge', 'Other'],\n//           datasets: [{\n//             label: 'Usage',\n//             data: [62, 18, 12, 6, 2],\n//             backgroundColor: 'rgba(99, 102, 241, 0.8)',\n//             borderWidth: 1\n//           }]\n//         },\n//         options: {\n//           responsive: true,\n//           maintainAspectRatio: false,\n//           plugins: {\n//             legend: {\n//               display: false\n//             }\n//           },\n//           scales: {\n//             y: {\n//               beginAtZero: true,\n//               max: 100,\n//               ticks: {\n//                 callback: function(value) {\n//                   return value + '%';\n//                 }\n//               }\n//             }\n//           }\n//         }\n//       });\n//     }\n\n//     // Generate random click data for the chart\n//     function generateClickData(timeRange) {\n//       const data = [];\n// \t  const input = JSON.parse(document.getElementById('visitOverTime').textContent);\n// \t  return input.map((p) => {\n// \t\treturn {\n// \t\t\t\"x\": p.Time,\n// \t\t\t\"y\": p.Count,\t\n// \t\t}\n// \t  })\n//     };\n\n//     // Update chart based on selected time range and chart type\n//     function updateChart() {\n//       const timeRange = Alpine.store('timeRange');\n//       const chartType = Alpine.store('chartType');\n      \n//       // Update data\n//       window.clicksChart.data.datasets[0].data = generateClickData(timeRange);\n      \n//       // Update chart type\n//       window.clicksChart.config.type = chartType;\n      \n//       // Update time unit based on range\n//       let timeUnit = 'day';\n//       if (timeRange === 'day') {\n//         timeUnit = 'hour';\n//       } else if (timeRange === 'all') {\n//         timeUnit = 'month';\n//       }\n      \n//       window.clicksChart.options.scales.x.time.unit = timeUnit;\n      \n//       // Update chart\n//       window.clicksChart.update();\n//     }\n  </script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
 		templ_7745c5c3_Err = Layout().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func ClickOverTimeChart(urlID domain.ID, data []domain.TimeSeriesData) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var25 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var25 == nil {
+			templ_7745c5c3_Var25 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div id=\"chartData\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = ChartData("visitOverTime", data).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><div class=\"bg-white shadow overflow-hidden sm:rounded-lg mb-6\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><div class=\"flex items-center justify-between\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Click Analytics</h3><div class=\"flex space-x-2\"><div class=\"relative inline-block text-left\" x-data=\"{ open: false }\"><div><button @click=\"open = !open\" type=\"button\" class=\"inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\" id=\"time-range-button\" aria-expanded=\"true\" aria-haspopup=\"true\"><span x-text=\"timeRange === &#39;day&#39; ? &#39;Today&#39; : timeRange === &#39;week&#39; ? &#39;This Week&#39; : timeRange === &#39;month&#39; ? &#39;This Month&#39; : &#39;All Time&#39;\">This Week</span> <svg class=\"-mr-1 ml-2 h-5 w-5\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"currentColor\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z\" clip-rule=\"evenodd\"></path></svg></button></div><div x-show=\"open\" @click.away=\"open = false\" class=\"origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none\" role=\"menu\" aria-orientation=\"vertical\" aria-labelledby=\"time-range-button\" tabindex=\"-1\"><div class=\"py-1\" role=\"none\"><a @click=\"timeRange=&#39;day&#39;; open=false;\" hx-get=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var26 string
+		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/urls/%d/clicks?range=day", urlID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 453, Col: 105}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" hx-target=\"#chartData\" hx-swap=\"innerHTML\" hx-on::after-request=\"updateChart()\" b class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900\" role=\"menuitem\" tabindex=\"-1\">Today</a> <a @click=\"timeRange=&#39;week&#39;; open=false\" hx-get=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var27 string
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/urls/%d/clicks?range=week", urlID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 454, Col: 106}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" hx-target=\"#chartData\" hx-swap=\"innerHTML\" hx-on::after-request=\"updateChart()\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900\" role=\"menuitem\" tabindex=\"-1\">This Week</a> <a @click=\"timeRange=&#39;month&#39;; open=false\" hx-get=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var28 string
+		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/urls/%d/clicks?range=month", urlID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `url-detail.templ`, Line: 455, Col: 108}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" hx-target=\"#chartData\" hx-swap=\"innerHTML\" hx-on::after-request=\"updateChart()\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900\" role=\"menuitem\" tabindex=\"-1\">This Month</a></div></div></div><div class=\"inline-flex rounded-md shadow-sm\" role=\"group\"><button @click=\"chartType = &#39;line&#39;; updateChart({chartType: &#39;line&#39;})\" type=\"button\" class=\"inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700\" :class=\"{ &#39;bg-indigo-50 text-indigo-700&#39;: chartType === &#39;line&#39; }\"><i class=\"fas fa-chart-line mr-2\"></i> Line</button> <button @click=\"chartType = &#39;bar&#39;; updateChart({chartType: &#39;bar&#39;})\" type=\"button\" class=\"inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700\" :class=\"{ &#39;bg-indigo-50 text-indigo-700&#39;: chartType === &#39;bar&#39; }\"><i class=\"fas fa-chart-bar mr-2\"></i> Bar</button></div></div></div></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"h-80\"><canvas id=\"clicksChart\"></canvas></div></div></div><script>\n\tdocument.addEventListener('DOMContentLoaded', function() {\n\t\tif (!window.clicksChart.data){\n\t\t\tinitCharts();\n\t\t}else{\n\t\t\tupdateChart();\n\t\t}\n\t});\n\n\tfunction getData(){\n\t\tconst input = JSON.parse(document.getElementById('visitOverTime').textContent);\n\t\treturn input.map((p) => {\n\t\t\treturn {\n\t\t\t\t\"x\": new Date(p.Time),\n\t\t\t\t\"y\": p.Count,\t\n\t\t\t}\n\t\t});\n\t}\n\t\n\tfunction initCharts() {\n\t  const data = getData();\n      // Clicks over time chart\n      const clicksCtx = document.getElementById('clicksChart').getContext('2d');\n      window.clicksChart = new Chart(clicksCtx, {\n        type: 'line',\n        data: {\n          datasets: [{\n            label: 'Clicks',\n            data: data,\n            backgroundColor: 'rgba(99, 102, 241, 0.2)',\n            borderColor: 'rgba(99, 102, 241, 1)',\n            borderWidth: 2,\n            tension: 0.3,\n            fill: true\n          }]\n        },\n        options: {\n          responsive: true,\n          maintainAspectRatio: false,\n          scales: {\n            x: {\n              type: 'time',\n              time: {\n                unit: 'day'\n              },\n              title: {\n                display: true,\n                text: 'Date'\n              }\n            },\n            y: {\n              beginAtZero: true,\n              title: {\n                display: true,\n                text: 'Clicks'\n              }\n            }\n          }\n        }\n      });\n\t };\n\n\t // Update chart based on selected time range and chart type\n    function updateChart(options=null) {\n\t  const data = getData();\t  \n      \n      // Update data\n      window.clicksChart.data.datasets[0].data = data;\n      \n      // Update chart type\n\t  if (options && options.chartType){\n      \twindow.clicksChart.config.type = options.chartType;\t\n\t  }\t\n\n\t  if (options && options.timeRange){\n\t\t// Update time unit based on range\n\t\tlet timeUnit = 'day';\n\t\tif (options.timeRange === 'day') {\n\t\t\ttimeUnit = 'hour';\n\t\t} else if (options.timeRange === 'all') {\n\t\t\ttimeUnit = 'month';\n\t\t}\n      \twindow.clicksChart.options.scales.x.time.unit = timeUnit;\n\t  }\n      \n\t\n      // Update chart\n      window.clicksChart.update();\n    };\n\t</script>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func ChartData(id string, data []domain.TimeSeriesData) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var29 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var29 == nil {
+			templ_7745c5c3_Var29 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templ.JSONScript(id, data).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -100,58 +100,7 @@ templ URLDetail(url domain.URLStat) {
 					</div>
 				</div>
 				<!-- Click Analytics -->
-				<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-						<div class="flex items-center justify-between">
-							<h3 class="text-lg leading-6 font-medium text-gray-900">
-								Click Analytics
-							</h3>
-							<div class="flex space-x-2">
-								<div class="relative inline-block text-left" x-data="{ open: false }">
-									<div>
-										<button @click="open = !open" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="time-range-button" aria-expanded="true" aria-haspopup="true">
-											<span x-text="timeRange === 'day' ? 'Today' : timeRange === 'week' ? 'This Week' : timeRange === 'month' ? 'This Month' : 'All Time'">This Week</span>
-											<svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-												<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-											</svg>
-										</button>
-									</div>
-									<div
-										x-show="open"
-										@click.away="open = false"
-										class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-										role="menu"
-										aria-orientation="vertical"
-										aria-labelledby="time-range-button"
-										tabindex="-1"
-									>
-										<div class="py-1" role="none">
-											<a @click="timeRange = 'day'; open = false; updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">Today</a>
-											<a @click="timeRange = 'week'; open = false; updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">This Week</a>
-											<a @click="timeRange = 'month'; open = false; updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">This Month</a>
-											<a @click="timeRange = 'all'; open = false; updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">All Time</a>
-										</div>
-									</div>
-								</div>
-								<div class="inline-flex rounded-md shadow-sm" role="group">
-									<button @click="chartType = 'line'; updateChart()" type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700" :class="{ 'bg-indigo-50 text-indigo-700': chartType === 'line' }">
-										<i class="fas fa-chart-line mr-2"></i>
-										Line
-									</button>
-									<button @click="chartType = 'bar'; updateChart()" type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700" :class="{ 'bg-indigo-50 text-indigo-700': chartType === 'bar' }">
-										<i class="fas fa-chart-bar mr-2"></i>
-										Bar
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="px-4 py-5 sm:p-6">
-						<div class="h-80">
-							<canvas id="clicksChart"></canvas>
-						</div>
-					</div>
-				</div>
+				@ClickOverTimeChart(url.ID, url.VisitPerDay)
 				<!-- Geographic Distribution -->
 				<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 					<div class="bg-white shadow overflow-hidden sm:rounded-lg">
@@ -305,38 +254,184 @@ templ URLDetail(url domain.URLStat) {
 			</div>
 		</main>
 		<script>
-    // Copy to clipboard function
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        // Show a toast notification
-        const toast = document.createElement('div');
-        toast.className = 'toast bg-green-500';
-        toast.textContent = 'Copied to clipboard!';
-        document.body.appendChild(toast);
-        
-        // Show toast
-        setTimeout(() => {
-          toast.classList.add('show');
-        }, 100);
-        
-        // Hide and remove toast
-        setTimeout(() => {
-          toast.classList.remove('show');
-          setTimeout(() => {
-            document.body.removeChild(toast);
-          }, 300);
-        }, 3000);
-      }).catch(err => {
-        console.error('Could not copy text: ', err);
-      });
-    }
+//       // Device chart
+//       const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+//       window.deviceChart = new Chart(deviceCtx, {
+//         type: 'pie',
+//         data: {
+//           labels: ['Mobile', 'Desktop', 'Tablet'],
+//           datasets: [{
+//             data: [58, 32, 10],
+//             backgroundColor: [
+//               'rgba(99, 102, 241, 0.8)',
+//               'rgba(139, 92, 246, 0.8)',
+//               'rgba(59, 130, 246, 0.8)'
+//             ],
+//             borderWidth: 1
+//           }]
+//         },
+//         options: {
+//           responsive: true,
+//           maintainAspectRatio: false,
+//           plugins: {
+//             legend: {
+//               position: 'bottom'
+//             }
+//           }
+//         }
+//       });
 
-    // Initialize charts when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      initCharts();
-    });
+//       // Browser chart
+//       const browserCtx = document.getElementById('browserChart').getContext('2d');
+//       window.browserChart = new Chart(browserCtx, {
+//         type: 'bar',
+//         data: {
+//           labels: ['Chrome', 'Safari', 'Firefox', 'Edge', 'Other'],
+//           datasets: [{
+//             label: 'Usage',
+//             data: [62, 18, 12, 6, 2],
+//             backgroundColor: 'rgba(99, 102, 241, 0.8)',
+//             borderWidth: 1
+//           }]
+//         },
+//         options: {
+//           responsive: true,
+//           maintainAspectRatio: false,
+//           plugins: {
+//             legend: {
+//               display: false
+//             }
+//           },
+//           scales: {
+//             y: {
+//               beginAtZero: true,
+//               max: 100,
+//               ticks: {
+//                 callback: function(value) {
+//                   return value + '%';
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       });
+//     }
 
-    function initCharts() {
+//     // Generate random click data for the chart
+//     function generateClickData(timeRange) {
+//       const data = [];
+// 	  const input = JSON.parse(document.getElementById('visitOverTime').textContent);
+// 	  return input.map((p) => {
+// 		return {
+// 			"x": p.Time,
+// 			"y": p.Count,	
+// 		}
+// 	  })
+//     };
+
+//     // Update chart based on selected time range and chart type
+//     function updateChart() {
+//       const timeRange = Alpine.store('timeRange');
+//       const chartType = Alpine.store('chartType');
+      
+//       // Update data
+//       window.clicksChart.data.datasets[0].data = generateClickData(timeRange);
+      
+//       // Update chart type
+//       window.clicksChart.config.type = chartType;
+      
+//       // Update time unit based on range
+//       let timeUnit = 'day';
+//       if (timeRange === 'day') {
+//         timeUnit = 'hour';
+//       } else if (timeRange === 'all') {
+//         timeUnit = 'month';
+//       }
+      
+//       window.clicksChart.options.scales.x.time.unit = timeUnit;
+      
+//       // Update chart
+//       window.clicksChart.update();
+//     }
+  </script>
+	}
+}
+
+templ ClickOverTimeChart(urlID domain.ID, data []domain.TimeSeriesData) {
+	<div id="chartData">
+		@ChartData("visitOverTime", data)
+	</div>
+	<div
+		class="bg-white shadow overflow-hidden sm:rounded-lg mb-6"
+	>
+		<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+			<div class="flex items-center justify-between">
+				<h3 class="text-lg leading-6 font-medium text-gray-900">
+					Click Analytics
+				</h3>
+				<div class="flex space-x-2">
+					<div class="relative inline-block text-left" x-data="{ open: false }">
+						<div>
+							<button @click="open = !open" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="time-range-button" aria-expanded="true" aria-haspopup="true">
+								<span x-text="timeRange === 'day' ? 'Today' : timeRange === 'week' ? 'This Week' : timeRange === 'month' ? 'This Month' : 'All Time'">This Week</span>
+								<svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+									<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+								</svg>
+							</button>
+						</div>
+						<div
+							x-show="open"
+							@click.away="open = false"
+							class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+							role="menu"
+							aria-orientation="vertical"
+							aria-labelledby="time-range-button"
+							tabindex="-1"
+						>
+							<div class="py-1" role="none">
+								<a @click="timeRange='day'; open=false;" hx-get={ fmt.Sprintf("/urls/%d/clicks?range=day", urlID) } hx-target="#chartData" hx-swap="innerHTML" hx-on::after-request="updateChart()" b class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">Today</a>
+								<a @click="timeRange='week'; open=false" hx-get={ fmt.Sprintf("/urls/%d/clicks?range=week", urlID) } hx-target="#chartData" hx-swap="innerHTML" hx-on::after-request="updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">This Week</a>
+								<a @click="timeRange='month'; open=false" hx-get={ fmt.Sprintf("/urls/%d/clicks?range=month", urlID) } hx-target="#chartData" hx-swap="innerHTML" hx-on::after-request="updateChart()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">This Month</a>
+								// <a hx-get={ fmt.Sprintf("/urls/%d/clicks?range=day", urlID) } hx-target="#chartData" hx-swap="innerHTML" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" tabindex="-1">All Time</a>
+							</div>
+						</div>
+					</div>
+					<div class="inline-flex rounded-md shadow-sm" role="group">
+						<button @click="chartType = 'line'; updateChart({chartType: 'line'})" type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700" :class="{ 'bg-indigo-50 text-indigo-700': chartType === 'line' }">
+							<i class="fas fa-chart-line mr-2"></i>
+							Line
+						</button>
+						<button @click="chartType = 'bar'; updateChart({chartType: 'bar'})" type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:text-indigo-700" :class="{ 'bg-indigo-50 text-indigo-700': chartType === 'bar' }">
+							<i class="fas fa-chart-bar mr-2"></i>
+							Bar
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="px-4 py-5 sm:p-6">
+			<div class="h-80">
+				<canvas id="clicksChart"></canvas>
+			</div>
+		</div>
+	</div>
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+			initCharts();
+	});
+
+	function getData(){
+		const input = JSON.parse(document.getElementById('visitOverTime').textContent);
+		return input.map((p) => {
+			return {
+				"x": new Date(p.Time),
+				"y": p.Count,	
+			}
+		});
+	}
+	
+	function initCharts() {
+	  const data = getData();
       // Clicks over time chart
       const clicksCtx = document.getElementById('clicksChart').getContext('2d');
       window.clicksChart = new Chart(clicksCtx, {
@@ -344,7 +439,7 @@ templ URLDetail(url domain.URLStat) {
         data: {
           datasets: [{
             label: 'Clicks',
-            data: generateClickData('week'),
+            data: data,
             backgroundColor: 'rgba(99, 102, 241, 0.2)',
             borderColor: 'rgba(99, 102, 241, 1)',
             borderWidth: 2,
@@ -376,184 +471,38 @@ templ URLDetail(url domain.URLStat) {
           }
         }
       });
+	 };
 
-      // Referrer chart
-      const referrerCtx = document.getElementById('referrerChart').getContext('2d');
-      window.referrerChart = new Chart(referrerCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Direct', 'Google', 'Twitter', 'Facebook', 'LinkedIn'],
-          datasets: [{
-            data: [35, 26, 20, 12, 7],
-            backgroundColor: [
-              'rgba(99, 102, 241, 0.8)',
-              'rgba(139, 92, 246, 0.8)',
-              'rgba(59, 130, 246, 0.8)',
-              'rgba(16, 185, 129, 0.8)',
-              'rgba(245, 158, 11, 0.8)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }
-      });
-
-      // Device chart
-      const deviceCtx = document.getElementById('deviceChart').getContext('2d');
-      window.deviceChart = new Chart(deviceCtx, {
-        type: 'pie',
-        data: {
-          labels: ['Mobile', 'Desktop', 'Tablet'],
-          datasets: [{
-            data: [58, 32, 10],
-            backgroundColor: [
-              'rgba(99, 102, 241, 0.8)',
-              'rgba(139, 92, 246, 0.8)',
-              'rgba(59, 130, 246, 0.8)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }
-      });
-
-      // Browser chart
-      const browserCtx = document.getElementById('browserChart').getContext('2d');
-      window.browserChart = new Chart(browserCtx, {
-        type: 'bar',
-        data: {
-          labels: ['Chrome', 'Safari', 'Firefox', 'Edge', 'Other'],
-          datasets: [{
-            label: 'Usage',
-            data: [62, 18, 12, 6, 2],
-            backgroundColor: 'rgba(99, 102, 241, 0.8)',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 100,
-              ticks: {
-                callback: function(value) {
-                  return value + '%';
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // Generate random click data for the chart
-    function generateClickData(timeRange) {
-      const data = [];
-      const now = new Date();
-      let startDate;
-      
-      switch(timeRange) {
-        case 'day':
-          startDate = new Date(now);
-          startDate.setHours(0, 0, 0, 0);
-          for (let i = 0; i < 24; i++) {
-            const date = new Date(startDate);
-            date.setHours(i);
-            data.push({
-              x: date,
-              y: Math.floor(Math.random() * 50) + 10
-            });
-          }
-          break;
-        case 'week':
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - 7);
-          for (let i = 0; i <= 7; i++) {
-            const date = new Date(startDate);
-            date.setDate(startDate.getDate() + i);
-            data.push({
-              x: date,
-              y: Math.floor(Math.random() * 200) + 50
-            });
-          }
-          break;
-        case 'month':
-          startDate = new Date(now);
-          startDate.setDate(1);
-          const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-          for (let i = 0; i < daysInMonth; i++) {
-            const date = new Date(startDate);
-            date.setDate(i + 1);
-            data.push({
-              x: date,
-              y: Math.floor(Math.random() * 150) + 30
-            });
-          }
-          break;
-        case 'all':
-          startDate = new Date(now);
-          startDate.setMonth(now.getMonth() - 6);
-          for (let i = 0; i <= 6; i++) {
-            const date = new Date(startDate);
-            date.setMonth(startDate.getMonth() + i);
-            data.push({
-              x: date,
-              y: Math.floor(Math.random() * 1000) + 200
-            });
-          }
-          break;
-      }
-      
-      return data;
-    }
-
-    // Update chart based on selected time range and chart type
-    function updateChart() {
-      const timeRange = Alpine.store('timeRange');
-      const chartType = Alpine.store('chartType');
+	 // Update chart based on selected time range and chart type
+    function updateChart(options=null) {
+	  const data = getData();	  
       
       // Update data
-      window.clicksChart.data.datasets[0].data = generateClickData(timeRange);
+      window.clicksChart.data.datasets[0].data = data;
       
       // Update chart type
-      window.clicksChart.config.type = chartType;
+	  if (options && options.chartType){
+      	window.clicksChart.config.type = options.chartType;	
+	  }	
+
+	  if (options && options.timeRange){
+		// Update time unit based on range
+		let timeUnit = 'day';
+		if (options.timeRange === 'day') {
+			timeUnit = 'hour';
+		} else if (options.timeRange === 'all') {
+			timeUnit = 'month';
+		}
+      	window.clicksChart.options.scales.x.time.unit = timeUnit;
+	  }
       
-      // Update time unit based on range
-      let timeUnit = 'day';
-      if (timeRange === 'day') {
-        timeUnit = 'hour';
-      } else if (timeRange === 'all') {
-        timeUnit = 'month';
-      }
-      
-      window.clicksChart.options.scales.x.time.unit = timeUnit;
-      
+	
       // Update chart
       window.clicksChart.update();
-    }
-  </script>
-	}
+    };
+	</script>
+}
+
+templ ChartData(id string, data []domain.TimeSeriesData) {
+	@templ.JSONScript(id, data)
 }

@@ -22,6 +22,7 @@ type URLStat struct {
 	Referrers            []Referrer
 	Devices              map[DeviceKind]Device
 	Browsers             []BrowserStats
+	VisitPerDay          []TimeSeriesData
 }
 type DeviceKind string
 
@@ -57,4 +58,9 @@ type Browser struct {
 type BrowserStats struct {
 	Browser    Browser
 	Percentage float32
+}
+
+type TimeSeriesData struct {
+	Time  time.Time
+	Count int64
 }

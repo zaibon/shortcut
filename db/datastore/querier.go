@@ -14,7 +14,6 @@ type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
 	ArchiveURL(ctx context.Context, arg ArchiveURLParams) error
 	// SQL query to get the distribution of browsers for a specific URL
-	//   v.user_agent,
 	BrowserDistribution(ctx context.Context, arg BrowserDistributionParams) ([]BrowserDistributionRow, error)
 	CountTotalVisitThisMonth(ctx context.Context, authorID int32) (int64, error)
 	CountURLThisMonth(ctx context.Context, authorID int32) (int64, error)
@@ -49,6 +48,7 @@ type Querier interface {
 	UpdateTitle(ctx context.Context, arg UpdateTitleParams) (Url, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpsertBrowser(ctx context.Context, arg UpsertBrowserParams) (Browser, error)
+	VisitOverTime(ctx context.Context, arg VisitOverTimeParams) ([]VisitOverTimeRow, error)
 }
 
 var _ Querier = (*Queries)(nil)
