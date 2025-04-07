@@ -25,7 +25,6 @@ import (
 	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/services"
-	"github.com/zaibon/shortcut/services/geoip"
 	"github.com/zaibon/shortcut/static"
 )
 
@@ -145,17 +144,21 @@ func listenSignals(ctx context.Context, c config, f func(context.Context, config
 // runServer is the entry point of the application. It sets up the HTTP router, configures the database connection,
 // applies any necessary database migrations, creates the URL shortening service, and registers the request handlers.
 func runServer(ctx context.Context, c config) error {
-	if env.IsProd() && !c.ForceDev {
-		if err := geoip.DownloadGeoIPDB(c.GeoIPBucket, c.GeoIPDBFile); err != nil {
-			log.Error("unable to download geoip database", "err", err)
-		}
-	}
+	// if env.IsProd() && !c.ForceDev {
+	// 	if err := geoip.DownloadGeoIPDB(c.GeoIPBucket, c.GeoIPDBFile); err != nil {
+	// 		log.Error("unable to download geoip database", "err", err)
+	// 	}
+	// }
 
 	dbPool, err := pgxpool.New(ctx, c.DBConnString)
 	if err != nil {
 		return fmt.Errorf("unable to connect to database %s: %v", c.SafeDBString(), err)
 	}
 	defer dbPool.Close()
+
+	if err := dbPool.Ping(ctx); err != nil {
+		return fmt.Errorf("unable to ping the database %s: %v", c.SafeDBString(), err)
+	}
 
 	// databases
 	urlStore := db.NewURLStore(dbPool)
@@ -185,13 +188,12 @@ func runServer(ctx context.Context, c config) error {
 		r.Use(chiMiddleware.Logger)
 		r.Use(chiMiddleware.Recoverer)
 		r.Use(chiMiddleware.RealIP)
-		// r.Use(middleware.HTMX)
 		r.Use(session.Sessioner(
 			session.Options{
 				Provider:       "postgres",
 				ProviderConfig: c.DBConnString,
 				CookieName:     "shortcut_session",
-				Secure:         c.TLS,
+				Secure:         false,
 				SameSite:       http.SameSiteLaxMode,
 				IDLength:       32,
 			},

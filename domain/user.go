@@ -17,6 +17,7 @@ type User struct {
 	Name      string
 	Email     string
 	Password  string
+	Avatar    string
 	CreatedAt time.Time
 	IsOauth   bool
 }

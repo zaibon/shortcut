@@ -8,17 +8,19 @@ import (
 	"log/slog"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/pressly/goose/v3"
 
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/services/geoip"
 )
 
+//TODO zaibon: This is noe needed anymore, might need to clean it up
+
 func init() {
-	goose.AddMigrationNoTxContext(
-		pgxMigrateFunc(upPopulateGeoip),
-		downPopulateGeoip,
-	)
+
+	// goose.AddMigrationNoTxContext(
+	// 	pgxMigrateFunc(upPopulateGeoip),
+	// 	downPopulateGeoip,
+	// )
 }
 
 func upPopulateGeoip(ctx context.Context, store datastore.Querier) error {

@@ -1,7 +1,24 @@
 -- name: TrackRedirect :one
-INSERT INTO visits (url_id, ip_address, user_agent)
-VALUES (@url_id, @ip_address, @user_agent)
+INSERT INTO visits (url_id, ip_address, user_agent, browser_id)
+VALUES (@url_id, @ip_address, @user_agent, @browser_id)
 RETURNING *;
+
+
+-- name: UpsertBrowser :one
+INSERT INTO browsers (name, version, platform, mobile)
+VALUES (@name, @version, @platform, @mobile)
+ON CONFLICT (name, version, platform, mobile) DO NOTHING
+RETURNING *;
+
+-- name: GetBrowser :one
+SELECT *
+FROM browsers
+WHERE name = @name
+AND version = @version
+AND platform = @platform
+AND mobile = @mobile
+LIMIT 1;
+
 
 -- name: InsertVisitLocation :one
 INSERT INTO visit_locations (
@@ -116,13 +133,19 @@ ORDER BY
 -- SQL query to get the distribution of browsers for a specific URL
 -- name: BrowserDistribution :many
 SELECT
-    v.user_agent,
+--   v.user_agent,
+	browsers.name,
+	browsers.version,
+	browsers.platform,
+  browsers.mobile,
     count(v.id) AS visit_count,
     (count(v.id) * 100.0 / total_visits.total)::float AS percentage
 FROM
     visits v
 JOIN
     urls u ON v.url_id = u.id
+LEFT JOIN 
+	browsers ON browsers.id = v.browser_id
 CROSS JOIN (
   SELECT count(*) AS total
   FROM visits
@@ -134,7 +157,11 @@ WHERE
 AND
     u.id = @url_id
 GROUP BY
-    v.user_agent, total_visits.total
+    browsers.name, 
+    browsers.version, 
+    browsers.platform, 
+    browsers.mobile, 
+    total_visits.total
 ORDER BY
     visit_count DESC;
 

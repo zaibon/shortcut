@@ -19,7 +19,7 @@ build: generate fmt
     CGO_ENABLED=0 go build -o bin/shortcut cmd/*.go
 
 build-linux: generate fmt
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/shortcut-linux cmd/*.go
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/shortcut cmd/*.go
 
 build-dev: 
     CGO_ENABLED=0 go build -tags=dev -o bin/shortcut cmd/*.go

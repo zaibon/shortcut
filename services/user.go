@@ -196,6 +196,7 @@ func (s *userService) IdentifyOauthUser(ctx context.Context, code string) (*doma
 		Name:      user.Username,
 		Email:     user.Email,
 		Password:  "",
+		Avatar:    userInfo.Picture,
 		CreatedAt: user.CreatedAt.Time,
 		IsOauth:   true,
 	}, nil

@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS visit_locations (
     source TEXT,
 
     FOREIGN KEY (visit_id) REFERENCES visits (id)
+                           ON DELETE CASCADE ON UPDATE CASCADE
+                           DEFERRABLE INITIALLY DEFERRED
 );
 -- +goose StatementEnd
 

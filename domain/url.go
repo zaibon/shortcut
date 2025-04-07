@@ -21,7 +21,7 @@ type URLStat struct {
 	LocationDistribution []LocationDistribution
 	Referrers            []Referrer
 	Devices              map[DeviceKind]Device
-	Browsers             []Browser
+	Browsers             []BrowserStats
 }
 type DeviceKind string
 
@@ -47,8 +47,14 @@ type Device struct {
 }
 
 type Browser struct {
-	Name       string
-	Version    string
-	Platform   string
+	ID       GUID
+	Name     string
+	Version  string
+	Platform string
+	Mobile   bool
+}
+
+type BrowserStats struct {
+	Browser    Browser
 	Percentage float32
 }

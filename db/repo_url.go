@@ -72,7 +72,7 @@ func (s *urlStore) GetByID(ctx context.Context, urlID domain.ID) (datastore.Url,
 	return url, nil
 }
 
-func (s urlStore) TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error) {
+func (s urlStore) TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string, browser domain.Browser) (datastore.Visit, error) {
 	visit, err := s.db.TrackRedirect(ctx, datastore.TrackRedirectParams{
 		UrlID: int32(urlID),
 		IpAddress: pgtype.Text{
@@ -82,6 +82,10 @@ func (s urlStore) TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress,
 		UserAgent: pgtype.Text{
 			String: userAgent,
 			Valid:  userAgent != "",
+		},
+		BrowserID: pgtype.UUID{
+			Bytes: browser.ID,
+			Valid: !browser.ID.IsNil(),
 		},
 	})
 	if err != nil {
@@ -207,4 +211,44 @@ func (a urlStore) UniqueVisitCount(ctx context.Context, urlID domain.ID) (int64,
 
 func (a urlStore) TotalVisit(ctx context.Context, urlID domain.ID) (int64, error) {
 	return a.db.TotalVisit(ctx, int32(urlID))
+}
+
+func (a urlStore) UpsertBrowser(ctx context.Context, name, version, platform string, mobile bool) (domain.Browser, error) {
+	row, err := a.db.UpsertBrowser(ctx, datastore.UpsertBrowserParams{
+		Name:     name,
+		Version:  version,
+		Platform: platform,
+		Mobile:   mobile,
+	})
+	if err != nil {
+		return domain.Browser{}, fmt.Errorf("failed to upsert browser: %w", err)
+	}
+
+	return domain.Browser{
+		ID:       row.ID.Bytes,
+		Name:     row.Name,
+		Version:  row.Version,
+		Platform: row.Platform,
+		Mobile:   row.Mobile,
+	}, nil
+}
+
+func (a urlStore) GetBrowser(ctx context.Context, name, version, platform string, mobile bool) (domain.Browser, error) {
+	row, err := a.db.GetBrowser(ctx, datastore.GetBrowserParams{
+		Name:     name,
+		Version:  version,
+		Platform: platform,
+		Mobile:   mobile,
+	})
+	if err != nil {
+		return domain.Browser{}, fmt.Errorf("failed to get browser: %w", err)
+	}
+
+	return domain.Browser{
+		ID:       row.ID.Bytes,
+		Name:     row.Name,
+		Version:  row.Version,
+		Platform: row.Platform,
+		Mobile:   row.Mobile,
+	}, nil
 }

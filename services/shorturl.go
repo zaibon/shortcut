@@ -4,17 +4,20 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/mssola/user_agent"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
 	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/services/geoip"
-	"golang.org/x/sync/errgroup"
 )
 
 const idLength = 6 //TODO: make this dynamic by reading the amount of url stored in DB.
@@ -26,8 +29,10 @@ type URLStore interface {
 	GetByID(ctx context.Context, id domain.ID) (datastore.Url, error)
 	Delete(ctx context.Context, urlID, authorID domain.ID) error
 
-	TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string) (datastore.Visit, error)
+	TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string, browser domain.Browser) (datastore.Visit, error)
 	InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error
+	UpsertBrowser(ctx context.Context, name, version, platform string, mobile bool) (domain.Browser, error)
+	GetBrowser(ctx context.Context, name, version, platform string, mobile bool) (domain.Browser, error)
 
 	Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error)
 	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (datastore.StatisticPerURLRow, error)
@@ -162,7 +167,25 @@ func (s *shortURL) Expand(ctx context.Context, short string) (domain.URL, error)
 
 func (s *shortURL) TrackRedirect(ctx context.Context, urlID domain.ID, r *http.Request) error {
 	ipAddress, userAgent := parseRequest(r)
-	visit, err := s.repo.TrackRedirect(ctx, urlID, ipAddress, userAgent)
+	ua := user_agent.New(userAgent)
+
+	var (
+		name, version = ua.Browser()
+		platform      = ua.Platform()
+		mobile        = ua.Mobile()
+		browser       domain.Browser
+		err           error = nil
+	)
+
+	browser, err = s.repo.UpsertBrowser(ctx, name, version, platform, mobile)
+	if errors.Is(err, pgx.ErrNoRows) {
+		browser, err = s.repo.GetBrowser(ctx, name, version, platform, mobile)
+	}
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return fmt.Errorf("failed to upsert browser: %w", err)
+	}
+
+	visit, err := s.repo.TrackRedirect(ctx, urlID, ipAddress, userAgent, browser)
 	if err != nil {
 		return fmt.Errorf("failed to track redirect: %w", err)
 	}
@@ -226,8 +249,11 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 	g.Go(func() error {
 		var err error
 		ld, err = s.repo.LocationDistribution(gCtx, authorID, urlID)
-		if err != nil {
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return fmt.Errorf("failed to get location distribution: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			ld = []datastore.LocationDistributionRow{}
 		}
 		return nil
 	})
@@ -235,8 +261,11 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 	g.Go(func() error {
 		var err error
 		bd, err = s.repo.BrowserDistribution(gCtx, authorID, urlID)
-		if err != nil {
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return fmt.Errorf("failed to get browser distribution: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			bd = []datastore.BrowserDistributionRow{}
 		}
 		return nil
 	})
@@ -244,8 +273,11 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 	g.Go(func() error {
 		var err error
 		total, err = s.repo.TotalVisit(gCtx, urlID)
-		if err != nil {
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return fmt.Errorf("failed to get total visit: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			total = 0
 		}
 		return nil
 	})
@@ -253,8 +285,11 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 	g.Go(func() error {
 		var err error
 		unique, err = s.repo.UniqueVisitCount(gCtx, urlID)
-		if err != nil {
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return fmt.Errorf("failed to get unique visit count: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			unique = 0
 		}
 		return nil
 	})
@@ -289,14 +324,13 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 			mobile := 0
 			desktop := 0
 			for _, v := range data {
-				ua := user_agent.New(v.UserAgent.String)
-				if ua.Mobile() {
+				if v.Mobile.Bool {
 					mobile++
 				} else {
 					desktop++
 				}
 			}
-			total := mobile + desktop
+			total := len(data)
 			return map[domain.DeviceKind]domain.Device{
 				domain.DeviceKindMobile: {
 					Type:       string(domain.DeviceKindMobile),
@@ -308,17 +342,16 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 				},
 			}
 		}(bd),
-		Browsers: func(data []datastore.BrowserDistributionRow) []domain.Browser {
-			s := make([]domain.Browser, len(data))
+		Browsers: func(data []datastore.BrowserDistributionRow) []domain.BrowserStats {
+			s := make([]domain.BrowserStats, len(data))
 			for i, v := range data {
-				ua := user_agent.New(v.UserAgent.String)
-				name, version := ua.Browser()
-				platform := ua.Platform()
-
-				s[i] = domain.Browser{
-					Name:       name,
-					Version:    version,
-					Platform:   platform,
+				s[i] = domain.BrowserStats{
+					Browser: domain.Browser{
+						Name:     v.Name.String,
+						Version:  v.Version.String,
+						Platform: v.Platform.String,
+						Mobile:   v.Mobile.Bool,
+					},
 					Percentage: float32(v.Percentage),
 				}
 			}
