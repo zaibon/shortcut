@@ -3,6 +3,7 @@ package templates
 import (
 	"fmt"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/templates/components"
 )
 
 templ URLDetail(url domain.URLStat) {
@@ -30,11 +31,16 @@ templ URLDetail(url domain.URLStat) {
 								// </div>
 							</div>
 						</div>
-						<div class="mt-4 sm:mt-0 flex space-x-3">
-							// <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-							// 	<i class="fas fa-qrcode -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
-							// 	QR Code
-							// </button>
+						<div class="mt-4 sm:mt-0 flex space-x-3" x-data="qrCodeModal">
+							<button
+								type="button"
+								class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+								@click={ fmt.Sprintf("showModal('%s')", url.Short) }
+							>
+								<i class="fas fa-qrcode -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
+								QR Code
+							</button>
+							@components.QRCodePopup(url)
 							// <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							// 	<i class="fas fa-edit -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
 							// 	Edit

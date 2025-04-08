@@ -67,7 +67,6 @@ func (h *Handler) Routes(r chi.Router) {
 		r.Get("/urls/{id}/clicks", h.clickChart)
 		r.Delete("/urls/{id}", h.deleteURL)
 
-		
 		// 	r.Get("/links/{slug}/edit", h.titleEdit)
 
 		// 	r.Patch("/links/{slug}", h.updateTitle)

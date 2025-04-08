@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/zaibon/shortcut/domain"
 	"github.com/zaibon/shortcut/middleware"
+	"github.com/zaibon/shortcut/templates/components"
 )
 
 const timeFormat = "Mon, 02 Jan 06 at 15:04:05"
@@ -212,13 +213,18 @@ templ URLTable(urls []domain.URLStat, p middleware.PaginationParams) {
 								{ url.CreatedAt.Format(timeFormat) }
 							</td>
 							<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-								<div class="flex space-x-2">
+								<div class="flex space-x-2" x-data="qrCodeModal">
 									// <button class="text-indigo-600 hover:text-indigo-900" title="Edit">
 									// 	<i class="fas fa-edit"></i>
 									// </button>
-									// <button class="text-indigo-600 hover:text-indigo-900" title="QR Code">
-									// 	<i class="fas fa-qrcode"></i>
-									// </button>
+									<button
+										class="text-indigo-600 hover:text-indigo-900"
+										title="QR Code"
+										@click={ fmt.Sprintf("showModal('%s')", url.Short) }
+									>
+										<i class="fas fa-qrcode"></i>
+									</button>
+									@components.QRCodePopup(url)
 									<a href={ templ.SafeURL(fmt.Sprintf("/urls/%s", url.Slug)) } class="text-indigo-600 hover:text-indigo-900" title="Analytics">
 										<i class="fas fa-chart-bar"></i>
 									</a>
