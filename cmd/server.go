@@ -197,6 +197,7 @@ func runServer(ctx context.Context, c config) error {
 	// no middlewares
 	server.Group(func(r chi.Router) {
 		r.Handle("/static/*", http.StripPrefix("/static/", fs))
+		r.Handle("/favicon.ico", static.FaviconHandler())
 	})
 
 	// normal HTTP middlewares
