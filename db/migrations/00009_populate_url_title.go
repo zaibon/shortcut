@@ -40,7 +40,9 @@ func upPopulateURLTitle(ctx context.Context, tx *sql.Tx) error {
 		}
 		urls = append(urls, url{ID: ID, URL: longURL})
 	}
-	rows.Close()
+	if err := rows.Close(); err != nil {
+		return err
+	}
 
 	for _, u := range urls {
 		log.Info("processing url", "url", u.URL, "id", u.ID)

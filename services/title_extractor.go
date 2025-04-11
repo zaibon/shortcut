@@ -12,7 +12,7 @@ func ExtractTitle(url string) string {
 	if err != nil {
 		return ""
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	z := html.NewTokenizer(resp.Body)
 

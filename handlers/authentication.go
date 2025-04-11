@@ -53,8 +53,7 @@ func (h *UsersHandler) Routes(r chi.Router) {
 }
 
 func (h *UsersHandler) authPage(w http.ResponseWriter, r *http.Request) {
-	templates.AuthPage().
-		Render(r.Context(), w)
+	templates.AuthPage().Render(r.Context(), w)
 }
 
 func (h *UsersHandler) myAccount(w http.ResponseWriter, r *http.Request) {
@@ -66,8 +65,7 @@ func (h *UsersHandler) myAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.AccountPage(*user, linkedProviders).
-		Render(r.Context(), w)
+	templates.AccountPage(*user, linkedProviders).Render(r.Context(), w)
 }
 
 func (h *UsersHandler) logout(w http.ResponseWriter, r *http.Request) {

@@ -175,11 +175,9 @@ func (s *shortURL) TrackRedirect(ctx context.Context, urlID domain.ID, r *http.R
 		name, version = ua.Browser()
 		platform      = ua.Platform()
 		mobile        = ua.Mobile()
-		browser       domain.Browser
-		err           error = nil
 	)
 
-	browser, err = s.repo.UpsertBrowser(ctx, name, version, platform, mobile)
+	browser, err := s.repo.UpsertBrowser(ctx, name, version, platform, mobile)
 	if errors.Is(err, pgx.ErrNoRows) {
 		browser, err = s.repo.GetBrowser(ctx, name, version, platform, mobile)
 	}

@@ -1,0 +1,7 @@
+# See the dedicated "version" documentation section.
+version: "2"
+linters:
+  settings:
+    errcheck:
+      exclude-functions:
+        - (github.com/a-h/templ.Component).Render

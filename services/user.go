@@ -180,7 +180,7 @@ func getUserInfo(ctx context.Context, oauthConfig *oauth2.Config, token *oauth2.
 		if err != nil {
 			return nil, fmt.Errorf("failed to get user info: %w", err)
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		var googleUserInfo domain.GoogleUserInfo
 		if err := json.NewDecoder(resp.Body).Decode(&googleUserInfo); err != nil {
@@ -193,7 +193,7 @@ func getUserInfo(ctx context.Context, oauthConfig *oauth2.Config, token *oauth2.
 		if err != nil {
 			return nil, fmt.Errorf("failed to get user info: %w", err)
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		var githubUserInfo domain.GithubUserInfo
 		if err := json.NewDecoder(resp.Body).Decode(&githubUserInfo); err != nil {
@@ -205,7 +205,7 @@ func getUserInfo(ctx context.Context, oauthConfig *oauth2.Config, token *oauth2.
 			if err != nil {
 				return nil, fmt.Errorf("failed to get user emails: %w", err)
 			}
-			defer resp.Body.Close()
+			defer func() { _ = resp.Body.Close() }()
 
 			var githubEmails []domain.GithubEmail
 			if err := json.NewDecoder(resp.Body).Decode(&githubEmails); err != nil {
