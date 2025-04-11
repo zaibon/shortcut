@@ -79,8 +79,7 @@ func (h *Handler) Routes(r chi.Router) {
 }
 
 func (h *Handler) index(w http.ResponseWriter, r *http.Request) {
-	templates.IndexPage().
-		Render(r.Context(), w)
+	templates.IndexPage().Render(r.Context(), w)
 }
 
 func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {

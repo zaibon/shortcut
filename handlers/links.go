@@ -67,7 +67,12 @@ func (h *Handler) urlSort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		log.Error("failed to parse form", slog.Any("error", err))
+		http.Error(w, "failed to parse form", http.StatusBadRequest)
+		return
+	}
+
 	sortBy := r.FormValue("sort")
 
 	urls, err := h.svc.List(r.Context(), user.ID, "")
@@ -99,7 +104,11 @@ func (h *Handler) urlSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		log.Error("failed to parse form", slog.Any("error", err))
+		http.Error(w, "failed to parse form", http.StatusBadRequest)
+		return
+	}
 	search := r.FormValue("search")
 
 	urls, err := h.svc.List(r.Context(), user.ID, search)
@@ -158,14 +167,8 @@ func (h *Handler) linkDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// data := domain.URLStat{
-	// 	URL:                  url,
-	// 	UniqueVisitors:       url.NrVisited,
-	// 	LocationDistribution: generateLocationDistribution(),
-	// 	Referrers:            generateReferrers(),
-	// 	Devices:              generateDevices(),
-	// 	Browsers:             generateBrowsers(),
-	// }
+	// TODO: actually get the data from the database
+	url.Referrers = generateReferrers()
 
 	if err := templates.URLDetail(url).
 		Render(r.Context(), w); err != nil {
