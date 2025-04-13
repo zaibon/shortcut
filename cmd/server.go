@@ -198,6 +198,7 @@ func runServer(ctx context.Context, c config) error {
 	server.Group(func(r chi.Router) {
 		r.Handle("/static/*", http.StripPrefix("/static/", fs))
 		r.Handle("/favicon.ico", static.FaviconHandler())
+		r.Handle("/sitemap.xml", static.SitemapHandler())
 	})
 
 	// normal HTTP middlewares
