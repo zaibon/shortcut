@@ -16,7 +16,7 @@ SELECT
 	browsers.name,
 	browsers.version,
 	browsers.platform,
-  browsers.mobile,
+  	browsers.mobile,
     count(v.id) AS visit_count,
     (count(v.id) * 100.0 / total_visits.total)::float AS percentage
 FROM
@@ -114,42 +114,6 @@ func (q *Queries) CountURLThisMonth(ctx context.Context, authorID int32) (int64,
 	var count int64
 	err := row.Scan(&count)
 	return count, err
-}
-
-const getBrowser = `-- name: GetBrowser :one
-SELECT id, name, version, platform, mobile, created_at
-FROM browsers
-WHERE name = $1
-AND version = $2
-AND platform = $3
-AND mobile = $4
-LIMIT 1
-`
-
-type GetBrowserParams struct {
-	Name     string `json:"name"`
-	Version  string `json:"version"`
-	Platform string `json:"platform"`
-	Mobile   bool   `json:"mobile"`
-}
-
-func (q *Queries) GetBrowser(ctx context.Context, arg GetBrowserParams) (Browser, error) {
-	row := q.db.QueryRow(ctx, getBrowser,
-		arg.Name,
-		arg.Version,
-		arg.Platform,
-		arg.Mobile,
-	)
-	var i Browser
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Version,
-		&i.Platform,
-		&i.Mobile,
-		&i.CreatedAt,
-	)
-	return i, err
 }
 
 const insertVisitLocation = `-- name: InsertVisitLocation :one
@@ -288,7 +252,7 @@ func (q *Queries) ListStatisticsPerAuthor(ctx context.Context, arg ListStatistic
 }
 
 const listVisits = `-- name: ListVisits :many
-SELECT id, url_id, visited_at, ip_address, user_agent, browser_id
+SELECT id, url_id, visited_at, ip_address, user_agent, browser_id, referrer
 FROM visits
 ORDER BY id DESC
 `
@@ -309,6 +273,7 @@ func (q *Queries) ListVisits(ctx context.Context) ([]Visit, error) {
 			&i.IpAddress,
 			&i.UserAgent,
 			&i.BrowserID,
+			&i.Referrer,
 		); err != nil {
 			return nil, err
 		}
@@ -364,6 +329,63 @@ func (q *Queries) LocationDistribution(ctx context.Context, arg LocationDistribu
 	for rows.Next() {
 		var i LocationDistributionRow
 		if err := rows.Scan(&i.CountryName, &i.VisitCount, &i.Percentage); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const referrerDistribution = `-- name: ReferrerDistribution :many
+SELECT
+    v.referrer AS source,
+    count(v.id) AS click_count,
+    (count(v.id) * 100.0 / total_visits.total)::float AS percentage
+FROM
+    visits v
+JOIN
+    urls u ON v.url_id = u.id
+CROSS JOIN (
+    SELECT count(*) AS total
+    FROM visits
+    WHERE visits.url_id = $1
+) AS total_visits
+WHERE
+    u.author_id = $2
+AND
+    u.id = $1
+AND 
+    v.referrer IS NOT NULL AND v.referrer != '' -- Exclude empty or null referrers
+GROUP BY
+    v.referrer, total_visits.total
+ORDER BY
+    click_count DESC
+`
+
+type ReferrerDistributionParams struct {
+	UrlID    int32 `json:"url_id"`
+	AuthorID int32 `json:"author_id"`
+}
+
+type ReferrerDistributionRow struct {
+	Source     pgtype.Text `json:"source"`
+	ClickCount int64       `json:"click_count"`
+	Percentage float64     `json:"percentage"`
+}
+
+func (q *Queries) ReferrerDistribution(ctx context.Context, arg ReferrerDistributionParams) ([]ReferrerDistributionRow, error) {
+	rows, err := q.db.Query(ctx, referrerDistribution, arg.UrlID, arg.AuthorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ReferrerDistributionRow{}
+	for rows.Next() {
+		var i ReferrerDistributionRow
+		if err := rows.Scan(&i.Source, &i.ClickCount, &i.Percentage); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -437,9 +459,9 @@ func (q *Queries) TotalVisit(ctx context.Context, urlID int32) (int64, error) {
 }
 
 const trackRedirect = `-- name: TrackRedirect :one
-INSERT INTO visits (url_id, ip_address, user_agent, browser_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id, url_id, visited_at, ip_address, user_agent, browser_id
+INSERT INTO visits (url_id, ip_address, user_agent, browser_id, referrer)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, url_id, visited_at, ip_address, user_agent, browser_id, referrer
 `
 
 type TrackRedirectParams struct {
@@ -447,6 +469,7 @@ type TrackRedirectParams struct {
 	IpAddress pgtype.Text `json:"ip_address"`
 	UserAgent pgtype.Text `json:"user_agent"`
 	BrowserID pgtype.UUID `json:"browser_id"`
+	Referer   pgtype.Text `json:"referer"`
 }
 
 func (q *Queries) TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error) {
@@ -455,6 +478,7 @@ func (q *Queries) TrackRedirect(ctx context.Context, arg TrackRedirectParams) (V
 		arg.IpAddress,
 		arg.UserAgent,
 		arg.BrowserID,
+		arg.Referer,
 	)
 	var i Visit
 	err := row.Scan(
@@ -464,6 +488,7 @@ func (q *Queries) TrackRedirect(ctx context.Context, arg TrackRedirectParams) (V
 		&i.IpAddress,
 		&i.UserAgent,
 		&i.BrowserID,
+		&i.Referrer,
 	)
 	return i, err
 }
@@ -489,7 +514,8 @@ func (q *Queries) UniqueVisitCount(ctx context.Context, urlID int32) (int64, err
 const upsertBrowser = `-- name: UpsertBrowser :one
 INSERT INTO browsers (name, version, platform, mobile)
 VALUES ($1, $2, $3, $4)
-ON CONFLICT (name, version, platform, mobile) DO NOTHING
+ON CONFLICT (name, version, platform, mobile) 
+DO UPDATE SET name = EXCLUDED.name
 RETURNING id, name, version, platform, mobile, created_at
 `
 

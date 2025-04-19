@@ -72,16 +72,22 @@ func (s *urlStore) GetByID(ctx context.Context, urlID domain.ID) (datastore.Url,
 	return url, nil
 }
 
-func (s urlStore) TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string, browser domain.Browser) (datastore.Visit, error) {
+func (s urlStore) TrackRedirect(ctx context.Context, urlID domain.ID, request domain.RequestInfo) (datastore.Visit, error) {
+
+	browser, err := s.UpsertBrowser(ctx, request.Browser())
+	if err != nil {
+		return datastore.Visit{}, fmt.Errorf("upsert browser: %w", err)
+	}
+
 	visit, err := s.db.TrackRedirect(ctx, datastore.TrackRedirectParams{
 		UrlID: int32(urlID),
 		IpAddress: pgtype.Text{
-			String: ipAddress,
-			Valid:  ipAddress != "",
+			String: request.IpAddress(),
+			Valid:  request.IpAddress() != "",
 		},
 		UserAgent: pgtype.Text{
-			String: userAgent,
-			Valid:  userAgent != "",
+			String: request.UserAgent(),
+			Valid:  request.UserAgent() != "",
 		},
 		BrowserID: pgtype.UUID{
 			Bytes: browser.ID,
@@ -205,6 +211,13 @@ func (a urlStore) BrowserDistribution(ctx context.Context, authorID, urlID domai
 	})
 }
 
+func (a urlStore) RefererDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.ReferrerDistributionRow, error) {
+	return a.db.ReferrerDistribution(ctx, datastore.ReferrerDistributionParams{
+		UrlID:    int32(urlID),
+		AuthorID: int32(authorID),
+	})
+}
+
 func (a urlStore) UniqueVisitCount(ctx context.Context, urlID domain.ID) (int64, error) {
 	return a.db.UniqueVisitCount(ctx, int32(urlID))
 }
@@ -213,12 +226,12 @@ func (a urlStore) TotalVisit(ctx context.Context, urlID domain.ID) (int64, error
 	return a.db.TotalVisit(ctx, int32(urlID))
 }
 
-func (a urlStore) UpsertBrowser(ctx context.Context, name, version, platform string, mobile bool) (domain.Browser, error) {
+func (a urlStore) UpsertBrowser(ctx context.Context, browser domain.Browser) (domain.Browser, error) {
 	row, err := a.db.UpsertBrowser(ctx, datastore.UpsertBrowserParams{
-		Name:     name,
-		Version:  version,
-		Platform: platform,
-		Mobile:   mobile,
+		Name:     browser.Name,
+		Version:  browser.Version,
+		Platform: browser.Platform,
+		Mobile:   browser.IsMobile,
 	})
 	if err != nil {
 		return domain.Browser{}, fmt.Errorf("failed to upsert browser: %w", err)
@@ -229,27 +242,7 @@ func (a urlStore) UpsertBrowser(ctx context.Context, name, version, platform str
 		Name:     row.Name,
 		Version:  row.Version,
 		Platform: row.Platform,
-		Mobile:   row.Mobile,
-	}, nil
-}
-
-func (a urlStore) GetBrowser(ctx context.Context, name, version, platform string, mobile bool) (domain.Browser, error) {
-	row, err := a.db.GetBrowser(ctx, datastore.GetBrowserParams{
-		Name:     name,
-		Version:  version,
-		Platform: platform,
-		Mobile:   mobile,
-	})
-	if err != nil {
-		return domain.Browser{}, fmt.Errorf("failed to get browser: %w", err)
-	}
-
-	return domain.Browser{
-		ID:       row.ID.Bytes,
-		Name:     row.Name,
-		Version:  row.Version,
-		Platform: row.Platform,
-		Mobile:   row.Mobile,
+		IsMobile: row.Mobile,
 	}, nil
 }
 

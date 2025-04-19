@@ -8,11 +8,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/mssola/user_agent"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/zaibon/shortcut/db/datastore"
@@ -30,10 +28,9 @@ type URLStore interface {
 	GetByID(ctx context.Context, id domain.ID) (datastore.Url, error)
 	Delete(ctx context.Context, urlID, authorID domain.ID) error
 
-	TrackRedirect(ctx context.Context, urlID domain.ID, ipAddress, userAgent string, browser domain.Browser) (datastore.Visit, error)
+	TrackRedirect(ctx context.Context, urlID domain.ID, request domain.RequestInfo) (datastore.Visit, error)
 	InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error
-	UpsertBrowser(ctx context.Context, name, version, platform string, mobile bool) (domain.Browser, error)
-	GetBrowser(ctx context.Context, name, version, platform string, mobile bool) (domain.Browser, error)
+	UpsertBrowser(ctx context.Context, requestInfo domain.Browser) (domain.Browser, error)
 
 	Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error)
 	StatisticsDetail(ctx context.Context, authorID domain.ID, slug string) (datastore.StatisticPerURLRow, error)
@@ -49,6 +46,7 @@ type URLStore interface {
 
 	LocationDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.LocationDistributionRow, error)
 	BrowserDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.BrowserDistributionRow, error)
+	RefererDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.ReferrerDistributionRow, error)
 	UniqueVisitCount(ctx context.Context, urlID domain.ID) (int64, error)
 	TotalVisit(ctx context.Context, urlID domain.ID) (int64, error)
 }
@@ -168,35 +166,17 @@ func (s *shortURL) Expand(ctx context.Context, short string) (domain.URL, error)
 }
 
 func (s *shortURL) TrackRedirect(ctx context.Context, urlID domain.ID, r *http.Request) error {
-	ipAddress, userAgent := parseRequest(r)
-	ua := user_agent.New(userAgent)
+	requestInfo := parseRequest(r)
 
-	var (
-		name, version = ua.Browser()
-		platform      = ua.Platform()
-		mobile        = ua.Mobile()
-	)
-
-	browser, err := s.repo.UpsertBrowser(ctx, name, version, platform, mobile)
-	if errors.Is(err, pgx.ErrNoRows) {
-		browser, err = s.repo.GetBrowser(ctx, name, version, platform, mobile)
-	}
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		return fmt.Errorf("failed to upsert browser: %w", err)
-	}
-
-	visit, err := s.repo.TrackRedirect(ctx, urlID, ipAddress, userAgent, browser)
+	visit, err := s.repo.TrackRedirect(ctx, urlID, requestInfo)
 	if err != nil {
 		return fmt.Errorf("failed to track redirect: %w", err)
 	}
 
-	if strings.Contains(ipAddress, ",") {
-		ipAddress = strings.Split(ipAddress, ",")[0]
-	}
-
-	loc, err := geoip.Locate(ipAddress)
+	ip := requestInfo.IpAddress()
+	loc, err := geoip.Locate(ip)
 	if err != nil {
-		log.Warn("failed to get country", "err", err, "ip", ipAddress)
+		log.Warn("failed to get country", "err", err, "ip", ip)
 		return nil
 	}
 
@@ -242,6 +222,7 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 		g, gCtx      = errgroup.WithContext(ctx)
 		ld           []datastore.LocationDistributionRow
 		bd           []datastore.BrowserDistributionRow
+		rd           []datastore.ReferrerDistributionRow
 		visitsPerDay []domain.TimeSeriesData
 		total        int64
 		unique       int64
@@ -267,6 +248,18 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 		}
 		if errors.Is(err, pgx.ErrNoRows) {
 			bd = []datastore.BrowserDistributionRow{}
+		}
+		return nil
+	})
+
+	g.Go(func() error {
+		var err error
+		rd, err = s.repo.RefererDistribution(gCtx, authorID, urlID)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get referer distribution: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			rd = []datastore.ReferrerDistributionRow{}
 		}
 		return nil
 	})
@@ -342,7 +335,32 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 			}
 			return s
 		}(ld),
-		Referrers: []domain.Referrer{},
+		Referrers: func(data []datastore.ReferrerDistributionRow) []domain.Referrer {
+			s := make([]domain.Referrer, len(data))
+			for i, v := range data {
+				s[i] = domain.Referrer{
+					Source:     v.Source.String,
+					ClickCount: int(v.ClickCount),
+					Percentage: float32(v.Percentage),
+				}
+			}
+			return s
+		}(rd),
+		ReferrersChart: func(data []datastore.ReferrerDistributionRow) []domain.TwoDimension {
+			m := map[string]int{}
+			for _, v := range data {
+				m[v.Source.String] += int(v.Percentage)
+			}
+
+			s := make([]domain.TwoDimension, 0, len(m))
+			for k, v := range m {
+				s = append(s, domain.TwoDimension{
+					Label: k,
+					Value: v,
+				})
+			}
+			return s
+		}(rd),
 		Devices: func(data []datastore.BrowserDistributionRow) map[domain.DeviceKind]domain.Device {
 			mobile := 0
 			desktop := 0
@@ -394,7 +412,7 @@ func (s *shortURL) StatisticsDetail(ctx context.Context, authorID domain.ID, slu
 						Name:     v.Name.String,
 						Version:  v.Version.String,
 						Platform: v.Platform.String,
-						Mobile:   v.Mobile.Bool,
+						IsMobile: v.Mobile.Bool,
 					},
 					Percentage: float32(v.Percentage),
 				}
@@ -519,13 +537,16 @@ func generateShortID(length int) (string, error) {
 	return s[:length], nil
 }
 
-func parseRequest(r *http.Request) (ipAddress string, userAgent string) {
+func parseRequest(r *http.Request) domain.RequestInfo {
+	var ipAddress, userAgent, referer string
 	ipAddress = r.Header.Get("X-Forwarded-For")
 	if ipAddress == "" {
 		ipAddress = r.RemoteAddr
 	}
 	userAgent = r.Header.Get("User-Agent")
-	return
+	referer = r.Header.Get("Referer")
+
+	return *domain.NewRequestInfo(ipAddress, userAgent, referer)
 }
 
 func (s *shortURL) toURL(id string) string {

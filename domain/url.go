@@ -20,6 +20,7 @@ type URLStat struct {
 	UniqueVisitors       int
 	LocationDistribution []LocationDistribution
 	Referrers            []Referrer
+	ReferrersChart       []TwoDimension
 	Devices              map[DeviceKind]Device
 	DeviceChart          []TwoDimension
 	Browsers             []BrowserStats
@@ -54,7 +55,7 @@ type Browser struct {
 	Name     string
 	Version  string
 	Platform string
-	Mobile   bool
+	IsMobile bool
 }
 
 type BrowserStats struct {

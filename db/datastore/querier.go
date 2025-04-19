@@ -18,7 +18,6 @@ type Querier interface {
 	CountTotalVisitThisMonth(ctx context.Context, authorID int32) (int64, error)
 	CountURLThisMonth(ctx context.Context, authorID int32) (int64, error)
 	DeleteURL(ctx context.Context, arg DeleteURLParams) error
-	GetBrowser(ctx context.Context, arg GetBrowserParams) (Browser, error)
 	GetByID(ctx context.Context, id int32) (Url, error)
 	GetCustomer(ctx context.Context, userID pgtype.UUID) (Customer, error)
 	// Description: Get customer by stripe id
@@ -42,6 +41,7 @@ type Querier interface {
 	ListVisits(ctx context.Context) ([]Visit, error)
 	// SQL query to get the location distribution data for a specific URL
 	LocationDistribution(ctx context.Context, arg LocationDistributionParams) ([]LocationDistributionRow, error)
+	ReferrerDistribution(ctx context.Context, arg ReferrerDistributionParams) ([]ReferrerDistributionRow, error)
 	StatisticPerURL(ctx context.Context, arg StatisticPerURLParams) (StatisticPerURLRow, error)
 	TotalVisit(ctx context.Context, urlID int32) (int64, error)
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)

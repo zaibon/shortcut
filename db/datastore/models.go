@@ -84,6 +84,7 @@ type Visit struct {
 	IpAddress pgtype.Text      `json:"ip_address"`
 	UserAgent pgtype.Text      `json:"user_agent"`
 	BrowserID pgtype.UUID      `json:"browser_id"`
+	Referrer  pgtype.Text      `json:"referrer"`
 }
 
 type VisitLocation struct {
