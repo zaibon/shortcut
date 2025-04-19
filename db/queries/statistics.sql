@@ -1,24 +1,15 @@
 -- name: TrackRedirect :one
-INSERT INTO visits (url_id, ip_address, user_agent, browser_id)
-VALUES (@url_id, @ip_address, @user_agent, @browser_id)
+INSERT INTO visits (url_id, ip_address, user_agent, browser_id, referrer)
+VALUES (@url_id, @ip_address, @user_agent, @browser_id, @referer)
 RETURNING *;
 
 
 -- name: UpsertBrowser :one
 INSERT INTO browsers (name, version, platform, mobile)
 VALUES (@name, @version, @platform, @mobile)
-ON CONFLICT (name, version, platform, mobile) DO NOTHING
+ON CONFLICT (name, version, platform, mobile) 
+DO UPDATE SET name = EXCLUDED.name
 RETURNING *;
-
--- name: GetBrowser :one
-SELECT *
-FROM browsers
-WHERE name = @name
-AND version = @version
-AND platform = @platform
-AND mobile = @mobile
-LIMIT 1;
-
 
 -- name: InsertVisitLocation :one
 INSERT INTO visit_locations (
@@ -136,7 +127,7 @@ SELECT
 	browsers.name,
 	browsers.version,
 	browsers.platform,
-  browsers.mobile,
+  	browsers.mobile,
     count(v.id) AS visit_count,
     (count(v.id) * 100.0 / total_visits.total)::float AS percentage
 FROM
@@ -196,3 +187,28 @@ GROUP BY
     visit_date
 ORDER BY
     visit_date;
+
+-- name: ReferrerDistribution :many
+SELECT
+    v.referrer AS source,
+    count(v.id) AS click_count,
+    (count(v.id) * 100.0 / total_visits.total)::float AS percentage
+FROM
+    visits v
+JOIN
+    urls u ON v.url_id = u.id
+CROSS JOIN (
+    SELECT count(*) AS total
+    FROM visits
+    WHERE visits.url_id = @url_id
+) AS total_visits
+WHERE
+    u.author_id = @author_id
+AND
+    u.id = @url_id
+AND 
+    v.referrer IS NOT NULL AND v.referrer != '' -- Exclude empty or null referrers
+GROUP BY
+    v.referrer, total_visits.total
+ORDER BY
+    click_count DESC;

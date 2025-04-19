@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"log/slog"
-	"math/rand"
 	"net/http"
 	"slices"
 	"strconv"
@@ -166,9 +165,6 @@ func (h *Handler) linkDetail(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to get url", http.StatusInternalServerError)
 		return
 	}
-
-	// TODO: actually get the data from the database
-	url.Referrers = generateReferrers()
 
 	if err := templates.URLDetail(url).
 		Render(r.Context(), w); err != nil {
@@ -348,25 +344,3 @@ func sortUrls(urls []domain.URLStat, filter string) []domain.URLStat {
 
 // 	toast.Success(w, "Success", "URL unarchived", "")
 // }
-
-// generateReferrers creates sample referrer data.
-func generateReferrers() []domain.Referrer {
-	referrers := []string{"Direct / None", "Google", "Twitter", "Facebook", "LinkedIn", "Reddit", "Other"}
-	referrerData := make([]domain.Referrer, len(referrers))
-	totalClicks := 0
-
-	for i, ref := range referrers {
-		clicks := rand.Intn(500) + 50 // Generate clicks between 50 and 550
-		referrerData[i] = domain.Referrer{
-			Source:     ref,
-			ClickCount: clicks,
-		}
-		totalClicks += clicks
-	}
-
-	for i := range referrerData {
-		referrerData[i].Percentage = (float32(referrerData[i].ClickCount) / float32(totalClicks)) * 100
-	}
-
-	return referrerData
-}
