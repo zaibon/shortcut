@@ -179,23 +179,24 @@ func runServer(ctx context.Context, c config) error {
 	subscriptionStore := db.NewRepoSubscription(dbPool)
 
 	// services
-	shortURL := services.NewShortURL(urlStore, c.redirectURL())
+	urlService := services.NewURL(urlStore, c.redirectURL())
 	userService := services.NewUser(userStore, c.Domain, c.TLS,
 		c.GoogleOauthClientID, c.GoogleOauthSecret,
 		c.GithubOauthClientID, c.GithubOauthSecret,
 	)
-	stripeService := services.NewStripeService(c.StripeKey, subscriptionStore, c.Domain, c.TLS)
+	stripeService := services.NewStripe(c.StripeKey, subscriptionStore, c.Domain, c.TLS)
 
 	// HTTP handlers
-	urlHandlers := handlers.NewURLHandlers(shortURL)
+	urlHandlers := handlers.NewURLHandlers(urlService)
 	userHandlers := handlers.NewUsersHandler(userService, stripeService, c.StripePubKey)
 	healthzHandlers := handlers.NewHealtzHandlers(stdlib.OpenDBFromPool(dbPool))
-	subscriptionHandlers := handlers.NewSubscriptionHandlers(c.StripeKey, c.StripeEndpointSecret, stripeService, shortURL)
+	subscriptionHandlers := handlers.NewSubscriptionHandlers(c.StripeKey, c.StripeEndpointSecret, stripeService, urlService)
 
 	fs := http.FileServer(static.FileSystem)
 	server := chi.NewRouter()
 	// no middlewares
 	server.Group(func(r chi.Router) {
+		r.NotFound(handlers.NotFound)
 		r.Handle("/static/*", http.StripPrefix("/static/", fs))
 		r.Handle("/favicon.ico", static.FaviconHandler())
 		r.Handle("/sitemap.xml", static.SitemapHandler())

@@ -35,7 +35,7 @@ type stripeService struct {
 	returnURL string
 }
 
-func NewStripeService(key string, store stripeStore, domain string, tls bool) *stripeService {
+func NewStripe(key string, store stripeStore, domain string, tls bool) *stripeService {
 	client := &client.API{}
 	client.Init(key, nil)
 
@@ -45,6 +45,7 @@ func NewStripeService(key string, store stripeStore, domain string, tls bool) *s
 		returnURL: customerRedirectURL(domain, tls),
 	}
 }
+
 func (s *stripeService) HandleSessionCheckout(ctx context.Context, session *stripe.CheckoutSession) error {
 	txFunx := func(ctx context.Context) error {
 		customer, err := s.store.GetCustomerByStripeId(ctx, session.Customer.ID)

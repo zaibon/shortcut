@@ -23,7 +23,7 @@ type stripeService interface {
 type subscriptionHandlers struct {
 	htmx    *htmx.HTMX
 	payment stripeService
-	urls    ShortURLService
+	urls    URLService
 
 	stripeKey            string
 	stripeEndpointSecret string
@@ -33,7 +33,7 @@ func NewSubscriptionHandlers(
 	stripeKey,
 	stripeEndpointSecret string,
 	payment stripeService,
-	urls ShortURLService,
+	urls URLService,
 ) *subscriptionHandlers {
 	return &subscriptionHandlers{
 		htmx:                 htmx.New(),
