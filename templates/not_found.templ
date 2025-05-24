@@ -1,0 +1,95 @@
+package templates
+
+templ NotFoundPage() {
+	<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Short URL Not Found - Shortcut</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <!-- Simplified version specifically for broken short URLs -->
+  <div class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-lg w-full text-center">
+      <!-- Shortcut Logo -->
+      <div class="mb-8">
+        <a href="/" class="text-indigo-600 font-bold text-2xl">
+          <i class="fas fa-link mr-2"></i>shortcut
+        </a>
+      </div>
+
+      <!-- 404 Illustration -->
+      <div class="mb-8">
+        <div class="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-6">
+          <i class="fas fa-chain-broken text-3xl text-red-600"></i>
+        </div>
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Link Broken</h1>
+        <h2 class="text-xl font-semibold text-gray-700 mb-4">This short URL doesn't exist</h2>
+      </div>
+
+      <!-- Error Message -->
+      <div class="mb-8 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <p class="text-gray-600 mb-4">
+          The short URL you're trying to access is not available. This might be because:
+        </p>
+        <ul class="text-sm text-gray-500 space-y-2 text-left">
+          <li class="flex items-start">
+            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+            <span>The link has expired or been deleted by its creator</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+            <span>There's a typo in the URL you entered</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+            <span>The link was flagged for violating our terms of service</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="/" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <i class="fas fa-plus mr-2"></i>
+            Create Your Own Short Link
+          </a>
+          <a href="/" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <i class="fas fa-home mr-2"></i>
+            Go to Homepage
+          </a>
+        </div>
+      </div>
+
+    //   <!-- Report Link -->
+    //   <div class="mt-8 pt-6 border-t border-gray-200">
+    //     <p class="text-sm text-gray-500 mb-2">Think this is a mistake?</p>
+    //     <a href="#" class="text-indigo-600 hover:text-indigo-500 text-sm">
+    //       <i class="fas fa-flag mr-1"></i>
+    //       Report this issue
+    //     </a>
+    //   </div>
+
+    //   <!-- Footer Links -->
+      <div class="mt-8">
+        // <div class="flex justify-center space-x-6 text-sm text-gray-500">
+        //   <a href="#" class="hover:text-gray-700">About</a>
+        //   <a href="#" class="hover:text-gray-700">Privacy</a>
+        //   <a href="#" class="hover:text-gray-700">Terms</a>
+        //   <a href="#" class="hover:text-gray-700">Contact</a>
+        // </div>
+        <p class="mt-4 text-xs text-gray-400">
+          &copy; 2025 Shortcut. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+}
