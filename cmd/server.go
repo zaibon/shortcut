@@ -15,6 +15,9 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/urfave/cli/v2"
 
+	"github.com/getsentry/sentry-go"
+	sentryhttp "github.com/getsentry/sentry-go/http"
+
 	_ "gitea.com/go-chi/session/postgres"
 
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
@@ -128,6 +131,13 @@ var serverFlags = []cli.Flag{
 		EnvVars:     []string{"SHORTCUT_STRIPE_ENDPOINT_SECRET"},
 		Destination: &c.StripeEndpointSecret,
 	},
+	&cli.StringFlag{
+		Name:        "sentry-dsn",
+		Usage:       "Sentry DSN for error tracking",
+		Value:       "",
+		EnvVars:     []string{"SHORTCUT_SENTRY_DSN"},
+		Destination: &c.SentryDSN,
+	},
 }
 
 func listenSignals(ctx context.Context, c config, f func(context.Context, config) error, sig ...os.Signal) error {
@@ -186,6 +196,9 @@ func runServer(ctx context.Context, c config) error {
 	)
 	stripeService := services.NewStripe(c.StripeKey, subscriptionStore, c.Domain, c.TLS)
 
+	// setup Sentry for error tracking
+	setupSentry(c)
+
 	// HTTP handlers
 	urlHandlers := handlers.NewURLHandlers(urlService)
 	userHandlers := handlers.NewUsersHandler(userService, stripeService, c.StripePubKey)
@@ -194,9 +207,18 @@ func runServer(ctx context.Context, c config) error {
 
 	fs := http.FileServer(static.FileSystem)
 	server := chi.NewRouter()
+
+	// Create an instance of sentryhttp
+	sentryHandler := sentryhttp.New(sentryhttp.Options{
+		Repanic:         true,
+		WaitForDelivery: true,
+		Timeout:         time.Second * 2,
+	})
+	server.Use(sentryHandler.Handle)
+	server.NotFound(handlers.NotFound)
+
 	// no middlewares
 	server.Group(func(r chi.Router) {
-		r.NotFound(handlers.NotFound)
 		r.Handle("/static/*", http.StripPrefix("/static/", fs))
 		r.Handle("/favicon.ico", static.FaviconHandler())
 		r.Handle("/sitemap.xml", static.SitemapHandler())
@@ -218,6 +240,7 @@ func runServer(ctx context.Context, c config) error {
 			},
 		))
 		r.Use(middleware.UserContext)
+		r.Use(middleware.SentryMiddleware)
 
 		// HTTP Routing
 		urlHandlers.Routes(r)
@@ -227,7 +250,7 @@ func runServer(ctx context.Context, c config) error {
 	})
 
 	listenAddr := fmt.Sprintf(":%d", c.Port)
-	fmt.Printf("Server is running on %s in mode %s\n", listenAddr, env.Name())
+	log.Info("Server is running", "addr", listenAddr, "env", env.Name())
 	srv := &http.Server{
 		Addr:    listenAddr,
 		Handler: server,
@@ -249,6 +272,29 @@ func runServer(ctx context.Context, c config) error {
 	}
 
 	return nil
+}
+
+func setupSentry(c config) {
+	if c.SentryDSN == "" {
+		return
+	}
+
+	err := sentry.Init(sentry.ClientOptions{
+		Dsn: "https://fad5df13174de890d07ab7f41f9fd495@o4506180497899520.ingest.us.sentry.io/4509379018620928",
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for tracing.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+		SampleRate:       1.0,
+		EnableTracing:    true,
+		SendDefaultPII:   false,
+		Environment:      env.Name(),
+	})
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
+
+	log.Info("Sentry initialized", "dsn", c.SentryDSN, "env", env.Name())
 }
 
 func (c config) redirectURL() string {
