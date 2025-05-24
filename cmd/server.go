@@ -10,16 +10,15 @@ import (
 	"time"
 
 	"gitea.com/go-chi/session"
+	"github.com/getsentry/sentry-go"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/urfave/cli/v2"
 
-	"github.com/getsentry/sentry-go"
-	sentryhttp "github.com/getsentry/sentry-go/http"
-
 	_ "gitea.com/go-chi/session/postgres"
 
+	sentryhttp "github.com/getsentry/sentry-go/http"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 
 	"github.com/zaibon/shortcut/db"
