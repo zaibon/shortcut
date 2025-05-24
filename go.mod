@@ -288,6 +288,7 @@ require (
 	cloud.google.com/go/storage v1.51.0
 	github.com/a-h/templ v0.3.857
 	github.com/donseba/go-htmx v1.12.0
+	github.com/getsentry/sentry-go v0.33.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/joho/godotenv v1.5.1

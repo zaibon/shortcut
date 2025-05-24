@@ -37,6 +37,8 @@ type config struct {
 	StripeKey            string
 	StripePubKey         string
 	StripeEndpointSecret string
+
+	SentryDSN string
 }
 
 func (c config) SafeDBString() string {
