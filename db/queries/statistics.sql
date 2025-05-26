@@ -1,6 +1,6 @@
 -- name: TrackRedirect :one
 INSERT INTO visits (url_id, ip_address, user_agent, browser_id, referrer)
-VALUES (@url_id, @ip_address, @user_agent, @browser_id, @referer)
+VALUES (@url_id, @ip_address, @user_agent, @browser_id, @referrer)
 RETURNING *;
 
 

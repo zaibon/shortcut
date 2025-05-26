@@ -93,6 +93,10 @@ func (s urlStore) TrackRedirect(ctx context.Context, urlID domain.ID, request do
 			Bytes: browser.ID,
 			Valid: !browser.ID.IsNil(),
 		},
+		Referrer: pgtype.Text{
+			String: request.Referer(),
+			Valid:  request.Referer() != "",
+		},
 	})
 	if err != nil {
 		return datastore.Visit{}, fmt.Errorf("failed to track redirect: %v", err)

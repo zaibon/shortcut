@@ -469,7 +469,7 @@ type TrackRedirectParams struct {
 	IpAddress pgtype.Text `json:"ip_address"`
 	UserAgent pgtype.Text `json:"user_agent"`
 	BrowserID pgtype.UUID `json:"browser_id"`
-	Referer   pgtype.Text `json:"referer"`
+	Referrer  pgtype.Text `json:"referrer"`
 }
 
 func (q *Queries) TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error) {
@@ -478,7 +478,7 @@ func (q *Queries) TrackRedirect(ctx context.Context, arg TrackRedirectParams) (V
 		arg.IpAddress,
 		arg.UserAgent,
 		arg.BrowserID,
-		arg.Referer,
+		arg.Referrer,
 	)
 	var i Visit
 	err := row.Scan(
