@@ -251,27 +251,27 @@ templ URLDetail(url domain.URLStat) {
       // Update chart
       window.clicksChart.update();
     };
-	</script>
+				</script>
 				<!-- Geographic Distribution -->
 				<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-					<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+					<div class="bg-white shadow overflow-hidden sm:rounded-lg h-[600px] flex flex-col">
 						<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
 							<h3 class="text-lg leading-6 font-medium text-gray-900">
 								Geographic Distribution
 							</h3>
 						</div>
-						<div class="px-4 py-5 sm:p-6">
-							// <div class="h-80 relative">
-							// 	// <img src="https://via.placeholder.com/800x400?text=World+Map+Visualization" alt="World map with click distribution" class="w-full h-full object-contain"/>
+						<div class="px-4 py-5 sm:p-6 flex flex-col h-full">
+							// <div class="h-80 relative flex-shrink-0">
+							// 	<img src="https://via.placeholder.com/800x400?text=World+Map+Visualization" alt="World map with click distribution" class="w-full h-full object-contain"/>
 							// 	<div class="absolute inset-0 flex items-center justify-center">
 							// 		<span class="px-4 py-2 bg-white bg-opacity-75 rounded-md text-sm text-gray-700">
-							// 			Coming soon
+							// 			Pro feature: Upgrade to see geographic data
 							// 		</span>
 							// 	</div>
 							// </div>
-							<div class="mt-6">
-								<h4 class="text-sm font-medium text-gray-500 mb-3">Top Countries</h4>
-								<div class="space-y-2">
+							<div class="mt-6 flex flex-col flex-1">
+								<h4 class="text-sm font-medium text-gray-500 mb-3 flex-shrink-0">Top Countries</h4>
+								<div class="flex-1 min-h-[12rem] max-h-80 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
 									for _, item:= range url.LocationDistribution {
 										<div class="flex items-center">
 											<span class="w-20 text-sm text-gray-500">{ item.Country }</span>
@@ -286,20 +286,20 @@ templ URLDetail(url domain.URLStat) {
 						</div>
 					</div>
 					<!-- Referrer Distribution -->
-					<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+					<div class="bg-white shadow overflow-hidden sm:rounded-lg h-[600px] flex flex-col">
 						<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
 							<h3 class="text-lg leading-6 font-medium text-gray-900">
 								Referrer Sources
 							</h3>
 						</div>
-						<div class="px-4 py-5 sm:p-6">
-							<div class="h-80">
+						<div class="px-4 py-5 sm:p-6 flex flex-col h-full">
+							<div class="h-80 flex-shrink-0">
 								@templ.JSONScript("referrerChartData", url.ReferrersChart)
 								<canvas id="referrerChart"></canvas>
 							</div>
-							<div class="mt-6">
-								<h4 class="text-sm font-medium text-gray-500 mb-3">Top Referrers</h4>
-								<div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+							<div class="mt-6 flex flex-col flex-1">
+								<h4 class="text-sm font-medium text-gray-500 mb-3 flex-shrink-0">Top Referrers</h4>
+								<div class="flex-1 min-h-[8rem] max-h-64 overflow-y-auto">
 									<table class="min-w-full divide-y divide-gray-300">
 										<thead class="bg-gray-50">
 											<tr>
@@ -325,47 +325,49 @@ templ URLDetail(url domain.URLStat) {
 				</div>
 				<!-- Device & Browser Data -->
 				<div class="grid grid-cols-1 gap-6 mt-6 lg:grid-cols-2">
-					<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+					<div class="bg-white shadow overflow-hidden sm:rounded-lg h-[500px] flex flex-col">
 						<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
 							<h3 class="text-lg leading-6 font-medium text-gray-900">
 								Device Types
 							</h3>
 						</div>
-						<div class="px-4 py-5 sm:p-6">
-							<div class="h-64">
+						<div class="px-4 py-5 sm:p-6 flex flex-col h-full">
+							<div class="h-64 flex-shrink-0">
 								@templ.JSONScript("deviceChartData", url.DeviceChart)
 								<canvas id="deviceChart"></canvas>
 							</div>
-							<div class="mt-6 grid grid-cols-2 gap-4 text-center">
-								{{ mobile := url.Devices[domain.DeviceKindMobile] }}
-								{{ desktop := url.Devices[domain.DeviceKindDesktop] }}
-								<div class="bg-gray-50 p-4 rounded-lg">
-									<i class="fas fa-mobile-alt text-3xl text-indigo-600 mb-2"></i>
-									<div class="text-sm font-medium text-gray-900">{ mobile.Type }</div>
-									<div class="text-lg font-semibold text-indigo-600">{ fmt.Sprintf("%.2f", mobile.Percentage) }%</div>
-								</div>
-								<div class="bg-gray-50 p-4 rounded-lg">
-									<i class="fas fa-desktop-alt text-3xl text-indigo-600 mb-2"></i>
-									<div class="text-sm font-medium text-gray-900">{ desktop.Type }</div>
-									<div class="text-lg font-semibold text-indigo-600">{ fmt.Sprintf("%.2f", desktop.Percentage) }%</div>
+							<div class="mt-6 flex-1 flex items-end">
+								<div class="w-full grid grid-cols-2 gap-4 text-center">
+									{{ mobile := url.Devices[domain.DeviceKindMobile] }}
+									{{ desktop := url.Devices[domain.DeviceKindDesktop] }}
+									<div class="bg-gray-50 p-4 rounded-lg">
+										<i class="fas fa-mobile-alt text-3xl text-indigo-600 mb-2"></i>
+										<div class="text-sm font-medium text-gray-900">{ mobile.Type }</div>
+										<div class="text-lg font-semibold text-indigo-600">{ fmt.Sprintf("%.2f", mobile.Percentage) }%</div>
+									</div>
+									<div class="bg-gray-50 p-4 rounded-lg">
+										<i class="fas fa-desktop-alt text-3xl text-indigo-600 mb-2"></i>
+										<div class="text-sm font-medium text-gray-900">{ desktop.Type }</div>
+										<div class="text-lg font-semibold text-indigo-600">{ fmt.Sprintf("%.2f", desktop.Percentage) }%</div>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+					<div class="bg-white shadow overflow-hidden sm:rounded-lg h-[500px] flex flex-col">
 						<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
 							<h3 class="text-lg leading-6 font-medium text-gray-900">
 								Browsers
 							</h3>
 						</div>
-						<div class="px-4 py-5 sm:p-6">
-							<div class="h-64">
+						<div class="px-4 py-5 sm:p-6 flex flex-col h-full">
+							<div class="h-64 flex-shrink-0">
 								@templ.JSONScript("browserChartData", url.BrowserChart)
 								<canvas id="browserChart"></canvas>
 							</div>
-							<div class="mt-6">
-								<h4 class="text-sm font-medium text-gray-500 mb-3">Browser Details</h4>
-								<div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+							<div class="mt-6 flex flex-col flex-1">
+								<h4 class="text-sm font-medium text-gray-500 mb-3 flex-shrink-0">Browser Details</h4>
+								<div class="flex-1 min-h-[8rem] max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
 									<table class="min-w-full divide-y divide-gray-300">
 										<thead class="bg-gray-50">
 											<tr>
