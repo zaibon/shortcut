@@ -114,6 +114,7 @@ func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
 	url, err := h.svc.Expand(r.Context(), id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
 			templates.NotFoundPage().Render(r.Context(), w)
 			return
 		}
