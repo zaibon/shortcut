@@ -45,6 +45,9 @@ package: build
 coverage:
     go test -v -race -coverprofile=coverage.txt -covermode=atomic  ./...
 
+deploy: clean generate
+    fly deploy
+
 enable-env kind:
     ln -sf .env-{{ kind }} .env
 
