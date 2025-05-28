@@ -14,6 +14,11 @@ type URL struct {
 	NrVisited int
 }
 
+type AdminURL struct {
+	URL
+	Author string
+}
+
 type URLStat struct {
 	URL
 

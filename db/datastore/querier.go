@@ -12,6 +12,12 @@ import (
 
 type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
+	AdminGetOverviewStatistics(ctx context.Context) (AdminGetOverviewStatisticsRow, error)
+	AdminGetTotalUsersTrend(ctx context.Context) ([]AdminGetTotalUsersTrendRow, error)
+	AdminGetURLCreationTrends(ctx context.Context) ([]AdminGetURLCreationTrendsRow, error)
+	AdminGetUserGrowth(ctx context.Context) ([]AdminGetUserGrowthRow, error)
+	AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDetailsRow, error)
+	AdminListUsers(ctx context.Context) ([]AdminListUsersRow, error)
 	ArchiveURL(ctx context.Context, arg ArchiveURLParams) error
 	// SQL query to get the distribution of browsers for a specific URL
 	BrowserDistribution(ctx context.Context, arg BrowserDistributionParams) ([]BrowserDistributionRow, error)
@@ -34,6 +40,7 @@ type Querier interface {
 	InsertUserOauth(ctx context.Context, arg InsertUserOauthParams) (User, error)
 	InsertUserProvider(ctx context.Context, arg InsertUserProviderParams) (UserProvider, error)
 	InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error)
+	IsAdmin(ctx context.Context, guid pgtype.UUID) (bool, error)
 	ListCustomerSubscription(ctx context.Context, arg ListCustomerSubscriptionParams) ([]Subscription, error)
 	ListShortURLs(ctx context.Context, arg ListShortURLsParams) ([]Url, error)
 	ListStatisticsPerAuthor(ctx context.Context, arg ListStatisticsPerAuthorParams) ([]ListStatisticsPerAuthorRow, error)

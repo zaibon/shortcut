@@ -1,0 +1,1179 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/middleware"
+)
+
+templ adminNavLink(text, href string, isActive bool) {
+	<a
+		href={ templ.SafeURL(href) }
+		class={ templ.KV("border-indigo-500 text-gray-900", isActive),  
+		templ.KV("border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700", !isActive),
+		"inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" }
+	>
+		{ children... }
+		{ text }
+	</a>
+}
+
+templ adminNavLinkMobile(text, href string, isActive bool) {
+	<a
+		@click="mobileMenuOpen = false"
+		href={ templ.SafeURL(href) }
+		class={ templ.KV("bg-indigo-50 border-indigo-500 text-indigo-700", isActive),  
+		templ.KV("border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800", !isActive),
+		"block pl-3 pr-4 py-2 border-l-4 text-base font-medium w-full text-left" }
+	>
+		{ children... }
+		{ text }
+	</a>
+}
+
+type AdminDashboardData struct {
+	Tab        string
+	Overview   domain.AdminOverview
+	Users      []domain.AdminUser
+	URLs       []domain.AdminURL
+	Pagination domain.PaginationLinks
+}
+
+templ AdminLayout(data AdminDashboardData) {
+	{{ user := middleware.UserFromContext(ctx) }}
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Admin Dashboard - Shortcut</title>
+			<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+			<script src="https://unpkg.com/htmx.org@1.9.2"></script>
+			<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+			<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+			<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+			<link rel="stylesheet" href="styles.css"/>
+		</head>
+		<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+			<div x-data="{ mobileMenuOpen: false }">
+				<!-- Admin Navigation -->
+				<nav class="bg-white shadow-sm border-b border-gray-200">
+					<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+						<div class="flex justify-between h-16">
+							<div class="flex">
+								<div class="flex-shrink-0 flex items-center">
+									<a href="index.html" class="text-indigo-600 font-bold text-xl">
+										<i class="fas fa-link mr-2"></i>shortcut
+									</a>
+									<span class="ml-3 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+										ADMIN
+									</span>
+								</div>
+								<div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+									@adminNavLink("Overview", "/admin/overview", data.Tab == "overview") {
+										<i class="fas fa-chart-pie mr-2"></i>
+									}
+									@adminNavLink("Users", "/admin/users", data.Tab == "users") {
+										<i class="fas fa-users mr-2"></i>
+									}
+									@adminNavLink("URLs", "/admin/urls", data.Tab == "urls") {
+										<i class="fas fa-link mr-2"></i>
+									}
+									@adminNavLink("Analytics", "/admin/analytics", data.Tab == "analytics") {
+										<i class="fas fa-chart-bar mr-2"></i>
+									}
+									@adminNavLink("Settings", "/admin/settings", data.Tab == "settings") {
+										<i class="fas fa-cog mr-2"></i>
+									}
+								</div>
+							</div>
+							<div class="hidden sm:ml-6 sm:flex sm:items-center">
+								<div class="ml-3 relative" x-data="{ open: false }">
+									<div>
+										<button @click="open = !open" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+											<span class="sr-only">Open user menu</span>
+											<img class="h-8 w-8 rounded-full" src={ user.Avatar } alt=""/>
+										</button>
+										<div
+											x-show="open"
+											@click.away="open = false"
+											class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+											role="menu"
+											aria-orientation="vertical"
+											aria-labelledby="user-menu-button"
+											tabindex="-1"
+										>
+											<a href="/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Back to Site</a>
+											// <a href="account.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Your Account</a>
+											<a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="-mr-2 flex items-center sm:hidden">
+								<!-- Mobile menu button -->
+								<button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-controls="mobile-menu" aria-expanded="false">
+									<span class="sr-only">Open main menu</span>
+									<svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+									</svg>
+								</button>
+							</div>
+						</div>
+					</div>
+					<!-- Mobile menu -->
+					<div x-show="mobileMenuOpen" class="sm:hidden" id="mobile-menu">
+						<div class="pt-2 pb-3 space-y-1">
+							@adminNavLinkMobile("Overview", "/admin/overview", data.Tab == "overview") {
+								<i class="fas fa-chart-pie mr-2"></i>
+							}
+							@adminNavLinkMobile("Users", "/admin/users", data.Tab == "users") {
+								<i class="fas fa-users mr-2"></i>
+							}
+							@adminNavLinkMobile("URLs", "/admin/urls", data.Tab == "urls") {
+								<i class="fas fa-link mr-2"></i>
+							}
+							@adminNavLinkMobile("Analytics", "/admin/analytics", data.Tab == "analytics") {
+								<i class="fas fa-chart-bar mr-2"></i>
+							}
+							@adminNavLinkMobile("Settings", "/admin/settings", data.Tab == "settings") {
+								<i class="fas fa-cog mr-2"></i>
+							}
+						</div>
+					</div>
+				</nav>
+				<!-- Main content -->
+				<main class="flex-grow">
+					<div id="content" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+						{ children... }
+					</div>
+				</main>
+				<!-- Footer -->
+				<footer class="bg-white">
+					<div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
+						<p class="text-center text-base text-gray-400">
+							&copy; 2023 Shortcut, Inc. All rights reserved. | Admin Dashboard
+						</p>
+					</div>
+				</footer>
+			</div>
+			<script>
+    // Copy to clipboard function
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Show a toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast bg-green-500';
+        toast.textContent = 'Copied to clipboard!';
+        document.body.appendChild(toast);
+        
+        // Show toast
+        setTimeout(() => {
+          toast.classList.add('show');
+        }, 100);
+        
+        // Hide and remove toast
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => {
+            document.body.removeChild(toast);
+          }, 300);
+        }, 3000);
+      }).catch(err => {
+        console.error('Could not copy text: ', err);
+      });
+    }
+
+    // Initialize charts when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      initCharts();
+    });
+
+	function load2dData(name){
+		// Device chart
+		const labels = []
+		const data = []
+		const input = JSON.parse(document.getElementById(name).textContent);
+		input.forEach(item => {
+			labels.push(item.Time);
+			data.push(item.Count);
+		});
+
+		return {labels, data}
+	}
+
+    function initCharts() {
+      // User Growth Chart
+	  var {labels, data } = load2dData('userGrowthChartData');
+	  var totalUserData = load2dData('totalUserChartData');
+      const userGrowthCtx = document.getElementById('userGrowthChart');
+      if (userGrowthCtx) {
+        new Chart(userGrowthCtx.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: labels.map((label)=>{
+				let d = new Date(label);
+				return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+			}),
+            datasets: [{
+              label: 'New Users',
+              data: data,
+              backgroundColor: 'rgba(99, 102, 241, 0.2)',
+              borderColor: 'rgba(99, 102, 241, 1)',
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true,
+			  yAxisID: 'left'
+            },
+			{
+              label: 'Total Users',
+              data: totalUserData.data,
+              backgroundColor: 'rgba(24, 196, 157, 0.2)',
+              borderColor: 'rgba(24, 196, 157, 1)',
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true,
+			  yAxisID: 'right'
+            }
+			]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              left: {
+				position: 'left',
+                beginAtZero: true
+              },
+			  right: {
+				position: 'right',
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+
+      // URL Trends Chart
+	  var {labels, data } = load2dData('urlTrendsChartData');
+      const urlTrendsCtx = document.getElementById('urlTrendsChart');
+      if (urlTrendsCtx) {
+        new Chart(urlTrendsCtx.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: labels.map((label)=>{
+				let d = new Date(label);
+				return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+			}),
+            datasets: [{
+              label: 'URLs Created',
+              data: data,
+              backgroundColor: 'rgba(139, 92, 246, 0.8)',
+              borderColor: 'rgba(139, 92, 246, 1)',
+              borderWidth: 1
+            },]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+
+      // Daily Active Users Chart
+      const dailyActiveUsersCtx = document.getElementById('dailyActiveUsersChart');
+      if (dailyActiveUsersCtx) {
+        new Chart(dailyActiveUsersCtx.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Active Users',
+              data: [3200, 3800, 4200, 4500, 4100, 2800, 2400],
+              backgroundColor: 'rgba(16, 185, 129, 0.2)',
+              borderColor: 'rgba(16, 185, 129, 1)',
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+
+      // Click Distribution Chart
+      const clickDistributionCtx = document.getElementById('clickDistributionChart');
+      if (clickDistributionCtx) {
+        new Chart(clickDistributionCtx.getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: ['Direct', 'Social Media', 'Search Engines', 'Email', 'Other'],
+            datasets: [{
+              data: [35, 25, 20, 15, 5],
+              backgroundColor: [
+                'rgba(99, 102, 241, 0.8)',
+                'rgba(139, 92, 246, 0.8)',
+                'rgba(59, 130, 246, 0.8)',
+                'rgba(16, 185, 129, 0.8)',
+                'rgba(245, 158, 11, 0.8)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom'
+              }
+            }
+          }
+        });
+      }
+    }
+  			</script>
+		</body>
+	</html>
+}
+
+templ AdminOverviewTab(data AdminDashboardData) {
+	@AdminLayout(data) {
+		<div>
+			<!-- Page Header -->
+			<div class="mb-8">
+				<h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+				<p class="mt-2 text-sm text-gray-600">
+					Monitor and manage your URL shortening service
+				</p>
+			</div>
+			<!-- Stats Overview -->
+			<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+				<div class="bg-white overflow-hidden shadow rounded-lg">
+					<div class="p-5">
+						<div class="flex items-center">
+							<div class="flex-shrink-0">
+								<i class="fas fa-users text-2xl text-indigo-600"></i>
+							</div>
+							<div class="ml-5 w-0 flex-1">
+								<dl>
+									<dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+									<dd class="text-lg font-medium text-gray-900">{ fmt.Sprintf("%d", data.Overview.TotalUsers.Total) }</dd>
+								</dl>
+							</div>
+						</div>
+					</div>
+					<div class="bg-gray-50 px-5 py-3">
+						<div class="text-sm">
+							<span class="text-green-600 font-medium">{ fmt.Sprintf("%+d%%", data.Overview.TotalUsers.Variation) }</span>
+							<span class="text-gray-500">from last month</span>
+						</div>
+					</div>
+				</div>
+				<div class="bg-white overflow-hidden shadow rounded-lg">
+					<div class="p-5">
+						<div class="flex items-center">
+							<div class="flex-shrink-0">
+								<i class="fas fa-link text-2xl text-indigo-600"></i>
+							</div>
+							<div class="ml-5 w-0 flex-1">
+								<dl>
+									<dt class="text-sm font-medium text-gray-500 truncate">Total URLs</dt>
+									<dd class="text-lg font-medium text-gray-900">{ fmt.Sprintf("%d", data.Overview.TotalURLs.Total) }</dd>
+								</dl>
+							</div>
+						</div>
+					</div>
+					<div class="bg-gray-50 px-5 py-3">
+						<div class="text-sm">
+							<span class="text-green-600 font-medium">{ fmt.Sprintf("%+d%%", data.Overview.TotalURLs.Variation) }</span>
+							<span class="text-gray-500">from last month</span>
+						</div>
+					</div>
+				</div>
+				<div class="bg-white overflow-hidden shadow rounded-lg">
+					<div class="p-5">
+						<div class="flex items-center">
+							<div class="flex-shrink-0">
+								<i class="fas fa-mouse-pointer text-2xl text-indigo-600"></i>
+							</div>
+							<div class="ml-5 w-0 flex-1">
+								<dl>
+									<dt class="text-sm font-medium text-gray-500 truncate">Total Clicks</dt>
+									<dd class="text-lg font-medium text-gray-900">{ fmt.Sprintf("%d", data.Overview.TotalClicks.Total) }</dd>
+								</dl>
+							</div>
+						</div>
+					</div>
+					<div class="bg-gray-50 px-5 py-3">
+						<div class="text-sm">
+							<span class="text-green-600 font-medium">{ fmt.Sprintf("%+d%%", data.Overview.TotalClicks.Variation) }</span>
+							<span class="text-gray-500">from last month</span>
+						</div>
+					</div>
+				</div>
+				// <div class="bg-white overflow-hidden shadow rounded-lg">
+				// 	<div class="p-5">
+				// 		<div class="flex items-center">
+				// 			<div class="flex-shrink-0">
+				// 				<i class="fas fa-crown text-2xl text-indigo-600"></i>
+				// 			</div>
+				// 			<div class="ml-5 w-0 flex-1">
+				// 				<dl>
+				// 					<dt class="text-sm font-medium text-gray-500 truncate">Premium Users</dt>
+				// 					<dd class="text-lg font-medium text-gray-900">1,247</dd>
+				// 				</dl>
+				// 			</div>
+				// 		</div>
+				// 	</div>
+				// 	<div class="bg-gray-50 px-5 py-3">
+				// 		<div class="text-sm">
+				// 			<span class="text-green-600 font-medium">+23%</span>
+				// 			<span class="text-gray-500">from last month</span>
+				// 		</div>
+				// 	</div>
+				// </div>
+			</div>
+			<!-- Charts Row -->
+			<div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">User Growth</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="h-80">
+							@templ.JSONScript("userGrowthChartData", data.Overview.UserGrowth)
+							@templ.JSONScript("totalUserChartData", data.Overview.UsersOverTime)
+							<canvas id="userGrowthChart"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">URL Creation Trends</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="h-80">
+							@templ.JSONScript("urlTrendsChartData", data.Overview.URLCreationTrends)
+							<canvas id="urlTrendsChart"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Recent Activity -->
+			<div class="bg-white shadow rounded-lg">
+				<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+					<h3 class="text-lg leading-6 font-medium text-gray-900">Recent Activity</h3>
+				</div>
+				<div class="px-4 py-5 sm:p-6">
+					<div class="flow-root">
+						<ul role="list" class="-mb-8">
+							<li>
+								<div class="relative pb-8">
+									<span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+									<div class="relative flex space-x-3">
+										<div>
+											<span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+												<i class="fas fa-user-plus text-white text-sm"></i>
+											</span>
+										</div>
+										<div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+											<div>
+												<p class="text-sm text-gray-500">New user <span class="font-medium text-gray-900">john.doe@example.com</span> registered</p>
+											</div>
+											<div class="text-right text-sm whitespace-nowrap text-gray-500">
+												<time datetime="2023-06-20T09:30">2 minutes ago</time>
+											</div>
+										</div>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="relative pb-8">
+									<span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+									<div class="relative flex space-x-3">
+										<div>
+											<span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+												<i class="fas fa-link text-white text-sm"></i>
+											</span>
+										</div>
+										<div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+											<div>
+												<p class="text-sm text-gray-500">URL <span class="font-medium text-gray-900">scut.ly/abc123</span> created by user</p>
+											</div>
+											<div class="text-right text-sm whitespace-nowrap text-gray-500">
+												<time datetime="2023-06-20T09:25">7 minutes ago</time>
+											</div>
+										</div>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="relative pb-8">
+									<span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+									<div class="relative flex space-x-3">
+										<div>
+											<span class="h-8 w-8 rounded-full bg-yellow-500 flex items-center justify-center ring-8 ring-white">
+												<i class="fas fa-crown text-white text-sm"></i>
+											</span>
+										</div>
+										<div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+											<div>
+												<p class="text-sm text-gray-500">User <span class="font-medium text-gray-900">jane.smith@example.com</span> upgraded to Pro</p>
+											</div>
+											<div class="text-right text-sm whitespace-nowrap text-gray-500">
+												<time datetime="2023-06-20T09:20">12 minutes ago</time>
+											</div>
+										</div>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="relative">
+									<div class="relative flex space-x-3">
+										<div>
+											<span class="h-8 w-8 rounded-full bg-red-500 flex items-center justify-center ring-8 ring-white">
+												<i class="fas fa-exclamation-triangle text-white text-sm"></i>
+											</span>
+										</div>
+										<div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+											<div>
+												<p class="text-sm text-gray-500">URL <span class="font-medium text-gray-900">scut.ly/spam123</span> flagged for review</p>
+											</div>
+											<div class="text-right text-sm whitespace-nowrap text-gray-500">
+												<time datetime="2023-06-20T09:15">17 minutes ago</time>
+											</div>
+										</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ AdminUsersTab(data AdminDashboardData) {
+	@AdminLayout(data) {
+		<div>
+			<!-- Users Management -->
+			<div class="mb-8">
+				<div class="sm:flex sm:items-center">
+					<div class="sm:flex-auto">
+						<h1 class="text-2xl font-semibold text-gray-900">Users</h1>
+						<p class="mt-2 text-sm text-gray-700">Manage all registered users and their accounts.</p>
+					</div>
+					<div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+						<button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+							<i class="fas fa-user-plus mr-2"></i>
+							Add User
+						</button>
+					</div>
+				</div>
+			</div>
+			<!-- Users Filters -->
+			<div class="bg-white shadow sm:rounded-lg mb-6">
+				<div class="px-4 py-5 sm:p-6">
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+						<div>
+							<label for="user-search" class="block text-sm font-medium text-gray-700">Search</label>
+							<input type="text" name="user-search" id="user-search" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Search users..."/>
+						</div>
+						<div>
+							<label for="user-status" class="block text-sm font-medium text-gray-700">Status</label>
+							<select id="user-status" name="user-status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Status</option>
+								<option>Active</option>
+								<option>Inactive</option>
+								<option>Suspended</option>
+							</select>
+						</div>
+						<div>
+							<label for="user-plan" class="block text-sm font-medium text-gray-700">Plan</label>
+							<select id="user-plan" name="user-plan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Plans</option>
+								<option>Free</option>
+								<option>Pro</option>
+								<option>Business</option>
+							</select>
+						</div>
+						<div>
+							<label for="user-date" class="block text-sm font-medium text-gray-700">Registration</label>
+							<select id="user-date" name="user-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Time</option>
+								<option>Last 7 days</option>
+								<option>Last 30 days</option>
+								<option>Last 90 days</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Users Table -->
+			<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+				<table class="min-w-full divide-y divide-gray-200">
+					<thead class="bg-gray-50">
+						<tr>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URLs</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+							<th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+						</tr>
+					</thead>
+					<tbody class="bg-white divide-y divide-gray-200">
+						for _, user := range data.Users {
+							<tr>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="flex items-center">
+										// <div class="flex-shrink-0 h-10 w-10">
+										// 	<img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60" alt=""/>
+										// </div>
+										<div class="ml-4">
+											<div class="text-sm font-medium text-gray-900">{ user.Name }</div>
+											<div class="text-sm text-gray-500">{ user.Email }</div>
+										</div>
+									</div>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{ user.Plan }</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ fmt.Sprintf("%d",user.URLCount) }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ fmt.Sprintf("%d",user.ClickCount) }</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{ user.Status }</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ user.CreatedAt.Format(timeFormat) }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+									<div class="flex space-x-2">
+										// <button class="text-indigo-600 hover:text-indigo-900" title="View Details">
+										// 	<i class="fas fa-eye"></i>
+										// </button>
+										// <button class="text-indigo-600 hover:text-indigo-900" title="Edit User">
+										// 	<i class="fas fa-edit"></i>
+										// </button>
+										<button class="text-red-600 hover:text-red-900" title="Suspend User">
+											<i class="fas fa-ban"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+				<!-- Pagination -->
+				<div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+					<div class="flex-1 flex justify-between sm:hidden">
+						if data.Pagination.Previous != nil {
+							<a href={ templ.SafeURL(data.Pagination.Previous.Href) } class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+						}
+						if data.Pagination.Next != nil {
+							<a href={ templ.SafeURL(data.Pagination.Next.Href) } class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+						}
+					</div>
+					<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+						<div>
+							<p class="text-sm text-gray-700">
+								Showing <span class="font-medium">{ fmt.Sprintf("%d",data.Pagination.Min) }</span> to <span class="font-medium">{ fmt.Sprintf("%d",data.Pagination.Max) }</span> of <span class="font-medium">{ fmt.Sprintf("%d",data.Pagination.TotalItems) }</span> results
+							</p>
+						</div>
+						<div>
+							<nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+								if data.Pagination.Previous != nil {
+									<a href={ templ.SafeURL(data.Pagination.Previous.Href) } class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+										<span class="sr-only">Previous</span>
+										<i class="fas fa-chevron-left h-5 w-5"></i>
+									</a>
+								}
+								for _, p:= range data.Pagination.Pages {
+									if p.Current {
+										<a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">{ p.Label }</a>
+									} else {
+										<a href={ templ.SafeURL(p.Href) } class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">{ p.Label }</a>
+									}
+								}
+								// <a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</a>
+								// <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</a>
+								// <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</a>
+								// <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>
+								// <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">8943</a>
+								if data.Pagination.Next != nil {
+									<a href={ templ.SafeURL(data.Pagination.Next.Href) } class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+										<span class="sr-only">Next</span>
+										<i class="fas fa-chevron-right h-5 w-5"></i>
+									</a>
+								}
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ AdminURLsTab(data AdminDashboardData) {
+	@AdminLayout(data) {
+		<div>
+			<!-- URLs Management -->
+			<div class="mb-8">
+				<div class="sm:flex sm:items-center">
+					<div class="sm:flex-auto">
+						<h1 class="text-2xl font-semibold text-gray-900">URLs</h1>
+						<p class="mt-2 text-sm text-gray-700">Monitor all shortened URLs and their performance.</p>
+					</div>
+					<div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+						<button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+							<i class="fas fa-download mr-2"></i>
+							Export Data
+						</button>
+					</div>
+				</div>
+			</div>
+			<!-- URLs Filters -->
+			<div class="bg-white shadow sm:rounded-lg mb-6">
+				<div class="px-4 py-5 sm:p-6">
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
+						<div>
+							<label for="url-search" class="block text-sm font-medium text-gray-700">Search</label>
+							<input type="text" name="url-search" id="url-search" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Search URLs..."/>
+						</div>
+						<div>
+							<label for="url-status" class="block text-sm font-medium text-gray-700">Status</label>
+							<select id="url-status" name="url-status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Status</option>
+								<option>Active</option>
+								<option>Expired</option>
+								<option>Flagged</option>
+								<option>Disabled</option>
+							</select>
+						</div>
+						<div>
+							<label for="url-clicks" class="block text-sm font-medium text-gray-700">Clicks</label>
+							<select id="url-clicks" name="url-clicks" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All</option>
+								<option>0 clicks</option>
+								<option>1-10 clicks</option>
+								<option>11-100 clicks</option>
+								<option>100+ clicks</option>
+							</select>
+						</div>
+						<div>
+							<label for="url-user" class="block text-sm font-medium text-gray-700">User Type</label>
+							<select id="url-user" name="url-user" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Users</option>
+								<option>Free</option>
+								<option>Pro</option>
+								<option>Business</option>
+							</select>
+						</div>
+						<div>
+							<label for="url-date" class="block text-sm font-medium text-gray-700">Created</label>
+							<select id="url-date" name="url-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Time</option>
+								<option>Today</option>
+								<option>Last 7 days</option>
+								<option>Last 30 days</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- URLs Table -->
+			<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+				<table class="min-w-full divide-y divide-gray-200">
+					<thead class="bg-gray-50">
+						<tr>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original URL</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Short URL</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+							<th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+						</tr>
+					</thead>
+					<tbody class="bg-white divide-y divide-gray-200">
+						for _, url := range data.URLs {
+							<tr>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
+									<a href={ templ.SafeURL(url.Long) } class="hover:text-indigo-600" target="_blank" title={ url.Long }>
+										{ url.Long }
+									</a>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+									<div class="flex items-center">
+										<a href={ templ.SafeURL(url.Short) } class="text-indigo-600 hover:text-indigo-900" target="_blank">
+											{ url.Short }
+										</a>
+										<button class="ml-2 text-gray-400 hover:text-gray-600" onclick={ templ.JSFuncCall("copyToClipboard", url.Short) }>
+											<i class="fas fa-copy"></i>
+										</button>
+									</div>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ url.Author }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+										{ fmt.Sprintf("%d", url.NrVisited) }
+									</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ url.CreatedAt.Format(timeFormat) }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+									<div class="flex space-x-2">
+										<button class="text-indigo-600 hover:text-indigo-900" title="View Analytics">
+											<i class="fas fa-chart-bar"></i>
+										</button>
+										<button class="text-indigo-600 hover:text-indigo-900" title="Edit URL">
+											<i class="fas fa-edit"></i>
+										</button>
+										<button class="text-red-600 hover:text-red-900" title="Disable URL">
+											<i class="fas fa-ban"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+				<!-- Pagination -->
+				<div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+					<div class="flex-1 flex justify-between sm:hidden">
+						if data.Pagination.Previous != nil {
+							<a href={ templ.SafeURL(data.Pagination.Previous.Href) } class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+						}
+						if data.Pagination.Next != nil {
+							<a href={ templ.SafeURL(data.Pagination.Next.Href) } class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+						}
+					</div>
+					<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+						<div>
+							<p class="text-sm text-gray-700">
+								Showing <span class="font-medium">{ fmt.Sprintf("%d",data.Pagination.Min) }</span> to <span class="font-medium">{ fmt.Sprintf("%d",data.Pagination.Max) }</span> of <span class="font-medium">{ fmt.Sprintf("%d",data.Pagination.TotalItems) }</span> results
+							</p>
+						</div>
+						<div>
+							<nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+								if data.Pagination.Previous != nil {
+									<a href={ templ.SafeURL(data.Pagination.Previous.Href) } class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+										<span class="sr-only">Previous</span>
+										<i class="fas fa-chevron-left h-5 w-5"></i>
+									</a>
+								}
+								for _, p:= range data.Pagination.Pages {
+									if p.Current {
+										<a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">{ p.Label }</a>
+									} else {
+										<a href={ templ.SafeURL(p.Href) } class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">{ p.Label }</a>
+									}
+								}
+								// <a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</a>
+								// <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</a>
+								// <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</a>
+								// <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>
+								// <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">8943</a>
+								if data.Pagination.Next != nil {
+									<a href={ templ.SafeURL(data.Pagination.Next.Href) } class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+										<span class="sr-only">Next</span>
+										<i class="fas fa-chevron-right h-5 w-5"></i>
+									</a>
+								}
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ AdminAnalyticsTab(data AdminDashboardData) {
+	@AdminLayout(data) {
+		<div>
+			<!-- Analytics Overview -->
+			<div class="mb-8">
+				<h1 class="text-2xl font-semibold text-gray-900">Service Analytics</h1>
+				<p class="mt-2 text-sm text-gray-700">Comprehensive analytics and insights about your URL shortening service.</p>
+			</div>
+			<!-- Analytics Charts -->
+			<div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">Daily Active Users</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="h-80">
+							<canvas id="dailyActiveUsersChart"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">Click Distribution</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="h-80">
+							<canvas id="clickDistributionChart"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Performance Metrics -->
+			<div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-8">
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">Top Performing URLs</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="space-y-4">
+							<div class="flex items-center justify-between">
+								<div class="flex-1 min-w-0">
+									<p class="text-sm font-medium text-gray-900 truncate">scut.ly/popular1</p>
+									<p class="text-sm text-gray-500 truncate">example.com/article</p>
+								</div>
+								<div class="text-sm text-gray-900 font-medium">45,123 clicks</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<div class="flex-1 min-w-0">
+									<p class="text-sm font-medium text-gray-900 truncate">scut.ly/viral2</p>
+									<p class="text-sm text-gray-500 truncate">social.com/post</p>
+								</div>
+								<div class="text-sm text-gray-900 font-medium">32,456 clicks</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<div class="flex-1 min-w-0">
+									<p class="text-sm font-medium text-gray-900 truncate">scut.ly/trending3</p>
+									<p class="text-sm text-gray-500 truncate">news.com/breaking</p>
+								</div>
+								<div class="text-sm text-gray-900 font-medium">28,789 clicks</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">Geographic Distribution</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="space-y-4">
+							<div class="flex items-center justify-between">
+								<span class="text-sm text-gray-500">United States</span>
+								<div class="flex items-center">
+									<div class="w-16 h-2 bg-gray-200 rounded-full mr-2">
+										<div class="h-2 bg-indigo-600 rounded-full" style="width: 65%"></div>
+									</div>
+									<span class="text-sm text-gray-900">65%</span>
+								</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-sm text-gray-500">United Kingdom</span>
+								<div class="flex items-center">
+									<div class="w-16 h-2 bg-gray-200 rounded-full mr-2">
+										<div class="h-2 bg-indigo-600 rounded-full" style="width: 15%"></div>
+									</div>
+									<span class="text-sm text-gray-900">15%</span>
+								</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-sm text-gray-500">Canada</span>
+								<div class="flex items-center">
+									<div class="w-16 h-2 bg-gray-200 rounded-full mr-2">
+										<div class="h-2 bg-indigo-600 rounded-full" style="width: 10%"></div>
+									</div>
+									<span class="text-sm text-gray-900">10%</span>
+								</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-sm text-gray-500">Germany</span>
+								<div class="flex items-center">
+									<div class="w-16 h-2 bg-gray-200 rounded-full mr-2">
+										<div class="h-2 bg-indigo-600 rounded-full" style="width: 5%"></div>
+									</div>
+									<span class="text-sm text-gray-900">5%</span>
+								</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-sm text-gray-500">Other</span>
+								<div class="flex items-center">
+									<div class="w-16 h-2 bg-gray-200 rounded-full mr-2">
+										<div class="h-2 bg-indigo-600 rounded-full" style="width: 5%"></div>
+									</div>
+									<span class="text-sm text-gray-900">5%</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">Revenue Metrics</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="space-y-4">
+							<div>
+								<div class="flex items-center justify-between">
+									<span class="text-sm text-gray-500">Monthly Revenue</span>
+									<span class="text-lg font-semibold text-gray-900">$24,847</span>
+								</div>
+								<div class="mt-1 text-xs text-green-600">+12% from last month</div>
+							</div>
+							<div>
+								<div class="flex items-center justify-between">
+									<span class="text-sm text-gray-500">Average Revenue Per User</span>
+									<span class="text-lg font-semibold text-gray-900">$19.94</span>
+								</div>
+								<div class="mt-1 text-xs text-green-600">+5% from last month</div>
+							</div>
+							<div>
+								<div class="flex items-center justify-between">
+									<span class="text-sm text-gray-500">Conversion Rate</span>
+									<span class="text-lg font-semibold text-gray-900">9.7%</span>
+								</div>
+								<div class="mt-1 text-xs text-red-600">-2% from last month</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ AdminSettingsTab(data AdminDashboardData) {
+	@AdminLayout(data) {
+		<div>
+			<!-- Settings Management -->
+			<div class="mb-8">
+				<h1 class="text-2xl font-semibold text-gray-900">System Settings</h1>
+				<p class="mt-2 text-sm text-gray-700">Configure and manage your URL shortening service settings.</p>
+			</div>
+			<!-- Settings Sections -->
+			<div class="space-y-6">
+				<!-- General Settings -->
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">General Settings</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+							<div>
+								<label for="service-name" class="block text-sm font-medium text-gray-700">Service Name</label>
+								<input type="text" name="service-name" id="service-name" value="Shortcut" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+							</div>
+							<div>
+								<label for="default-domain" class="block text-sm font-medium text-gray-700">Default Domain</label>
+								<input type="text" name="default-domain" id="default-domain" value="scut.ly" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+							</div>
+							<div>
+								<label for="max-urls-free" class="block text-sm font-medium text-gray-700">Max URLs (Free Plan)</label>
+								<input type="number" name="max-urls-free" id="max-urls-free" value="50" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+							</div>
+							<div>
+								<label for="url-expiry" class="block text-sm font-medium text-gray-700">Default URL Expiry (days)</label>
+								<input type="number" name="url-expiry" id="url-expiry" value="365" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+							</div>
+						</div>
+						<div class="mt-6">
+							<button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+								Save Changes
+							</button>
+						</div>
+					</div>
+				</div>
+				<!-- Security Settings -->
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">Security Settings</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="space-y-6">
+							<div class="flex items-start">
+								<div class="flex items-center h-5">
+									<input id="enable-spam-detection" name="enable-spam-detection" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"/>
+								</div>
+								<div class="ml-3 text-sm">
+									<label for="enable-spam-detection" class="font-medium text-gray-700">Enable Spam Detection</label>
+									<p class="text-gray-500">Automatically flag potentially malicious URLs for review.</p>
+								</div>
+							</div>
+							<div class="flex items-start">
+								<div class="flex items-center h-5">
+									<input id="require-captcha" name="require-captcha" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"/>
+								</div>
+								<div class="ml-3 text-sm">
+									<label for="require-captcha" class="font-medium text-gray-700">Require CAPTCHA</label>
+									<p class="text-gray-500">Require CAPTCHA verification for anonymous URL creation.</p>
+								</div>
+							</div>
+							<div class="flex items-start">
+								<div class="flex items-center h-5">
+									<input id="enable-rate-limiting" name="enable-rate-limiting" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"/>
+								</div>
+								<div class="ml-3 text-sm">
+									<label for="enable-rate-limiting" class="font-medium text-gray-700">Enable Rate Limiting</label>
+									<p class="text-gray-500">Limit the number of URLs that can be created per hour.</p>
+								</div>
+							</div>
+						</div>
+						<div class="mt-6">
+							<button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+								Update Security Settings
+							</button>
+						</div>
+					</div>
+				</div>
+				<!-- Email Settings -->
+				<div class="bg-white shadow rounded-lg">
+					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">Email Settings</h3>
+					</div>
+					<div class="px-4 py-5 sm:p-6">
+						<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+							<div>
+								<label for="smtp-host" class="block text-sm font-medium text-gray-700">SMTP Host</label>
+								<input type="text" name="smtp-host" id="smtp-host" value="smtp.example.com" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+							</div>
+							<div>
+								<label for="smtp-port" class="block text-sm font-medium text-gray-700">SMTP Port</label>
+								<input type="number" name="smtp-port" id="smtp-port" value="587" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+							</div>
+							<div>
+								<label for="from-email" class="block text-sm font-medium text-gray-700">From Email</label>
+								<input type="email" name="from-email" id="from-email" value="noreply@shortcut.com" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+							</div>
+							<div>
+								<label for="from-name" class="block text-sm font-medium text-gray-700">From Name</label>
+								<input type="text" name="from-name" id="from-name" value="Shortcut Team" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+							</div>
+						</div>
+						<div class="mt-6">
+							<button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+								Save Email Settings
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

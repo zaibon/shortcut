@@ -194,6 +194,7 @@ func runServer(ctx context.Context, c config) error {
 		c.GithubOauthClientID, c.GithubOauthSecret,
 	)
 	stripeService := services.NewStripe(c.StripeKey, subscriptionStore, c.Domain, c.TLS)
+	adminService := services.NewAdministrationService(dbPool)
 
 	// setup Sentry for error tracking
 	setupSentry(c)
@@ -203,6 +204,7 @@ func runServer(ctx context.Context, c config) error {
 	userHandlers := handlers.NewUsersHandler(userService, stripeService, c.StripePubKey)
 	healthzHandlers := handlers.NewHealtzHandlers(stdlib.OpenDBFromPool(dbPool))
 	subscriptionHandlers := handlers.NewSubscriptionHandlers(c.StripeKey, c.StripeEndpointSecret, stripeService, urlService)
+	adminHandlers := handlers.NewAdministrationHandlers(adminService)
 
 	fs := http.FileServer(static.FileSystem)
 	server := chi.NewRouter()
@@ -246,6 +248,7 @@ func runServer(ctx context.Context, c config) error {
 		userHandlers.Routes(r)
 		healthzHandlers.Routes(r)
 		subscriptionHandlers.Routes(r)
+		adminHandlers.Routes(r, dbPool)
 	})
 
 	listenAddr := fmt.Sprintf(":%d", c.Port)

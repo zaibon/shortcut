@@ -77,6 +77,11 @@ type UserProvider struct {
 	UpdatedAt      pgtype.Timestamp `json:"updated_at"`
 }
 
+type UserRole struct {
+	UserID pgtype.UUID `json:"user_id"`
+	Role   string      `json:"role"`
+}
+
 type Visit struct {
 	ID        int32            `json:"id"`
 	UrlID     int32            `json:"url_id"`

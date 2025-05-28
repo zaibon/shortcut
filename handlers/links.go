@@ -48,7 +48,7 @@ func (h *Handler) myLinks(w http.ResponseWriter, r *http.Request) {
 	pagination := middleware.GetPaginationParams(r.Context())
 	pagination.TotalRecords = len(urls)
 
-	urls = middleware.Paginate(urls, &pagination)
+	urls = middleware.Paginate(urls, pagination)
 	urls = sortUrls(urls, "")
 
 	if err := templates.URLSPage(urls, pagination).
@@ -85,7 +85,7 @@ func (h *Handler) urlSort(w http.ResponseWriter, r *http.Request) {
 	pagination := middleware.GetPaginationParams(r.Context())
 	pagination.TotalRecords = len(urls)
 
-	urls = middleware.Paginate(urls, &pagination)
+	urls = middleware.Paginate(urls, pagination)
 	urls = sortUrls(urls, sortBy)
 
 	if err := templates.URLTable(urls, pagination).
@@ -121,7 +121,7 @@ func (h *Handler) urlSearch(w http.ResponseWriter, r *http.Request) {
 	pagination := middleware.GetPaginationParams(r.Context())
 	pagination.TotalRecords = len(urls)
 
-	urls = middleware.Paginate(urls, &pagination)
+	urls = middleware.Paginate(urls, pagination)
 
 	if err := templates.URLTable(urls, pagination).
 		Render(r.Context(), w); err != nil {
