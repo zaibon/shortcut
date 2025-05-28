@@ -27,3 +27,14 @@ func SitemapHandler() http.Handler {
 		w.Write(sitemap) //nolint:errcheck
 	})
 }
+
+//go:embed robot.txt
+var robottxt []byte
+
+func RobotsHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		w.Write(robottxt)
+	})
+}

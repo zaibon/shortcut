@@ -221,6 +221,7 @@ func runServer(ctx context.Context, c config) error {
 	// no middlewares
 	server.Group(func(r chi.Router) {
 		r.Handle("/static/*", http.StripPrefix("/static/", fs))
+		r.Handle("/robot.txt", static.RobotsHandler())
 		r.Handle("/favicon.ico", static.FaviconHandler())
 		r.Handle("/sitemap.xml", static.SitemapHandler())
 	})
