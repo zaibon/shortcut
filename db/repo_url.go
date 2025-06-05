@@ -10,7 +10,6 @@ import (
 
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
-	"github.com/zaibon/shortcut/services/geoip"
 )
 
 type urlStore struct {
@@ -104,32 +103,28 @@ func (s urlStore) TrackRedirect(ctx context.Context, urlID domain.ID, request do
 	return visit, nil
 }
 
-func (s urlStore) InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error {
+func (s urlStore) InsertVisitLocation(ctx context.Context, visitID domain.ID, loc domain.IPLocation) error {
 	_, err := s.db.InsertVisitLocation(ctx, datastore.InsertVisitLocationParams{
 		VisitID: int32(visitID),
 		Address: pgtype.Text{
-			String: loc.Address,
-			Valid:  loc.Address != "",
+			String: loc.IP,
+			Valid:  loc.IP != "",
 		},
 		CountryCode: pgtype.Text{
 			String: loc.CountryCode,
-			Valid:  false,
+			Valid:  loc.CountryCode != "",
 		},
 		CountryName: pgtype.Text{
-			String: loc.CountryName,
-			Valid:  loc.CountryName != "",
+			String: loc.Country,
+			Valid:  loc.Country != "",
 		},
 		Subdivision: pgtype.Text{
-			String: loc.Subdivision,
-			Valid:  loc.Subdivision != "",
-		},
-		Continent: pgtype.Text{
-			String: loc.Continent,
-			Valid:  loc.Continent != "",
+			String: loc.State,
+			Valid:  loc.State != "",
 		},
 		CityName: pgtype.Text{
-			String: loc.CityName,
-			Valid:  loc.CityName != "",
+			String: loc.City,
+			Valid:  loc.City != "",
 		},
 		Latitude: pgtype.Float8{
 			Float64: loc.Latitude,
@@ -140,8 +135,8 @@ func (s urlStore) InsertVisitLocation(ctx context.Context, visitID domain.ID, lo
 			Valid:   loc.Longitude != 0,
 		},
 		Source: pgtype.Text{
-			String: loc.Source,
-			Valid:  loc.Source != "",
+			String: "ipquery",
+			Valid:  true,
 		},
 	})
 	return err
