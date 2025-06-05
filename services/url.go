@@ -15,8 +15,8 @@ import (
 
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/drivers/ipquery"
 	"github.com/zaibon/shortcut/log"
-	"github.com/zaibon/shortcut/services/geoip"
 )
 
 const idLength = 6 //TODO: make this dynamic by reading the amount of url stored in DB.
@@ -29,7 +29,7 @@ type URLStore interface {
 	Delete(ctx context.Context, urlID, authorID domain.ID) error
 
 	TrackRedirect(ctx context.Context, urlID domain.ID, request domain.RequestInfo) (datastore.Visit, error)
-	InsertVisitLocation(ctx context.Context, visitID domain.ID, loc geoip.IPLocation) error
+	InsertVisitLocation(ctx context.Context, visitID domain.ID, loc domain.IPLocation) error
 	UpsertBrowser(ctx context.Context, requestInfo domain.Browser) (domain.Browser, error)
 
 	Statistics(ctx context.Context, authorID domain.ID) ([]datastore.ListStatisticsPerAuthorRow, error)
@@ -73,7 +73,7 @@ func (s *urlService) Shorten(ctx context.Context, url, title string, userID doma
 		return "", err
 	}
 
-	return s.toURL(shortURL), nil
+	return toURL(s.shortDomain, shortURL), nil
 }
 
 func (s *urlService) ExtractTitle(url string) string {
@@ -90,7 +90,7 @@ func (s *urlService) Get(ctx context.Context, authorID domain.ID, slug string) (
 		Title:      row.Title,
 		ID:         domain.ID(row.ID),
 		Long:       row.LongUrl,
-		Short:      s.toURL(row.ShortUrl),
+		Short:      toURL(s.shortDomain, row.ShortUrl),
 		Slug:       row.ShortUrl,
 		IsArchived: row.IsArchived.Bool,
 		CreatedAt:  row.CreatedAt.Time,
@@ -107,7 +107,7 @@ func (s *urlService) GetByID(ctx context.Context, id domain.ID) (domain.URL, err
 		Title:      row.Title,
 		ID:         domain.ID(row.ID),
 		Long:       row.LongUrl,
-		Short:      s.toURL(row.ShortUrl),
+		Short:      toURL(s.shortDomain, row.ShortUrl),
 		Slug:       row.ShortUrl,
 		IsArchived: row.IsArchived.Bool,
 		CreatedAt:  row.CreatedAt.Time,
@@ -131,7 +131,7 @@ func (s *urlService) List(ctx context.Context, authorID domain.ID, search string
 				Title: v.Title,
 				ID:    domain.ID(v.ID),
 				Long:  v.LongUrl,
-				Short: s.toURL(v.ShortUrl),
+				Short: toURL(s.shortDomain, v.ShortUrl),
 				Slug:  v.ShortUrl,
 				// IsArchived: v.IsArchived.Bool,
 				CreatedAt: v.CreatedAt.Time,
@@ -169,11 +169,12 @@ func (s *urlService) TrackRedirect(ctx context.Context, urlID domain.ID, r *http
 	}
 
 	ip := requestInfo.IpAddress()
-	loc, err := geoip.Locate(ip)
+	ipLoc, err := ipquery.QueryIP(ip)
 	if err != nil {
 		log.Warn("failed to get country", "err", err, "ip", ip)
 		return nil
 	}
+	loc := fromIPQuery(*ipLoc)
 
 	if err := s.repo.InsertVisitLocation(ctx, domain.ID(visit.ID), loc); err != nil {
 		log.Warn("failed to insert visit location", "err", err)
@@ -196,7 +197,7 @@ func (s *urlService) Statistics(ctx context.Context, authorID domain.ID) ([]doma
 				ID:        domain.ID(r.ID),
 				Slug:      r.ShortUrl,
 				Long:      r.LongUrl,
-				Short:     s.toURL(r.ShortUrl),
+				Short:     toURL(s.shortDomain, r.ShortUrl),
 				CreatedAt: r.CreatedAt.Time,
 				NrVisited: int(r.NrVisits),
 			},
@@ -220,7 +221,7 @@ func (s *urlService) StatisticsDetail(ctx context.Context, authorID domain.ID, s
 				ID:        domain.ID(url.ID),
 				Title:     url.Title,
 				Long:      url.LongUrl,
-				Short:     s.toURL(url.ShortUrl),
+				Short:     toURL(s.shortDomain, url.ShortUrl),
 				Slug:      slug,
 				CreatedAt: url.CreatedAt.Time,
 				NrVisited: 0,
@@ -417,8 +418,8 @@ func parseRequest(r *http.Request) domain.RequestInfo {
 	return *domain.NewRequestInfo(ipAddress, userAgent, referer)
 }
 
-func (s *urlService) toURL(id string) string {
-	u, _ := url.JoinPath(s.shortDomain, id)
+func toURL(domain, id string) string {
+	u, _ := url.JoinPath(domain, id)
 	return u
 }
 
@@ -525,4 +526,19 @@ func refererChart(data []datastore.ReferrerDistributionRow) []domain.TwoDimensio
 		})
 	}
 	return s
+}
+
+func fromIPQuery(loc ipquery.Response) domain.IPLocation {
+	return domain.IPLocation{
+		IP:          loc.IP,
+		Country:     loc.Location.Country,
+		CountryCode: loc.Location.CountryCode,
+		City:        loc.Location.City,
+		State:       loc.Location.State,
+		Zipcode:     loc.Location.Zipcode,
+		Latitude:    loc.Location.Latitude,
+		Longitude:   loc.Location.Longitude,
+		Timezone:    loc.Location.Timezone,
+		Localtime:   loc.Location.Localtime,
+	}
 }

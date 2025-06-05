@@ -27,7 +27,6 @@ import (
 	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/services"
-	"github.com/zaibon/shortcut/services/geoip"
 	"github.com/zaibon/shortcut/static"
 )
 
@@ -59,20 +58,6 @@ var serverFlags = []cli.Flag{
 		Value:       "postgres://localhost:4532",
 		EnvVars:     []string{"SHORTCUT_DB"},
 		Destination: &c.DBConnString,
-	},
-	&cli.StringFlag{
-		Name:        "geoip-bucket",
-		Usage:       "Google Cloud Storage bucket for GeoIP database",
-		Value:       "shortcut-geoip",
-		EnvVars:     []string{"SHORTCUT_GEOIP_BUCKET"},
-		Destination: &c.GeoIPBucket,
-	},
-	&cli.StringFlag{
-		Name:        "geoip-db-file",
-		Usage:       "GeoIP database file",
-		Value:       "GeoLite2-City.mmdb",
-		EnvVars:     []string{"SHORTCUT_GEOIP_DB_FILE"},
-		Destination: &c.GeoIPDBFile,
 	},
 	&cli.BoolFlag{
 		Name:        "dev",
@@ -168,10 +153,6 @@ func listenSignals(ctx context.Context, c config, f func(context.Context, config
 // runServer is the entry point of the application. It sets up the HTTP router, configures the database connection,
 // applies any necessary database migrations, creates the URL shortening service, and registers the request handlers.
 func runServer(ctx context.Context, c config) error {
-	if err := geoip.DownloadGeoIPDB(c.GeoIPBucket, c.GeoIPDBFile); err != nil {
-		log.Error("unable to download geoip database", "err", err)
-	}
-
 	dbPool, err := pgxpool.New(ctx, c.DBConnString)
 	if err != nil {
 		return fmt.Errorf("unable to connect to database %s: %v", c.SafeDBString(), err)
@@ -194,7 +175,7 @@ func runServer(ctx context.Context, c config) error {
 		c.GithubOauthClientID, c.GithubOauthSecret,
 	)
 	stripeService := services.NewStripe(c.StripeKey, subscriptionStore, c.Domain, c.TLS)
-	adminService := services.NewAdministrationService(dbPool)
+	adminService := services.NewAdministrationService(dbPool, c.redirectURL())
 
 	// setup Sentry for error tracking
 	setupSentry(c)

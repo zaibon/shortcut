@@ -53,9 +53,13 @@ templ AdminLayout(data AdminDashboardData) {
 			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
 			<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 			<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+			<script src="/static/js/flash.js" defer></script>
+			<script src="/static/js/clipboard.js" defer></script>
 			<link rel="stylesheet" href="styles.css"/>
 		</head>
 		<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+			<!-- Flash message container -->
+			<div id="flash-messages" class="fixed top-4 right-4 z-50 max-w-md w-full" aria-live="polite"></div>
 			<div x-data="{ mobileMenuOpen: false }">
 				<!-- Admin Navigation -->
 				<nav class="bg-white shadow-sm border-b border-gray-200">
@@ -159,31 +163,6 @@ templ AdminLayout(data AdminDashboardData) {
 				</footer>
 			</div>
 			<script>
-    // Copy to clipboard function
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        // Show a toast notification
-        const toast = document.createElement('div');
-        toast.className = 'toast bg-green-500';
-        toast.textContent = 'Copied to clipboard!';
-        document.body.appendChild(toast);
-        
-        // Show toast
-        setTimeout(() => {
-          toast.classList.add('show');
-        }, 100);
-        
-        // Hide and remove toast
-        setTimeout(() => {
-          toast.classList.remove('show');
-          setTimeout(() => {
-            document.body.removeChild(toast);
-          }, 300);
-        }, 3000);
-      }).catch(err => {
-        console.error('Could not copy text: ', err);
-      });
-    }
 
     // Initialize charts when the page loads
     document.addEventListener('DOMContentLoaded', function() {
@@ -822,7 +801,7 @@ templ AdminURLsTab(data AdminDashboardData) {
 								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
 									<div class="flex items-center">
 										<a href={ templ.SafeURL(url.Short) } class="text-indigo-600 hover:text-indigo-900" target="_blank">
-											{ url.Short }
+											{ url.Slug }
 										</a>
 										<button class="ml-2 text-gray-400 hover:text-gray-600" onclick={ templ.JSFuncCall("copyToClipboard", url.Short) }>
 											<i class="fas fa-copy"></i>

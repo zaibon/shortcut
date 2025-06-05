@@ -8,12 +8,14 @@ import (
 )
 
 type Administration struct {
-	db datastore.Querier
+	db     datastore.Querier
+	domain string
 }
 
-func NewAdministrationService(db datastore.DBTX) *Administration {
+func NewAdministrationService(db datastore.DBTX, domain string) *Administration {
 	return &Administration{
-		db: datastore.New(db),
+		db:     datastore.New(db),
+		domain: domain,
 	}
 }
 
@@ -60,7 +62,7 @@ func (s *Administration) ListURLs(ctx context.Context) ([]domain.AdminURL, error
 				ID:         domain.ID(row.Url.ID),
 				Title:      row.Url.Title,
 				Long:       row.Url.LongUrl,
-				Short:      row.Url.ShortUrl,
+				Short:      toURL(s.domain, row.Url.ShortUrl),
 				Slug:       row.Url.ShortUrl,
 				IsArchived: row.Url.IsArchived.Bool,
 				CreatedAt:  row.Url.CreatedAt.Time,

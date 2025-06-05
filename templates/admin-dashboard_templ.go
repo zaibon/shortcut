@@ -194,7 +194,7 @@ func AdminLayout(data AdminDashboardData) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		user := middleware.UserFromContext(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Admin Dashboard - Shortcut</title><link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\"><script src=\"https://unpkg.com/htmx.org@1.9.2\"></script><script src=\"https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js\" defer></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css\"><script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script><script src=\"https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns\"></script><link rel=\"stylesheet\" href=\"styles.css\"></head><body class=\"bg-gray-50 text-gray-900 min-h-screen flex flex-col\"><div x-data=\"{ mobileMenuOpen: false }\"><!-- Admin Navigation --><nav class=\"bg-white shadow-sm border-b border-gray-200\"><div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex justify-between h-16\"><div class=\"flex\"><div class=\"flex-shrink-0 flex items-center\"><a href=\"index.html\" class=\"text-indigo-600 font-bold text-xl\"><i class=\"fas fa-link mr-2\"></i>shortcut</a> <span class=\"ml-3 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full\">ADMIN</span></div><div class=\"hidden sm:ml-6 sm:flex sm:space-x-8\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Admin Dashboard - Shortcut</title><link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\"><script src=\"https://unpkg.com/htmx.org@1.9.2\"></script><script src=\"https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js\" defer></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css\"><script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script><script src=\"https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns\"></script><script src=\"/static/js/flash.js\" defer></script><script src=\"/static/js/clipboard.js\" defer></script><link rel=\"stylesheet\" href=\"styles.css\"></head><body class=\"bg-gray-50 text-gray-900 min-h-screen flex flex-col\"><!-- Flash message container --><div id=\"flash-messages\" class=\"fixed top-4 right-4 z-50 max-w-md w-full\" aria-live=\"polite\"></div><div x-data=\"{ mobileMenuOpen: false }\"><!-- Admin Navigation --><nav class=\"bg-white shadow-sm border-b border-gray-200\"><div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex justify-between h-16\"><div class=\"flex\"><div class=\"flex-shrink-0 flex items-center\"><a href=\"index.html\" class=\"text-indigo-600 font-bold text-xl\"><i class=\"fas fa-link mr-2\"></i>shortcut</a> <span class=\"ml-3 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full\">ADMIN</span></div><div class=\"hidden sm:ml-6 sm:flex sm:space-x-8\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -315,7 +315,7 @@ func AdminLayout(data AdminDashboardData) templ.Component {
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(user.Avatar)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 96, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 100, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -443,7 +443,7 @@ func AdminLayout(data AdminDashboardData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></main><!-- Footer --><footer class=\"bg-white\"><div class=\"max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8\"><p class=\"text-center text-base text-gray-400\">&copy; 2023 Shortcut, Inc. All rights reserved. | Admin Dashboard</p></div></footer></div><script>\n    // Copy to clipboard function\n    function copyToClipboard(text) {\n      navigator.clipboard.writeText(text).then(() => {\n        // Show a toast notification\n        const toast = document.createElement('div');\n        toast.className = 'toast bg-green-500';\n        toast.textContent = 'Copied to clipboard!';\n        document.body.appendChild(toast);\n        \n        // Show toast\n        setTimeout(() => {\n          toast.classList.add('show');\n        }, 100);\n        \n        // Hide and remove toast\n        setTimeout(() => {\n          toast.classList.remove('show');\n          setTimeout(() => {\n            document.body.removeChild(toast);\n          }, 300);\n        }, 3000);\n      }).catch(err => {\n        console.error('Could not copy text: ', err);\n      });\n    }\n\n    // Initialize charts when the page loads\n    document.addEventListener('DOMContentLoaded', function() {\n      initCharts();\n    });\n\n\tfunction load2dData(name){\n\t\t// Device chart\n\t\tconst labels = []\n\t\tconst data = []\n\t\tconst input = JSON.parse(document.getElementById(name).textContent);\n\t\tinput.forEach(item => {\n\t\t\tlabels.push(item.Time);\n\t\t\tdata.push(item.Count);\n\t\t});\n\n\t\treturn {labels, data}\n\t}\n\n    function initCharts() {\n      // User Growth Chart\n\t  var {labels, data } = load2dData('userGrowthChartData');\n\t  var totalUserData = load2dData('totalUserChartData');\n      const userGrowthCtx = document.getElementById('userGrowthChart');\n      if (userGrowthCtx) {\n        new Chart(userGrowthCtx.getContext('2d'), {\n          type: 'line',\n          data: {\n            labels: labels.map((label)=>{\n\t\t\t\tlet d = new Date(label);\n\t\t\t\treturn d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });\n\t\t\t}),\n            datasets: [{\n              label: 'New Users',\n              data: data,\n              backgroundColor: 'rgba(99, 102, 241, 0.2)',\n              borderColor: 'rgba(99, 102, 241, 1)',\n              borderWidth: 2,\n              tension: 0.3,\n              fill: true,\n\t\t\t  yAxisID: 'left'\n            },\n\t\t\t{\n              label: 'Total Users',\n              data: totalUserData.data,\n              backgroundColor: 'rgba(24, 196, 157, 0.2)',\n              borderColor: 'rgba(24, 196, 157, 1)',\n              borderWidth: 2,\n              tension: 0.3,\n              fill: true,\n\t\t\t  yAxisID: 'right'\n            }\n\t\t\t]\n          },\n          options: {\n            responsive: true,\n            maintainAspectRatio: false,\n            scales: {\n              left: {\n\t\t\t\tposition: 'left',\n                beginAtZero: true\n              },\n\t\t\t  right: {\n\t\t\t\tposition: 'right',\n                beginAtZero: true\n              }\n            }\n          }\n        });\n      }\n\n      // URL Trends Chart\n\t  var {labels, data } = load2dData('urlTrendsChartData');\n      const urlTrendsCtx = document.getElementById('urlTrendsChart');\n      if (urlTrendsCtx) {\n        new Chart(urlTrendsCtx.getContext('2d'), {\n          type: 'bar',\n          data: {\n            labels: labels.map((label)=>{\n\t\t\t\tlet d = new Date(label);\n\t\t\t\treturn d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });\n\t\t\t}),\n            datasets: [{\n              label: 'URLs Created',\n              data: data,\n              backgroundColor: 'rgba(139, 92, 246, 0.8)',\n              borderColor: 'rgba(139, 92, 246, 1)',\n              borderWidth: 1\n            },]\n          },\n          options: {\n            responsive: true,\n            maintainAspectRatio: false,\n            scales: {\n              y: {\n                beginAtZero: true\n              }\n            }\n          }\n        });\n      }\n\n      // Daily Active Users Chart\n      const dailyActiveUsersCtx = document.getElementById('dailyActiveUsersChart');\n      if (dailyActiveUsersCtx) {\n        new Chart(dailyActiveUsersCtx.getContext('2d'), {\n          type: 'line',\n          data: {\n            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],\n            datasets: [{\n              label: 'Active Users',\n              data: [3200, 3800, 4200, 4500, 4100, 2800, 2400],\n              backgroundColor: 'rgba(16, 185, 129, 0.2)',\n              borderColor: 'rgba(16, 185, 129, 1)',\n              borderWidth: 2,\n              tension: 0.3,\n              fill: true\n            }]\n          },\n          options: {\n            responsive: true,\n            maintainAspectRatio: false,\n            scales: {\n              y: {\n                beginAtZero: true\n              }\n            }\n          }\n        });\n      }\n\n      // Click Distribution Chart\n      const clickDistributionCtx = document.getElementById('clickDistributionChart');\n      if (clickDistributionCtx) {\n        new Chart(clickDistributionCtx.getContext('2d'), {\n          type: 'doughnut',\n          data: {\n            labels: ['Direct', 'Social Media', 'Search Engines', 'Email', 'Other'],\n            datasets: [{\n              data: [35, 25, 20, 15, 5],\n              backgroundColor: [\n                'rgba(99, 102, 241, 0.8)',\n                'rgba(139, 92, 246, 0.8)',\n                'rgba(59, 130, 246, 0.8)',\n                'rgba(16, 185, 129, 0.8)',\n                'rgba(245, 158, 11, 0.8)'\n              ],\n              borderWidth: 1\n            }]\n          },\n          options: {\n            responsive: true,\n            maintainAspectRatio: false,\n            plugins: {\n              legend: {\n                position: 'bottom'\n              }\n            }\n          }\n        });\n      }\n    }\n  \t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></main><!-- Footer --><footer class=\"bg-white\"><div class=\"max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8\"><p class=\"text-center text-base text-gray-400\">&copy; 2023 Shortcut, Inc. All rights reserved. | Admin Dashboard</p></div></footer></div><script>\n\n    // Initialize charts when the page loads\n    document.addEventListener('DOMContentLoaded', function() {\n      initCharts();\n    });\n\n\tfunction load2dData(name){\n\t\t// Device chart\n\t\tconst labels = []\n\t\tconst data = []\n\t\tconst input = JSON.parse(document.getElementById(name).textContent);\n\t\tinput.forEach(item => {\n\t\t\tlabels.push(item.Time);\n\t\t\tdata.push(item.Count);\n\t\t});\n\n\t\treturn {labels, data}\n\t}\n\n    function initCharts() {\n      // User Growth Chart\n\t  var {labels, data } = load2dData('userGrowthChartData');\n\t  var totalUserData = load2dData('totalUserChartData');\n      const userGrowthCtx = document.getElementById('userGrowthChart');\n      if (userGrowthCtx) {\n        new Chart(userGrowthCtx.getContext('2d'), {\n          type: 'line',\n          data: {\n            labels: labels.map((label)=>{\n\t\t\t\tlet d = new Date(label);\n\t\t\t\treturn d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });\n\t\t\t}),\n            datasets: [{\n              label: 'New Users',\n              data: data,\n              backgroundColor: 'rgba(99, 102, 241, 0.2)',\n              borderColor: 'rgba(99, 102, 241, 1)',\n              borderWidth: 2,\n              tension: 0.3,\n              fill: true,\n\t\t\t  yAxisID: 'left'\n            },\n\t\t\t{\n              label: 'Total Users',\n              data: totalUserData.data,\n              backgroundColor: 'rgba(24, 196, 157, 0.2)',\n              borderColor: 'rgba(24, 196, 157, 1)',\n              borderWidth: 2,\n              tension: 0.3,\n              fill: true,\n\t\t\t  yAxisID: 'right'\n            }\n\t\t\t]\n          },\n          options: {\n            responsive: true,\n            maintainAspectRatio: false,\n            scales: {\n              left: {\n\t\t\t\tposition: 'left',\n                beginAtZero: true\n              },\n\t\t\t  right: {\n\t\t\t\tposition: 'right',\n                beginAtZero: true\n              }\n            }\n          }\n        });\n      }\n\n      // URL Trends Chart\n\t  var {labels, data } = load2dData('urlTrendsChartData');\n      const urlTrendsCtx = document.getElementById('urlTrendsChart');\n      if (urlTrendsCtx) {\n        new Chart(urlTrendsCtx.getContext('2d'), {\n          type: 'bar',\n          data: {\n            labels: labels.map((label)=>{\n\t\t\t\tlet d = new Date(label);\n\t\t\t\treturn d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });\n\t\t\t}),\n            datasets: [{\n              label: 'URLs Created',\n              data: data,\n              backgroundColor: 'rgba(139, 92, 246, 0.8)',\n              borderColor: 'rgba(139, 92, 246, 1)',\n              borderWidth: 1\n            },]\n          },\n          options: {\n            responsive: true,\n            maintainAspectRatio: false,\n            scales: {\n              y: {\n                beginAtZero: true\n              }\n            }\n          }\n        });\n      }\n\n      // Daily Active Users Chart\n      const dailyActiveUsersCtx = document.getElementById('dailyActiveUsersChart');\n      if (dailyActiveUsersCtx) {\n        new Chart(dailyActiveUsersCtx.getContext('2d'), {\n          type: 'line',\n          data: {\n            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],\n            datasets: [{\n              label: 'Active Users',\n              data: [3200, 3800, 4200, 4500, 4100, 2800, 2400],\n              backgroundColor: 'rgba(16, 185, 129, 0.2)',\n              borderColor: 'rgba(16, 185, 129, 1)',\n              borderWidth: 2,\n              tension: 0.3,\n              fill: true\n            }]\n          },\n          options: {\n            responsive: true,\n            maintainAspectRatio: false,\n            scales: {\n              y: {\n                beginAtZero: true\n              }\n            }\n          }\n        });\n      }\n\n      // Click Distribution Chart\n      const clickDistributionCtx = document.getElementById('clickDistributionChart');\n      if (clickDistributionCtx) {\n        new Chart(clickDistributionCtx.getContext('2d'), {\n          type: 'doughnut',\n          data: {\n            labels: ['Direct', 'Social Media', 'Search Engines', 'Email', 'Other'],\n            datasets: [{\n              data: [35, 25, 20, 15, 5],\n              backgroundColor: [\n                'rgba(99, 102, 241, 0.8)',\n                'rgba(139, 92, 246, 0.8)',\n                'rgba(59, 130, 246, 0.8)',\n                'rgba(16, 185, 129, 0.8)',\n                'rgba(245, 158, 11, 0.8)'\n              ],\n              borderWidth: 1\n            }]\n          },\n          options: {\n            responsive: true,\n            maintainAspectRatio: false,\n            plugins: {\n              legend: {\n                position: 'bottom'\n              }\n            }\n          }\n        });\n      }\n    }\n  \t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -491,7 +491,7 @@ func AdminOverviewTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Overview.TotalUsers.Total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 375, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 354, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
@@ -504,7 +504,7 @@ func AdminOverviewTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%+d%%", data.Overview.TotalUsers.Variation))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 382, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 361, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
@@ -517,7 +517,7 @@ func AdminOverviewTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var27 string
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Overview.TotalURLs.Total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 396, Col: 105}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 375, Col: 105}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {
@@ -530,7 +530,7 @@ func AdminOverviewTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%+d%%", data.Overview.TotalURLs.Variation))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 403, Col: 105}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 382, Col: 105}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
@@ -543,7 +543,7 @@ func AdminOverviewTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Overview.TotalClicks.Total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 417, Col: 107}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 396, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
@@ -556,7 +556,7 @@ func AdminOverviewTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%+d%%", data.Overview.TotalClicks.Variation))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 424, Col: 107}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 403, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -641,7 +641,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var33 string
 				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 651, Col: 69}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 630, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 				if templ_7745c5c3_Err != nil {
@@ -654,7 +654,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var34 string
 				templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 652, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 631, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 				if templ_7745c5c3_Err != nil {
@@ -667,7 +667,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var35 string
 				templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(user.Plan)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 657, Col: 126}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 636, Col: 126}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 				if templ_7745c5c3_Err != nil {
@@ -680,7 +680,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var36 string
 				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.URLCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 659, Col: 103}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 638, Col: 103}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 				if templ_7745c5c3_Err != nil {
@@ -693,7 +693,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var37 string
 				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.ClickCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 660, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 639, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 				if templ_7745c5c3_Err != nil {
@@ -706,7 +706,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var38 string
 				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(user.Status)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 662, Col: 126}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 641, Col: 126}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 				if templ_7745c5c3_Err != nil {
@@ -719,7 +719,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var39 string
 				templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(user.CreatedAt.Format(timeFormat))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 664, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 643, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 				if templ_7745c5c3_Err != nil {
@@ -771,7 +771,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var42 string
 			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Pagination.Min))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 695, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 674, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 			if templ_7745c5c3_Err != nil {
@@ -784,7 +784,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var43 string
 			templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Pagination.Max))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 695, Col: 159}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 674, Col: 159}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 			if templ_7745c5c3_Err != nil {
@@ -797,7 +797,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var44 string
 			templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Pagination.TotalItems))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 695, Col: 244}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 674, Col: 244}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 			if templ_7745c5c3_Err != nil {
@@ -831,7 +831,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 					var templ_7745c5c3_Var46 string
 					templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(p.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 708, Col: 182}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 687, Col: 182}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 					if templ_7745c5c3_Err != nil {
@@ -858,7 +858,7 @@ func AdminUsersTab(data AdminDashboardData) templ.Component {
 					var templ_7745c5c3_Var48 string
 					templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(p.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 710, Col: 188}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 689, Col: 188}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 					if templ_7745c5c3_Err != nil {
@@ -953,7 +953,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var53 string
 				templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(url.Long)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 818, Col: 107}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 797, Col: 107}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 				if templ_7745c5c3_Err != nil {
@@ -966,7 +966,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var54 string
 				templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(url.Long)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 819, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 798, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 				if templ_7745c5c3_Err != nil {
@@ -986,9 +986,9 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var56 string
-				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
+				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(url.Slug)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 825, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 804, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 				if templ_7745c5c3_Err != nil {
@@ -1018,7 +1018,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var58 string
 				templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(url.Author)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 832, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 811, Col: 82}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
 				if templ_7745c5c3_Err != nil {
@@ -1031,7 +1031,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var59 string
 				templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", url.NrVisited))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 835, Col: 44}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 814, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 				if templ_7745c5c3_Err != nil {
@@ -1044,7 +1044,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 				var templ_7745c5c3_Var60 string
 				templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(url.CreatedAt.Format(timeFormat))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 841, Col: 104}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 820, Col: 104}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 				if templ_7745c5c3_Err != nil {
@@ -1096,7 +1096,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var63 string
 			templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Pagination.Min))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 872, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 851, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
 			if templ_7745c5c3_Err != nil {
@@ -1109,7 +1109,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var64 string
 			templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Pagination.Max))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 872, Col: 159}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 851, Col: 159}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
 			if templ_7745c5c3_Err != nil {
@@ -1122,7 +1122,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 			var templ_7745c5c3_Var65 string
 			templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Pagination.TotalItems))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 872, Col: 244}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 851, Col: 244}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
 			if templ_7745c5c3_Err != nil {
@@ -1156,7 +1156,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 					var templ_7745c5c3_Var67 string
 					templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(p.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 885, Col: 182}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 864, Col: 182}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 					if templ_7745c5c3_Err != nil {
@@ -1183,7 +1183,7 @@ func AdminURLsTab(data AdminDashboardData) templ.Component {
 					var templ_7745c5c3_Var69 string
 					templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinStringErrs(p.Label)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 887, Col: 188}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin-dashboard.templ`, Line: 866, Col: 188}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
 					if templ_7745c5c3_Err != nil {
