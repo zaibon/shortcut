@@ -166,92 +166,7 @@ templ URLDetail(url domain.URLStat) {
 						</div>
 					</div>
 				</div>
-				<script>
-	document.addEventListener('DOMContentLoaded', function() {
-			initCharts();
-	});
 
-	function getData(){
-		const input = JSON.parse(document.getElementById('visitOverTime').textContent);
-		return input.map((p) => {
-			return {
-				"x": new Date(p.Time),
-				"y": p.Count,	
-			}
-		});
-	}
-	
-	function initCharts() {
-	  const data = getData();
-      // Clicks over time chart
-      const clicksCtx = document.getElementById('clicksChart').getContext('2d');
-      window.clicksChart = new Chart(clicksCtx, {
-        type: 'line',
-        data: {
-          datasets: [{
-            label: 'Clicks',
-            data: data,
-            backgroundColor: 'rgba(99, 102, 241, 0.2)',
-            borderColor: 'rgba(99, 102, 241, 1)',
-            borderWidth: 2,
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: {
-              type: 'time',
-              time: {
-                unit: 'day'
-              },
-              title: {
-                display: true,
-                text: 'Date'
-              }
-            },
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Clicks'
-              }
-            }
-          }
-        }
-      });
-	 };
-
-	 // Update chart based on selected time range and chart type
-    function updateChart(options=null) {
-	  const data = getData();	  
-      
-      // Update data
-      window.clicksChart.data.datasets[0].data = data;
-      
-      // Update chart type
-	  if (options && options.chartType){
-      	window.clicksChart.config.type = options.chartType;	
-	  }	
-
-	  if (options && options.timeRange){
-		// Update time unit based on range
-		let timeUnit = 'day';
-		if (options.timeRange === 'day') {
-			timeUnit = 'hour';
-		} else if (options.timeRange === 'all') {
-			timeUnit = 'month';
-		}
-      	window.clicksChart.options.scales.x.time.unit = timeUnit;
-	  }
-      
-	
-      // Update chart
-      window.clicksChart.update();
-    };
-				</script>
 				<!-- Geographic Distribution -->
 				<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 					<div class="bg-white shadow overflow-hidden sm:rounded-lg h-[600px] flex flex-col">
@@ -336,7 +251,7 @@ templ URLDetail(url domain.URLStat) {
 								@templ.JSONScript("deviceChartData", url.DeviceChart)
 								<canvas id="deviceChart"></canvas>
 							</div>
-							<div class="mt-6 flex-1 flex items-end">
+							<div class="mt-6">
 								<div class="w-full grid grid-cols-2 gap-4 text-center">
 									{{ mobile := url.Devices[domain.DeviceKindMobile] }}
 									{{ desktop := url.Devices[domain.DeviceKindDesktop] }}
@@ -392,25 +307,93 @@ templ URLDetail(url domain.URLStat) {
 									</table>
 								</div>
 							</div>
-							// <h4 class="text-sm font-medium text-gray-500 mb-3">Top Browsers</h4>
-							// <div class="space-y-2">
-							// 	for _, browser := range url.Browsers {
-							// 		<div class="flex items-center">
-							// 			<span class="w-20 text-sm text-gray-500">{ browser.Name }</span>
-							// 			<div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
-							// 				<div class="h-full bg-indigo-600 rounded-full" style={ fmt.Sprintf("width: %f%%", browser.Percentage) }></div>
-							// 			</div>
-							// 			<span class="ml-3 text-sm text-gray-700">{ fmt.Sprintf("%.2f",browser.Percentage) }%</span>
-							// 		</div>
-							// 	}
-							// </div>
-							// </div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</main>
 		<script>
+		function getData(){
+			const input = JSON.parse(document.getElementById('visitOverTime').textContent);
+			return input.map((p) => {
+				return {
+					"x": new Date(p.Time),
+					"y": p.Count,	
+				}
+			});
+		}
+		
+		function initCharts() {
+			const data = getData();
+			// Clicks over time chart
+			const clicksCtx = document.getElementById('clicksChart').getContext('2d');
+			window.clicksChart = new Chart(clicksCtx, {
+				type: 'line',
+				data: {
+				datasets: [{
+					label: 'Clicks',
+					data: data,
+					backgroundColor: 'rgba(99, 102, 241, 0.2)',
+					borderColor: 'rgba(99, 102, 241, 1)',
+					borderWidth: 2,
+					tension: 0.3,
+					fill: true
+				}]
+				},
+				options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				scales: {
+					x: {
+					type: 'time',
+					time: {
+						unit: 'hour'
+					},
+					title: {
+						display: true,
+						text: 'Date'
+					}
+					},
+					y: {
+					beginAtZero: true,
+					title: {
+						display: true,
+						text: 'Clicks'
+					}
+					}
+				}
+				}
+			});
+		};
+
+		// Update chart based on selected time range and chart type
+		function updateChart(options=null) {
+			const data = getData();	  
+			
+			// Update data
+			window.clicksChart.data.datasets[0].data = data;
+			
+			// Update chart type
+			if (options && options.chartType){
+				window.clicksChart.config.type = options.chartType;	
+			}	
+
+			if (options && options.timeRange){
+				// Update time unit based on range
+				let timeUnit = 'day';
+				if (options.timeRange === 'day') {
+					timeUnit = 'hour';
+				} else if (options.timeRange === 'all') {
+					timeUnit = 'month';
+				}
+				window.clicksChart.options.scales.x.time.unit = timeUnit;
+			}
+			
+			
+			// Update chart
+			window.clicksChart.update();
+		};
+
 		function initDeviceChart(){
 			const {labels, data} = load2dData('deviceChartData');
 			const deviceCtx = document.getElementById('deviceChart').getContext('2d');
@@ -510,6 +493,7 @@ templ URLDetail(url domain.URLStat) {
 		}
 
 		document.addEventListener('DOMContentLoaded', function() {
+			initCharts();
 			// Device chart
 			initDeviceChart();
 			initBrowserChart();

@@ -306,7 +306,7 @@ func (s *urlService) StatisticsDetail(ctx context.Context, authorID domain.ID, s
 	})
 
 	g.Go(func() error {
-		now := time.Now().Truncate(time.Hour)
+		now := time.Now()
 		since := now.AddDate(0, 0, -1).Truncate(time.Hour)
 		until := now
 		period := domain.Period{Since: since, Until: until}
