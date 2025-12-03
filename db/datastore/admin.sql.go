@@ -11,6 +11,92 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const adminGetDailyActiveVisitors = `-- name: AdminGetDailyActiveVisitors :many
+WITH date_series AS (
+    SELECT generate_series(
+        (CURRENT_DATE - interval '6 days')::date,
+        CURRENT_DATE::date,
+        '1 day'::interval
+    )::date AS day
+)
+SELECT
+    ds.day::timestamp AS "day",
+    COUNT(DISTINCT v.ip_address)::bigint AS count
+FROM
+    date_series ds
+LEFT JOIN
+    visits v ON date_trunc('day', v.visited_at) = ds.day
+GROUP BY
+    ds.day
+ORDER BY
+    ds.day
+`
+
+type AdminGetDailyActiveVisitorsRow struct {
+	Day   pgtype.Timestamp `json:"day"`
+	Count int64            `json:"count"`
+}
+
+func (q *Queries) AdminGetDailyActiveVisitors(ctx context.Context) ([]AdminGetDailyActiveVisitorsRow, error) {
+	rows, err := q.db.Query(ctx, adminGetDailyActiveVisitors)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AdminGetDailyActiveVisitorsRow{}
+	for rows.Next() {
+		var i AdminGetDailyActiveVisitorsRow
+		if err := rows.Scan(&i.Day, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const adminGetGeoDistribution = `-- name: AdminGetGeoDistribution :many
+SELECT
+    COALESCE(vl.country_name, 'Unknown') AS country,
+    COUNT(*)::bigint AS count
+FROM
+    visits v
+JOIN
+    visit_locations vl ON v.id = vl.visit_id
+GROUP BY
+    country
+ORDER BY
+    count DESC
+LIMIT 5
+`
+
+type AdminGetGeoDistributionRow struct {
+	Country string `json:"country"`
+	Count   int64  `json:"count"`
+}
+
+func (q *Queries) AdminGetGeoDistribution(ctx context.Context) ([]AdminGetGeoDistributionRow, error) {
+	rows, err := q.db.Query(ctx, adminGetGeoDistribution)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AdminGetGeoDistributionRow{}
+	for rows.Next() {
+		var i AdminGetGeoDistributionRow
+		if err := rows.Scan(&i.Country, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const adminGetOverviewStatistics = `-- name: AdminGetOverviewStatistics :one
 WITH monthly_user_activity AS (
     SELECT
@@ -83,6 +169,86 @@ func (q *Queries) AdminGetOverviewStatistics(ctx context.Context) (AdminGetOverv
 		&i.TotalClicksVariation,
 	)
 	return i, err
+}
+
+const adminGetTopReferrers = `-- name: AdminGetTopReferrers :many
+SELECT
+    COALESCE(NULLIF(referrer, ''), 'Direct') AS source,
+    COUNT(*)::bigint AS count
+FROM
+    visits
+GROUP BY
+    source
+ORDER BY
+    count DESC
+LIMIT 5
+`
+
+type AdminGetTopReferrersRow struct {
+	Source interface{} `json:"source"`
+	Count  int64       `json:"count"`
+}
+
+func (q *Queries) AdminGetTopReferrers(ctx context.Context) ([]AdminGetTopReferrersRow, error) {
+	rows, err := q.db.Query(ctx, adminGetTopReferrers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AdminGetTopReferrersRow{}
+	for rows.Next() {
+		var i AdminGetTopReferrersRow
+		if err := rows.Scan(&i.Source, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const adminGetTopURLs = `-- name: AdminGetTopURLs :many
+SELECT
+    u.short_url,
+    u.long_url,
+    COUNT(v.id)::bigint AS clicks
+FROM
+    urls u
+JOIN
+    visits v ON u.id = v.url_id
+GROUP BY
+    u.id
+ORDER BY
+    clicks DESC
+LIMIT 5
+`
+
+type AdminGetTopURLsRow struct {
+	ShortUrl string `json:"short_url"`
+	LongUrl  string `json:"long_url"`
+	Clicks   int64  `json:"clicks"`
+}
+
+func (q *Queries) AdminGetTopURLs(ctx context.Context) ([]AdminGetTopURLsRow, error) {
+	rows, err := q.db.Query(ctx, adminGetTopURLs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AdminGetTopURLsRow{}
+	for rows.Next() {
+		var i AdminGetTopURLsRow
+		if err := rows.Scan(&i.ShortUrl, &i.LongUrl, &i.Clicks); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const adminGetTotalUsersTrend = `-- name: AdminGetTotalUsersTrend :many

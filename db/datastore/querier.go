@@ -12,7 +12,11 @@ import (
 
 type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
+	AdminGetDailyActiveVisitors(ctx context.Context) ([]AdminGetDailyActiveVisitorsRow, error)
+	AdminGetGeoDistribution(ctx context.Context) ([]AdminGetGeoDistributionRow, error)
 	AdminGetOverviewStatistics(ctx context.Context) (AdminGetOverviewStatisticsRow, error)
+	AdminGetTopReferrers(ctx context.Context) ([]AdminGetTopReferrersRow, error)
+	AdminGetTopURLs(ctx context.Context) ([]AdminGetTopURLsRow, error)
 	AdminGetTotalUsersTrend(ctx context.Context) ([]AdminGetTotalUsersTrendRow, error)
 	AdminGetURLCreationTrends(ctx context.Context) ([]AdminGetURLCreationTrendsRow, error)
 	AdminGetUserGrowth(ctx context.Context) ([]AdminGetUserGrowthRow, error)

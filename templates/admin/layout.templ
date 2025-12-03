@@ -1,0 +1,319 @@
+package admin
+
+import (
+	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/middleware"
+)
+
+templ adminNavLink(text, href string, isActive bool) {
+	<a
+		href={ templ.SafeURL(href) }
+		class={ templ.KV("border-indigo-500 text-gray-900", isActive),  
+		templ.KV("border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700", !isActive),
+		"inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" }
+	>
+		{ children... }
+		{ text }
+	</a>
+}
+
+templ adminNavLinkMobile(text, href string, isActive bool) {
+	<a
+		@click="mobileMenuOpen = false"
+		href={ templ.SafeURL(href) }
+		class={ templ.KV("bg-indigo-50 border-indigo-500 text-indigo-700", isActive),  
+		templ.KV("border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800", !isActive),
+		"block pl-3 pr-4 py-2 border-l-4 text-base font-medium w-full text-left" }
+	>
+		{ children... }
+		{ text }
+	</a>
+}
+
+type AdminDashboardData struct {
+	Tab        string
+	Overview   domain.AdminOverview
+	Users      []domain.AdminUser
+	URLs       []domain.AdminURL
+	Analytics  domain.AdminAnalytics
+	Pagination domain.PaginationLinks
+}
+
+templ AdminLayout(data AdminDashboardData) {
+	{{ user := middleware.UserFromContext(ctx) }}
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Admin Dashboard - Shortcut</title>
+			<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+			<script src="https://unpkg.com/htmx.org@1.9.2"></script>
+			<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+			<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+			<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+			<script src="/static/js/flash.js" defer></script>
+			<script src="/static/js/clipboard.js" defer></script>
+			<script src="/static/js/charts.js" defer></script>
+			<link rel="stylesheet" href="styles.css"/>
+		</head>
+		<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+			<!-- Flash message container -->
+			<div id="flash-messages" class="fixed top-4 right-4 z-50 max-w-md w-full" aria-live="polite"></div>
+			<div x-data="{ mobileMenuOpen: false }">
+				<!-- Admin Navigation -->
+				<nav class="bg-white shadow-sm border-b border-gray-200">
+					<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+						<div class="flex justify-between h-16">
+							<div class="flex">
+								<div class="flex-shrink-0 flex items-center">
+									<a href="/" class="text-indigo-600 font-bold text-xl">
+										<i class="fas fa-link mr-2"></i>shortcut
+									</a>
+									<span class="ml-3 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+										ADMIN
+									</span>
+								</div>
+								<div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+									@adminNavLink("Overview", "/admin/overview", data.Tab == "overview") {
+										<i class="fas fa-chart-pie mr-2"></i>
+									}
+									@adminNavLink("Users", "/admin/users", data.Tab == "users") {
+										<i class="fas fa-users mr-2"></i>
+									}
+									@adminNavLink("URLs", "/admin/urls", data.Tab == "urls") {
+										<i class="fas fa-link mr-2"></i>
+									}
+									@adminNavLink("Analytics", "/admin/analytics", data.Tab == "analytics") {
+										<i class="fas fa-chart-bar mr-2"></i>
+									}
+									@adminNavLink("Settings", "/admin/settings", data.Tab == "settings") {
+										<i class="fas fa-cog mr-2"></i>
+									}
+								</div>
+							</div>
+							<div class="hidden sm:ml-6 sm:flex sm:items-center">
+								<div class="ml-3 relative" x-data="{ open: false }">
+									<div>
+										<button @click="open = !open" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+											<span class="sr-only">Open user menu</span>
+											<img class="h-8 w-8 rounded-full" src={ user.Avatar } alt=""/>
+										</button>
+										<div
+											x-show="open"
+											@click.away="open = false"
+											class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+											role="menu"
+											aria-orientation="vertical"
+											aria-labelledby="user-menu-button"
+											tabindex="-1"
+										>
+											<a href="/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Back to Site</a>
+											// <a href="account.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Your Account</a>
+											<a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="-mr-2 flex items-center sm:hidden">
+								<!-- Mobile menu button -->
+								<button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-controls="mobile-menu" aria-expanded="false">
+									<span class="sr-only">Open main menu</span>
+									<svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+									</svg>
+								</button>
+							</div>
+						</div>
+					</div>
+					<!-- Mobile menu -->
+					<div x-show="mobileMenuOpen" class="sm:hidden" id="mobile-menu">
+						<div class="pt-2 pb-3 space-y-1">
+							@adminNavLinkMobile("Overview", "/admin/overview", data.Tab == "overview") {
+								<i class="fas fa-chart-pie mr-2"></i>
+							}
+							@adminNavLinkMobile("Users", "/admin/users", data.Tab == "users") {
+								<i class="fas fa-users mr-2"></i>
+							}
+							@adminNavLinkMobile("URLs", "/admin/urls", data.Tab == "urls") {
+								<i class="fas fa-link mr-2"></i>
+							}
+							@adminNavLinkMobile("Analytics", "/admin/analytics", data.Tab == "analytics") {
+								<i class="fas fa-chart-bar mr-2"></i>
+							}
+							@adminNavLinkMobile("Settings", "/admin/settings", data.Tab == "settings") {
+								<i class="fas fa-cog mr-2"></i>
+							}
+						</div>
+					</div>
+				</nav>
+				<!-- Main content -->
+				<main class="flex-grow">
+					<div id="content" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+						{ children... }
+					</div>
+				</main>
+				<!-- Footer -->
+				<footer class="bg-white">
+					<div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
+						<p class="text-center text-base text-gray-400">
+							&copy; 2023 Shortcut, Inc. All rights reserved. | Admin Dashboard
+						</p>
+					</div>
+				</footer>
+			</div>
+			<script>
+
+    // Initialize charts when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      initCharts();
+    });
+
+    function initCharts() {
+      // User Growth Chart
+	  var {labels, data } = load2dData('userGrowthChartData');
+	  var totalUserData = load2dData('totalUserChartData');
+      const userGrowthCtx = document.getElementById('userGrowthChart');
+      if (userGrowthCtx) {
+        new Chart(userGrowthCtx.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: labels.map((label)=>{
+				let d = new Date(label);
+				return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+			}),
+            datasets: [{
+              label: 'New Users',
+              data: data,
+              backgroundColor: 'rgba(99, 102, 241, 0.2)',
+              borderColor: 'rgba(99, 102, 241, 1)',
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true,
+			  yAxisID: 'left'
+            },
+			{
+              label: 'Total Users',
+              data: totalUserData.data,
+              backgroundColor: 'rgba(24, 196, 157, 0.2)',
+              borderColor: 'rgba(24, 196, 157, 1)',
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true,
+			  yAxisID: 'right'
+            }
+			]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              left: {
+				position: 'left',
+                beginAtZero: true
+              },
+			  right: {
+				position: 'right',
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+
+      // URL Trends Chart
+	  var {labels, data } = load2dData('urlTrendsChartData');
+      const urlTrendsCtx = document.getElementById('urlTrendsChart');
+      if (urlTrendsCtx) {
+        new Chart(urlTrendsCtx.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: labels.map((label)=>{
+				let d = new Date(label);
+				return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+			}),
+            datasets: [{
+              label: 'URLs Created',
+              data: data,
+              backgroundColor: 'rgba(139, 92, 246, 0.8)',
+              borderColor: 'rgba(139, 92, 246, 1)',
+              borderWidth: 1
+            },]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+
+      // Daily Active Users Chart
+      const dailyActiveUsersCtx = document.getElementById('dailyActiveUsersChart');
+      if (dailyActiveUsersCtx) {
+        new Chart(dailyActiveUsersCtx.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Active Users',
+              data: [3200, 3800, 4200, 4500, 4100, 2800, 2400],
+              backgroundColor: 'rgba(16, 185, 129, 0.2)',
+              borderColor: 'rgba(16, 185, 129, 1)',
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+
+      // Click Distribution Chart
+      const clickDistributionCtx = document.getElementById('clickDistributionChart');
+      if (clickDistributionCtx) {
+        new Chart(clickDistributionCtx.getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: ['Direct', 'Social Media', 'Search Engines', 'Email', 'Other'],
+            datasets: [{
+              data: [35, 25, 20, 15, 5],
+              backgroundColor: [
+                'rgba(99, 102, 241, 0.8)',
+                'rgba(139, 92, 246, 0.8)',
+                'rgba(59, 130, 246, 0.8)',
+                'rgba(16, 185, 129, 0.8)',
+                'rgba(245, 158, 11, 0.8)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom'
+              }
+            }
+          }
+        });
+      }
+    }
+  			</script>
+		</body>
+	</html>
+}

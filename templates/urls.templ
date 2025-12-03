@@ -3,13 +3,10 @@ package templates
 import (
 	"fmt"
 	"github.com/zaibon/shortcut/domain"
-	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/templates/components"
 )
 
-const timeFormat = "Mon, 02 Jan 06 at 15:04:05"
-
-templ URLSPage(urls []domain.URLStat, paginationParams middleware.PaginationParams) {
+templ URLSPage(urls []domain.URLStat, paginationLinks domain.PaginationLinks) {
 	@Layout() {
 		<main class="flex-grow">
 			<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -33,15 +30,15 @@ templ URLSPage(urls []domain.URLStat, paginationParams middleware.PaginationPara
 					</div>
 				</div>
 				<!-- Search and Filter -->
-				@URLFilter(paginationParams)
+				@URLFilter()
 				<!-- URL List -->
-				@URLTable(urls, paginationParams)
+				@URLTable(urls, paginationLinks)
 			</div>
 		</main>
 	}
 }
 
-templ URLFilter(p middleware.PaginationParams) {
+templ URLFilter() {
 	<div class="bg-white shadow sm:rounded-lg mb-6">
 		<div class="px-4 py-5 sm:p-6">
 			<div class="flex flex-col sm:flex-row gap-4">
@@ -133,7 +130,7 @@ templ URLFilter(p middleware.PaginationParams) {
 	</div>
 }
 
-templ URLTable(urls []domain.URLStat, p middleware.PaginationParams) {
+templ URLTable(urls []domain.URLStat, paginationLinks domain.PaginationLinks) {
 	<div id="url-table" class="bg-white shadow overflow-hidden sm:rounded-lg">
 		<div class="overflow-x-auto">
 			<table class="min-w-full divide-y divide-gray-200">
@@ -210,7 +207,7 @@ templ URLTable(urls []domain.URLStat, p middleware.PaginationParams) {
 								</span>
 							</td>
 							<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-								{ url.CreatedAt.Format(timeFormat) }
+								{ url.CreatedAt.Format(domain.TimeFormat) }
 							</td>
 							<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
 								<div class="flex space-x-2" x-data="qrCodeModal">
@@ -246,71 +243,6 @@ templ URLTable(urls []domain.URLStat, p middleware.PaginationParams) {
 			</table>
 		</div>
 		<!-- Pagination -->
-		<div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-			<div class="flex-1 flex justify-between sm:hidden">
-				<a
-					href="#"
-					class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-				>
-					Previous
-				</a>
-				<a
-					href="#"
-					class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-				>
-					Next
-				</a>
-			</div>
-			<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-				@pagination(p)
-			</div>
-		</div>
-	</div>
-}
-
-templ pagination(p middleware.PaginationParams) {
-	{{ first := fmt.Sprintf("%d", (p.Page-1)*p.PageSize+1) }}
-	{{ last := fmt.Sprintf("%d", min(p.Page*p.PageSize+p.PageSize, p.TotalRecords)) }}
-	{{ total := fmt.Sprintf("%d", p.TotalRecords) }}
-	{{ previous := fmt.Sprintf("urls?page=%d&page_size=%d", max(1, p.Page-1), p.PageSize) }}
-	{{ next := fmt.Sprintf("urls?page=%d&page_size=%d", min(p.Page+1, (p.TotalRecords+p.PageSize-1)/p.PageSize), p.PageSize) }}
-	<div>
-		<p class="text-sm text-gray-700">
-			Showing <span class="font-medium">{ first }</span> to <span class="font-medium">{ last }</span> of <span
-	class="font-medium"
->{ total }</span> results
-		</p>
-	</div>
-	<div>
-		<nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-			<a
-				href={ templ.SafeURL(previous) }
-				class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-			>
-				<span class="sr-only">Previous</span>
-				<i class="fas fa-chevron-left h-5 w-5"></i>
-			</a>
-			{{ startPage := max(1, p.Page-2) }}
-			{{ endPage := min((p.TotalRecords+p.PageSize-1)/p.PageSize, startPage+3) }}
-			for i := startPage; i <= endPage; i++ {
-				<a
-					href={ templ.SafeURL(fmt.Sprintf("urls?page=%d&page_size=%d", i, p.PageSize)) }
-					if i==p.Page {
-						aria-current="page"
-					}
-					class={ templ.KV("z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium",i==p.Page),
-					templ.KV("bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium", i!=p.Page) }
-				>
-					{ fmt.Sprintf("%d", i) }
-				</a>
-			}
-			<a
-				href={ templ.SafeURL(next) }
-				class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-			>
-				<span class="sr-only">Next</span>
-				<i class="fas fa-chevron-right h-5 w-5"></i>
-			</a>
-		</nav>
+		@components.Pagination(paginationLinks)
 	</div>
 }

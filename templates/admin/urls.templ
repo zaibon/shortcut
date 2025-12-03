@@ -1,0 +1,140 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/templates/components"
+)
+
+templ URLsTab(data AdminDashboardData) {
+	@AdminLayout(data) {
+		<div>
+			<!-- URLs Management -->
+			<div class="mb-8">
+				<div class="sm:flex sm:items-center">
+					<div class="sm:flex-auto">
+						<h1 class="text-2xl font-semibold text-gray-900">URLs</h1>
+						<p class="mt-2 text-sm text-gray-700">Monitor all shortened URLs and their performance.</p>
+					</div>
+					<div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+						<button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+							<i class="fas fa-download mr-2"></i>
+							Export Data
+						</button>
+					</div>
+				</div>
+			</div>
+			<!-- URLs Filters -->
+			<div class="bg-white shadow sm:rounded-lg mb-6">
+				<div class="px-4 py-5 sm:p-6">
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
+						<div>
+							<label for="url-search" class="block text-sm font-medium text-gray-700">Search</label>
+							<input type="text" name="url-search" id="url-search" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Search URLs..."/>
+						</div>
+						<div>
+							<label for="url-status" class="block text-sm font-medium text-gray-700">Status</label>
+							<select id="url-status" name="url-status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Status</option>
+								<option>Active</option>
+								<option>Expired</option>
+								<option>Flagged</option>
+								<option>Disabled</option>
+							</select>
+						</div>
+						<div>
+							<label for="url-clicks" class="block text-sm font-medium text-gray-700">Clicks</label>
+							<select id="url-clicks" name="url-clicks" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All</option>
+								<option>0 clicks</option>
+								<option>1-10 clicks</option>
+								<option>11-100 clicks</option>
+								<option>100+ clicks</option>
+							</select>
+						</div>
+						<div>
+							<label for="url-user" class="block text-sm font-medium text-gray-700">User Type</label>
+							<select id="url-user" name="url-user" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Users</option>
+								<option>Free</option>
+								<option>Pro</option>
+								<option>Business</option>
+							</select>
+						</div>
+						<div>
+							<label for="url-date" class="block text-sm font-medium text-gray-700">Created</label>
+							<select id="url-date" name="url-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Time</option>
+								<option>Today</option>
+								<option>Last 7 days</option>
+								<option>Last 30 days</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- URLs Table -->
+			<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+				<table class="min-w-full divide-y divide-gray-200">
+					<thead class="bg-gray-50">
+						<tr>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original URL</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Short URL</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+							<th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+						</tr>
+					</thead>
+					<tbody class="bg-white divide-y divide-gray-200">
+						for _, url := range data.URLs {
+							<tr>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
+									<a href={ templ.SafeURL(url.Long) } class="hover:text-indigo-600" target="_blank" title={ url.Long }>
+										{ url.Long }
+									</a>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+									<div class="flex items-center">
+										<a href={ templ.SafeURL(url.Short) } class="text-indigo-600 hover:text-indigo-900" target="_blank">
+											{ url.Slug }
+										</a>
+										<button class="ml-2 text-gray-400 hover:text-gray-600" onclick={ templ.JSFuncCall("copyToClipboard", url.Short) }>
+											<i class="fas fa-copy"></i>
+										</button>
+									</div>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ url.Author }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+										{ fmt.Sprintf("%d", url.NrVisited) }
+									</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ url.CreatedAt.Format(domain.TimeFormat) }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+									<div class="flex space-x-2">
+										<button class="text-indigo-600 hover:text-indigo-900" title="View Analytics">
+											<i class="fas fa-chart-bar"></i>
+										</button>
+										<button class="text-indigo-600 hover:text-indigo-900" title="Edit URL">
+											<i class="fas fa-edit"></i>
+										</button>
+										<button class="text-red-600 hover:text-red-900" title="Disable URL">
+											<i class="fas fa-ban"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+				<!-- Pagination -->
+				@components.Pagination(data.Pagination)
+			</div>
+		</div>
+	}
+}

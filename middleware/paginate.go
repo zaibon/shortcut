@@ -180,9 +180,22 @@ func GeneratePaginationLinks(params PaginationParams, total int) domain.Paginati
 		}
 	}
 
+	minVal := 0
+	if total > 0 {
+		minVal = (params.Page-1)*params.PageSize + 1
+	}
+
+	maxVal := params.Page * params.PageSize
+	if maxVal > total {
+		maxVal = total
+	}
+
 	return domain.PaginationLinks{
-		Previous: previousLink,
-		Pages:    links,
-		Next:     nextLink,
+		Previous:   previousLink,
+		Pages:      links,
+		Next:       nextLink,
+		Min:        minVal,
+		Max:        maxVal,
+		TotalItems: total,
 	}
 }

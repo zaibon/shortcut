@@ -23,7 +23,7 @@ templ URLDetail(url domain.URLStat) {
 							<div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
 								<div class="mt-2 flex items-center text-sm text-gray-500">
 									<i class="fas fa-calendar-alt flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"></i>
-									Created on { url.CreatedAt.Format(timeFormat) }
+									Created on { url.CreatedAt.Format(domain.TimeFormat) }
 								</div>
 								// <div class="mt-2 flex items-center text-sm text-gray-500">
 								// 	<i class="fas fa-clock flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"></i>
@@ -411,20 +411,6 @@ templ URLDetail(url domain.URLStat) {
 			</div>
 		</main>
 		<script>
-		function load2dData(name){
-			// Device chart
-			const labels = []
-			const data = []
-			const input = JSON.parse(document.getElementById(name).textContent);
-			input.forEach(item => {
-				labels.push(item.Label);
-				data.push(item.Value);
-			});
-
-			return {labels, data}
-		}
-
-
 		function initDeviceChart(){
 			const {labels, data} = load2dData('deviceChartData');
 			const deviceCtx = document.getElementById('deviceChart').getContext('2d');

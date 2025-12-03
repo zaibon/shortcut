@@ -23,3 +23,16 @@ type AdminUser struct {
 	ClickCount int
 	Status     string // should be part of User
 }
+
+type AdminAnalytics struct {
+	DailyActiveUsers  []TimeSeriesData
+	ClickDistribution []TwoDimension // Referrers
+	TopURLs           []TopURL
+	GeoDistribution   []TwoDimension // Country + Count
+}
+
+type TopURL struct {
+	ShortURL string
+	LongURL  string
+	Clicks   int
+}

@@ -163,3 +163,64 @@ GROUP BY
     urls.id, users.username, users.id
 ORDER BY
     urls.created_at DESC;
+
+-- name: AdminGetDailyActiveVisitors :many
+WITH date_series AS (
+    SELECT generate_series(
+        (CURRENT_DATE - interval '6 days')::date,
+        CURRENT_DATE::date,
+        '1 day'::interval
+    )::date AS day
+)
+SELECT
+    ds.day::timestamp AS "day",
+    COUNT(DISTINCT v.ip_address)::bigint AS count
+FROM
+    date_series ds
+LEFT JOIN
+    visits v ON date_trunc('day', v.visited_at) = ds.day
+GROUP BY
+    ds.day
+ORDER BY
+    ds.day;
+
+-- name: AdminGetTopReferrers :many
+SELECT
+    COALESCE(NULLIF(referrer, ''), 'Direct') AS source,
+    COUNT(*)::bigint AS count
+FROM
+    visits
+GROUP BY
+    source
+ORDER BY
+    count DESC
+LIMIT 5;
+
+-- name: AdminGetTopURLs :many
+SELECT
+    u.short_url,
+    u.long_url,
+    COUNT(v.id)::bigint AS clicks
+FROM
+    urls u
+JOIN
+    visits v ON u.id = v.url_id
+GROUP BY
+    u.id
+ORDER BY
+    clicks DESC
+LIMIT 5;
+
+-- name: AdminGetGeoDistribution :many
+SELECT
+    COALESCE(vl.country_name, 'Unknown') AS country,
+    COUNT(*)::bigint AS count
+FROM
+    visits v
+JOIN
+    visit_locations vl ON v.id = vl.visit_id
+GROUP BY
+    country
+ORDER BY
+    count DESC
+LIMIT 5;

@@ -46,12 +46,12 @@ func (h *Handler) myLinks(w http.ResponseWriter, r *http.Request) {
 
 	// Get pagination parameters from the context
 	pagination := middleware.GetPaginationParams(r.Context())
-	pagination.TotalRecords = len(urls)
+	paginationLinks := middleware.GeneratePaginationLinks(pagination, len(urls))
 
 	urls = middleware.Paginate(urls, pagination)
 	urls = sortUrls(urls, "")
 
-	if err := templates.URLSPage(urls, pagination).
+	if err := templates.URLSPage(urls, paginationLinks).
 		Render(r.Context(), w); err != nil {
 		log.Error("failed to render page", slog.Any("error", err))
 	}
@@ -83,12 +83,12 @@ func (h *Handler) urlSort(w http.ResponseWriter, r *http.Request) {
 
 	// Get pagination parameters from the context
 	pagination := middleware.GetPaginationParams(r.Context())
-	pagination.TotalRecords = len(urls)
+	paginationLinks := middleware.GeneratePaginationLinks(pagination, len(urls))
 
 	urls = middleware.Paginate(urls, pagination)
 	urls = sortUrls(urls, sortBy)
 
-	if err := templates.URLTable(urls, pagination).
+	if err := templates.URLTable(urls, paginationLinks).
 		Render(r.Context(), w); err != nil {
 		log.Error("failed to render page", slog.Any("error", err))
 	}
@@ -119,11 +119,11 @@ func (h *Handler) urlSearch(w http.ResponseWriter, r *http.Request) {
 
 	// Get pagination parameters from the context
 	pagination := middleware.GetPaginationParams(r.Context())
-	pagination.TotalRecords = len(urls)
+	paginationLinks := middleware.GeneratePaginationLinks(pagination, len(urls))
 
 	urls = middleware.Paginate(urls, pagination)
 
-	if err := templates.URLTable(urls, pagination).
+	if err := templates.URLTable(urls, paginationLinks).
 		Render(r.Context(), w); err != nil {
 		log.Error("failed to render page", slog.Any("error", err))
 	}

@@ -1,0 +1,124 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/templates/components"
+)
+
+templ UsersTab(data AdminDashboardData) {
+	@AdminLayout(data) {
+		<div>
+			<!-- Users Management -->
+			<div class="mb-8">
+				<div class="sm:flex sm:items-center">
+					<div class="sm:flex-auto">
+						<h1 class="text-2xl font-semibold text-gray-900">Users</h1>
+						<p class="mt-2 text-sm text-gray-700">Manage all registered users and their accounts.</p>
+					</div>
+					<div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+						<button type="button" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+							<i class="fas fa-user-plus mr-2"></i>
+							Add User
+						</button>
+					</div>
+				</div>
+			</div>
+			<!-- Users Filters -->
+			<div class="bg-white shadow sm:rounded-lg mb-6">
+				<div class="px-4 py-5 sm:p-6">
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+						<div>
+							<label for="user-search" class="block text-sm font-medium text-gray-700">Search</label>
+							<input type="text" name="user-search" id="user-search" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Search users..."/>
+						</div>
+						<div>
+							<label for="user-status" class="block text-sm font-medium text-gray-700">Status</label>
+							<select id="user-status" name="user-status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Status</option>
+								<option>Active</option>
+								<option>Inactive</option>
+								<option>Suspended</option>
+							</select>
+						</div>
+						<div>
+							<label for="user-plan" class="block text-sm font-medium text-gray-700">Plan</label>
+							<select id="user-plan" name="user-plan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Plans</option>
+								<option>Free</option>
+								<option>Pro</option>
+								<option>Business</option>
+							</select>
+						</div>
+						<div>
+							<label for="user-date" class="block text-sm font-medium text-gray-700">Registration</label>
+							<select id="user-date" name="user-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+								<option>All Time</option>
+								<option>Last 7 days</option>
+								<option>Last 30 days</option>
+								<option>Last 90 days</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Users Table -->
+			<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+				<table class="min-w-full divide-y divide-gray-200">
+					<thead class="bg-gray-50">
+						<tr>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URLs</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+							<th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+						</tr>
+					</thead>
+					<tbody class="bg-white divide-y divide-gray-200">
+						for _, user := range data.Users {
+							<tr>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="flex items-center">
+										// <div class="flex-shrink-0 h-10 w-10">
+										// 	<img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60" alt=""/>
+										// </div>
+										<div class="ml-4">
+											<div class="text-sm font-medium text-gray-900">{ user.Name }</div>
+											<div class="text-sm text-gray-500">{ user.Email }</div>
+										</div>
+									</div>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{ user.Plan }</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ fmt.Sprintf("%d",user.URLCount) }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ fmt.Sprintf("%d",user.ClickCount) }</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{ user.Status }</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ user.CreatedAt.Format(domain.TimeFormat) }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+									<div class="flex space-x-2">
+										// <button class="text-indigo-600 hover:text-indigo-900" title="View Details">
+										// 	<i class="fas fa-eye"></i>
+										// </button>
+										// <button class="text-indigo-600 hover:text-indigo-900" title="Edit User">
+										// 	<i class="fas fa-edit"></i>
+										// </button>
+										<button class="text-red-600 hover:text-red-900" title="Suspend User">
+											<i class="fas fa-ban"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+				<!-- Pagination -->
+				@components.Pagination(data.Pagination)
+			</div>
+		</div>
+	}
+}

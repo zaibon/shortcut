@@ -9,7 +9,7 @@ import (
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/services"
-	"github.com/zaibon/shortcut/templates"
+	"github.com/zaibon/shortcut/templates/admin"
 )
 
 type AdministrationHandlers struct {
@@ -49,12 +49,12 @@ func (h *AdministrationHandlers) overview(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	data := templates.AdminDashboardData{
+	data := admin.AdminDashboardData{
 		Tab:      "overview",
 		Overview: *overview,
 	}
 
-	templates.AdminOverviewTab(data).Render(r.Context(), w)
+	admin.OverviewTab(data).Render(r.Context(), w)
 }
 
 func (h *AdministrationHandlers) users(w http.ResponseWriter, r *http.Request) {
@@ -67,17 +67,14 @@ func (h *AdministrationHandlers) users(w http.ResponseWriter, r *http.Request) {
 	paginatePrams := middleware.GetPaginationParams(r.Context())
 	paginationLinks := middleware.GeneratePaginationLinks(paginatePrams, len(users))
 	users = middleware.Paginate(users, paginatePrams)
-	paginationLinks.Min = paginatePrams.Page
-	paginationLinks.Max = paginatePrams.Page + (len(users) / paginatePrams.PageSize)
-	paginationLinks.TotalItems = len(users)
 
-	data := templates.AdminDashboardData{
+	data := admin.AdminDashboardData{
 		Tab:        "users",
 		Users:      users,
 		Pagination: paginationLinks,
 	}
 
-	templates.AdminUsersTab(data).Render(r.Context(), w)
+	admin.UsersTab(data).Render(r.Context(), w)
 }
 
 func (h *AdministrationHandlers) urls(w http.ResponseWriter, r *http.Request) {
@@ -90,29 +87,33 @@ func (h *AdministrationHandlers) urls(w http.ResponseWriter, r *http.Request) {
 	paginatePrams := middleware.GetPaginationParams(r.Context())
 	paginationLinks := middleware.GeneratePaginationLinks(paginatePrams, len(urls))
 	urls = middleware.Paginate(urls, paginatePrams)
-	paginationLinks.Min = paginatePrams.Page
-	paginationLinks.Max = paginatePrams.Page + (len(urls) / paginatePrams.PageSize)
-	paginationLinks.TotalItems = len(urls)
 
-	data := templates.AdminDashboardData{
+	data := admin.AdminDashboardData{
 		Tab:        "urls",
 		URLs:       urls,
 		Pagination: paginationLinks,
 	}
 
-	templates.AdminURLsTab(data).Render(r.Context(), w)
+	admin.URLsTab(data).Render(r.Context(), w)
 }
 func (h *AdministrationHandlers) analytics(w http.ResponseWriter, r *http.Request) {
-	data := templates.AdminDashboardData{
-		Tab: "analytics",
+	stats, err := h.service.GetAnalyticsStats(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to retrieve analytics", http.StatusInternalServerError)
+		return
 	}
 
-	templates.AdminAnalyticsTab(data).Render(r.Context(), w)
+	data := admin.AdminDashboardData{
+		Tab:       "analytics",
+		Analytics: *stats,
+	}
+
+	admin.AnalyticsTab(data).Render(r.Context(), w)
 }
 func (h *AdministrationHandlers) settings(w http.ResponseWriter, r *http.Request) {
-	data := templates.AdminDashboardData{
+	data := admin.AdminDashboardData{
 		Tab: "settings",
 	}
 
-	templates.AdminSettingsTab(data).Render(r.Context(), w)
+	admin.SettingsTab(data).Render(r.Context(), w)
 }

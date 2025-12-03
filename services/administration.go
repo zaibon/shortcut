@@ -139,3 +139,65 @@ func (s *Administration) GetOverviewStats(ctx context.Context) (*domain.AdminOve
 
 	return overview, nil
 }
+
+func (s *Administration) GetAnalyticsStats(ctx context.Context) (*domain.AdminAnalytics, error) {
+	dailyActive, err := s.db.AdminGetDailyActiveVisitors(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var dailyActiveSeries []domain.TimeSeriesData
+	for _, da := range dailyActive {
+		dailyActiveSeries = append(dailyActiveSeries, domain.TimeSeriesData{
+			Time:  da.Day.Time,
+			Count: da.Count,
+		})
+	}
+
+	topReferrers, err := s.db.AdminGetTopReferrers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var referrers []domain.TwoDimension
+	for _, ref := range topReferrers {
+		source, ok := ref.Source.(string)
+		if !ok {
+			source = "Unknown"
+		}
+		referrers = append(referrers, domain.TwoDimension{
+			Label: source,
+			Value: int(ref.Count),
+		})
+	}
+
+	topURLsRows, err := s.db.AdminGetTopURLs(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var topURLs []domain.TopURL
+	for _, u := range topURLsRows {
+		topURLs = append(topURLs, domain.TopURL{
+			ShortURL: toURL(s.domain, u.ShortUrl),
+			LongURL:  u.LongUrl,
+			Clicks:   int(u.Clicks),
+		})
+	}
+
+	geoRows, err := s.db.AdminGetGeoDistribution(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var geoDist []domain.TwoDimension
+	for _, g := range geoRows {
+		geoDist = append(geoDist, domain.TwoDimension{
+			Label: g.Country,
+			Value: int(g.Count),
+		})
+	}
+
+	return &domain.AdminAnalytics{
+		DailyActiveUsers:  dailyActiveSeries,
+		ClickDistribution: referrers,
+		TopURLs:           topURLs,
+		GeoDistribution:   geoDist,
+	}, nil
+}
