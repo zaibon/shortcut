@@ -169,75 +169,97 @@ templ URLTable(urls []domain.URLStat, paginationLinks domain.PaginationLinks) {
 					</tr>
 				</thead>
 				<tbody class="bg-white divide-y divide-gray-200">
-					<!-- URL items will be loaded here -->
-					for _, url := range urls {
+					if len(urls) == 0 {
 						<tr>
-							<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
-								<a
-									href={ templ.SafeURL(url.Long) }
-									class="hover:text-indigo-600"
-									target="_blank"
-									title="{ url.Long }"
-								>
-									{ url.Long }
-								</a>
-							</td>
-							<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-								<div class="flex items-center">
-									<a
-										href={ templ.SafeURL(url.Short) }
-										class="text-indigo-600 hover:text-indigo-900"
-										target="_blank"
-									>
-										{ url.Short }
-									</a>
-									<button
-										class="ml-2 text-gray-400 hover:text-gray-600"
-										onclick={ templ.JSFuncCall("copyToClipboard", url.Short) }
-									>
-										<i class="fas fa-copy"></i>
-									</button>
-								</div>
-							</td>
-							<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-								<span
-									class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
-								>
-									{ fmt.Sprintf("%d", url.NrVisited) }
-								</span>
-							</td>
-							<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-								{ url.CreatedAt.Format(domain.TimeFormat) }
-							</td>
-							<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-								<div class="flex space-x-2" x-data="qrCodeModal">
-									// <button class="text-indigo-600 hover:text-indigo-900" title="Edit">
-									// 	<i class="fas fa-edit"></i>
-									// </button>
-									<button
-										class="text-indigo-600 hover:text-indigo-900"
-										title="QR Code"
-										@click={ fmt.Sprintf("showModal('%s')", url.Short) }
-									>
-										<i class="fas fa-qrcode"></i>
-									</button>
-									@components.QRCodePopup(url)
-									<a href={ templ.SafeURL(fmt.Sprintf("/urls/%s", url.Slug)) } class="text-indigo-600 hover:text-indigo-900" title="Analytics">
-										<i class="fas fa-chart-bar"></i>
-									</a>
-									<button
-										class="text-red-600 hover:text-red-900"
-										title="Delete"
-										hx-delete={ fmt.Sprintf("/urls/%d", url.ID) }
-										hx-confirm="Are you sure you want to delete this URL?"
-										hx-target="closest tr"
-										hx-swap="outerHTML swap:1s"
-									>
-										<i class="fas fa-trash"></i>
-									</button>
+							<td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">
+								<div class="flex flex-col items-center justify-center">
+									<div class="mb-4 text-indigo-100">
+										<i class="fas fa-link text-4xl"></i>
+									</div>
+									<h3 class="mt-2 text-lg font-medium text-gray-900">No URLs found</h3>
+									<p class="mt-1 text-sm text-gray-500">Get started by creating your first shortened link.</p>
+									<div class="mt-6">
+										<a href="/" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+											<i class="fas fa-plus mr-2"></i> Create New URL
+										</a>
+									</div>
 								</div>
 							</td>
 						</tr>
+					} else {
+						<!-- URL items will be loaded here -->
+						for _, url := range urls {
+							<tr class="hover:bg-gray-50 transition-colors duration-150">
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
+									<a
+										href={ templ.SafeURL(url.Long) }
+										class="hover:text-indigo-600"
+										target="_blank"
+										title="{ url.Long }"
+									>
+										{ url.Long }
+									</a>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+									<div class="flex items-center">
+										<a
+											href={ templ.SafeURL(url.Short) }
+											class="text-indigo-600 hover:text-indigo-900"
+											target="_blank"
+										>
+											{ url.Short }
+										</a>
+										<button
+											class="ml-2 text-gray-400 hover:text-gray-600"
+											onclick={ templ.JSFuncCall("copyToClipboard", url.Short) }
+										>
+											<i class="fas fa-copy"></i>
+										</button>
+									</div>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									<span
+										class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+									>
+										{ fmt.Sprintf("%d", url.NrVisited) }
+									</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									{ url.CreatedAt.Format(domain.TimeFormat) }
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+									<div class="flex items-center space-x-4" x-data="qrCodeModal">
+										<a
+											href={ templ.SafeURL(fmt.Sprintf("/urls/%s", url.Slug)) }
+											class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+										>
+											<i class="fas fa-chart-bar mr-1.5"></i>
+											Stats
+										</a>
+										<div class="flex items-center space-x-1 pl-2 border-l border-gray-200">
+											<button
+												class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200"
+												title="QR Code"
+												@click={ fmt.Sprintf("showModal('%s')", url.Short) }
+											>
+												<i class="fas fa-qrcode"></i>
+											</button>
+											<button
+												class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors duration-200"
+												title="Delete"
+												hx-delete={ fmt.Sprintf("/urls/%d", url.ID) }
+												hx-confirm="Are you sure you want to delete this URL?"
+												hx-target="closest tr"
+												hx-swap="outerHTML swap:1s"
+											>
+												<i class="fas fa-trash"></i>
+											</button>
+										</div>
+										@components.QRCodePopup(url)
+									</div>
+								</td>
+							</tr>
+						}
 					}
 				</tbody>
 			</table>
