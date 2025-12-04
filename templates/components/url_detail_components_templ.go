@@ -407,51 +407,60 @@ func LocationsAndReferrers(url domain.URLStat) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		for _, source := range url.Referrers {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div class=\"flex items-center justify-between text-sm py-1\"><div class=\"flex items-center min-w-0 flex-1 mr-2\"><span class=\"w-3 h-3 rounded-full mr-2 bg-indigo-500 flex-shrink-0\"></span> <span class=\"text-slate-600 truncate\" title=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div class=\"flex items-center justify-between text-sm py-1\"><div class=\"flex items-center min-w-0 flex-1 mr-2\"><span class=\"w-3 h-3 rounded-full mr-2 bg-indigo-500 flex-shrink-0\"></span> <a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var23 string
-			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(source.Source)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 181, Col: 68}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+			var templ_7745c5c3_Var23 templ.SafeURL = templ.SafeURL(source.Source)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var23)))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" target=\"_blank\" class=\"text-indigo-600 hover:text-indigo-800 hover:underline truncate transition-colors duration-150 ease-in-out\" title=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(source.Source)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 181, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 181, Col: 201}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></div><span class=\"font-medium text-slate-900 flex-shrink-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var25 string
-			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", source.Percentage))
+			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(source.Source)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 183, Col: 105}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 182, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</a></div><span class=\"font-medium text-slate-900 flex-shrink-0\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var26 string
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", source.Percentage))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 185, Col: 105}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -475,80 +484,80 @@ func DevicesAndBrowsers(url domain.URLStat) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var26 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var26 == nil {
-			templ_7745c5c3_Var26 = templ.NopComponent
+		templ_7745c5c3_Var27 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var27 == nil {
+			templ_7745c5c3_Var27 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"grid grid-cols-1 md:grid-cols-2 gap-8 mb-12\"><!-- Devices (Fixed Height) --><div class=\"bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-[500px]\"><div class=\"p-6 border-b border-slate-100 flex-none\"><h3 class=\"font-semibold text-slate-900\">Device Breakdown</h3></div><div class=\"p-6 flex-1 flex flex-col justify-center\"><div class=\"flex items-center justify-around text-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"grid grid-cols-1 md:grid-cols-2 gap-8 mb-12\"><!-- Devices (Fixed Height) --><div class=\"bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-[500px]\"><div class=\"p-6 border-b border-slate-100 flex-none\"><h3 class=\"font-semibold text-slate-900\">Device Breakdown</h3></div><div class=\"p-6 flex-1 flex flex-col justify-center\"><div class=\"flex items-center justify-around text-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		mobile := url.Devices[domain.DeviceKindMobile]
 		desktop := url.Devices[domain.DeviceKindDesktop]
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"p-6 rounded-xl bg-slate-50 w-full mr-4 border border-slate-100 transition-all hover:shadow-md\"><div class=\"inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4\"><i class=\"fas fa-desktop text-2xl\"></i></div><div class=\"text-3xl font-bold text-slate-900\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var27 string
-		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", desktop.Percentage))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 208, Col: 96}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div><div class=\"text-sm text-slate-500 mt-1\">Desktop</div></div><div class=\"p-6 rounded-xl bg-slate-50 w-full border border-slate-100 transition-all hover:shadow-md\"><div class=\"inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 text-purple-600 mb-4\"><i class=\"fas fa-mobile-alt text-2xl\"></i></div><div class=\"text-3xl font-bold text-slate-900\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"p-6 rounded-xl bg-slate-50 w-full mr-4 border border-slate-100 transition-all hover:shadow-md\"><div class=\"inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4\"><i class=\"fas fa-desktop text-2xl\"></i></div><div class=\"text-3xl font-bold text-slate-900\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var28 string
-		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", mobile.Percentage))
+		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", desktop.Percentage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 215, Col: 95}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 210, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div><div class=\"text-sm text-slate-500 mt-1\">Mobile</div></div></div></div></div><!-- Browsers (Fixed Height with Scroll) --><div class=\"bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-[500px]\"><div class=\"p-6 border-b border-slate-100 flex-none bg-white z-10 rounded-t-xl\"><h3 class=\"font-semibold text-slate-900\">Top Browsers</h3></div><div class=\"flex-1 overflow-y-auto custom-scroll\"><table class=\"min-w-full text-left text-sm\"><thead class=\"bg-slate-50 text-slate-500 font-medium sticky top-0\"><tr><th class=\"py-3 pl-6 rounded-tl-lg bg-slate-50\">Browser</th><th class=\"py-3 text-right pr-6 rounded-tr-lg bg-slate-50\">Usage</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div><div class=\"text-sm text-slate-500 mt-1\">Desktop</div></div><div class=\"p-6 rounded-xl bg-slate-50 w-full border border-slate-100 transition-all hover:shadow-md\"><div class=\"inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 text-purple-600 mb-4\"><i class=\"fas fa-mobile-alt text-2xl\"></i></div><div class=\"text-3xl font-bold text-slate-900\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var29 string
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", mobile.Percentage))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 217, Col: 95}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><div class=\"text-sm text-slate-500 mt-1\">Mobile</div></div></div></div></div><!-- Browsers (Fixed Height with Scroll) --><div class=\"bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-[500px]\"><div class=\"p-6 border-b border-slate-100 flex-none bg-white z-10 rounded-t-xl\"><h3 class=\"font-semibold text-slate-900\">Top Browsers</h3></div><div class=\"flex-1 overflow-y-auto custom-scroll\"><table class=\"min-w-full text-left text-sm\"><thead class=\"bg-slate-50 text-slate-500 font-medium sticky top-0\"><tr><th class=\"py-3 pl-6 rounded-tl-lg bg-slate-50\">Browser</th><th class=\"py-3 text-right pr-6 rounded-tr-lg bg-slate-50\">Usage</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, stats := range url.Browsers {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<tr><td class=\"py-3 pl-6 flex items-center gap-3\"><span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var29 string
-			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(stats.Browser.Name)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 239, Col: 35}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</span></td><td class=\"py-3 pr-6 text-right font-medium\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<tr><td class=\"py-3 pl-6 flex items-center gap-3\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var30 string
-			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", stats.Percentage))
+			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(stats.Browser.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 241, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 241, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</span></td><td class=\"py-3 pr-6 text-right font-medium\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var31 string
+			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", stats.Percentage))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_detail_components.templ`, Line: 243, Col: 94}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</tbody></table></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</tbody></table></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -572,9 +581,9 @@ func ChartData(id string, data []domain.TimeSeriesData) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var31 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var31 == nil {
-			templ_7745c5c3_Var31 = templ.NopComponent
+		templ_7745c5c3_Var32 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var32 == nil {
+			templ_7745c5c3_Var32 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templ.JSONScript(id, data).Render(ctx, templ_7745c5c3_Buffer)
