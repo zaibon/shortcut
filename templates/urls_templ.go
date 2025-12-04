@@ -9,7 +9,6 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"fmt"
 	"github.com/zaibon/shortcut/domain"
 	"github.com/zaibon/shortcut/templates/components"
 )
@@ -47,7 +46,7 @@ func URLSPage(urls []domain.URLStat, paginationLinks domain.PaginationLinks) tem
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-grow\"><div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\"><!-- URL List Header --><div class=\"px-4 py-5 sm:px-6 bg-white shadow sm:rounded-lg mb-6\"><div class=\"flex flex-col sm:flex-row sm:justify-between sm:items-center\"><div><h1 class=\"text-2xl font-bold text-gray-900\">Your Shortened URLs</h1><p class=\"mt-1 text-sm text-gray-600\">Manage and track all your shortened links in one place.</p></div><div class=\"mt-4 sm:mt-0\"><a href=\"/\" class=\"inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\"><i class=\"fas fa-plus mr-2\"></i> Create New URL</a></div></div></div><!-- Search and Filter -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ showQR: false, qrUrl: &#39;&#39;, copyFeedback: null }\"><main class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8\"><!-- Header Section --><div class=\"flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8\"><div><h1 class=\"text-2xl font-bold text-slate-900\">Your Links</h1><p class=\"text-slate-500 mt-1\">Manage your active shortened URLs.</p></div><!-- Filters -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -55,15 +54,15 @@ func URLSPage(urls []domain.URLStat, paginationLinks domain.PaginationLinks) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<!-- URL List -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><!-- Loading Indicator --><div id=\"loading-indicator\" class=\"htmx-indicator flex justify-center py-4\"><div class=\"animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600\"></div></div><!-- Links List Container -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = URLTable(urls, paginationLinks).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = URLList(urls, paginationLinks).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</main><!-- QR Modal --><div x-show=\"showQR\" class=\"relative z-50\" aria-labelledby=\"modal-title\" role=\"dialog\" aria-modal=\"true\" x-cloak><div x-show=\"showQR\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0\" x-transition:enter-end=\"opacity-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100\" x-transition:leave-end=\"opacity-0\" class=\"fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity backdrop-blur-sm\"></div><div class=\"fixed inset-0 z-10 overflow-y-auto\"><div class=\"flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0\"><div x-show=\"showQR\" @click.away=\"showQR = false\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" x-transition:enter-end=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave-end=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" class=\"relative transform overflow-hidden rounded-xl bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6\"><div class=\"absolute right-0 top-0 pr-4 pt-4\"><button @click=\"showQR = false\" type=\"button\" class=\"rounded-md bg-white text-slate-400 hover:text-slate-500 focus:outline-none\"><i class=\"fas fa-times\"></i></button></div><div><div class=\"mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 mb-4\"><i class=\"fas fa-qrcode text-indigo-600 text-xl\"></i></div><div class=\"text-center\"><h3 class=\"text-lg font-semibold leading-6 text-slate-900\" id=\"modal-title\">QR Code</h3><div class=\"mt-2\"><p class=\"text-sm text-slate-500 mb-4\">Scan to visit the link immediately.</p><div class=\"bg-white p-4 border border-slate-200 rounded-lg inline-block shadow-sm\"><div class=\"w-48 h-48 bg-slate-100 flex items-center justify-center relative\"><img :src=\"`https://api.qrserver.com/v1/create-qr-code/?size=200x200&amp;data=${qrUrl}`\" alt=\"QR Code\" class=\"w-full h-full object-contain\"></div></div><p class=\"mt-4 text-xs font-mono text-slate-400 bg-slate-50 py-1 px-2 rounded truncate\" x-text=\"qrUrl\"></p></div></div></div><div class=\"mt-5 sm:mt-6\"><button type=\"button\" class=\"inline-flex w-full justify-center rounded-lg bg-indigo-600 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600\" @click=\"showQR = false\">Done</button></div></div></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -98,7 +97,7 @@ func URLFilter() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"bg-white shadow sm:rounded-lg mb-6\"><div class=\"px-4 py-5 sm:p-6\"><div class=\"flex flex-col sm:flex-row gap-4\"><div class=\"flex-grow\"><label for=\"search\" class=\"sr-only\">Search URLs</label><div class=\"relative rounded-md shadow-sm\"><div class=\"absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none\"><i class=\"fas fa-search text-gray-400\"></i></div><input type=\"text\" name=\"search\" id=\"search\" class=\"focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md\" placeholder=\"Search URLs\" hx-get=\"/urls-search\" hx-trigger=\"keyup changed delay:500ms\" hx-target=\"#url-table\" hx-indicator=\"#search-spinner\"><div id=\"search-spinner\" class=\"htmx-indicator absolute inset-y-0 right-0 pr-3 flex items-center\"><svg class=\"animate-spin h-5 w-5 text-indigo-500\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><circle class=\"opacity-25\" cx=\"12\" cy=\"12\" r=\"10\" stroke=\"currentColor\" stroke-width=\"4\"></circle> <path class=\"opacity-75\" fill=\"currentColor\" d=\"M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z\"></path></svg></div></div></div><div><label for=\"sort\" class=\"sr-only\">Sort URLs</label> <select id=\"sort\" name=\"sort\" class=\"block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md\" hx-get=\"/urls-sort\" hx-trigger=\"change\" hx-target=\"#url-table\" hx-indicator=\"#sort-spinner\"><option value=\"newest\">Newest</option> <option value=\"oldest\">Oldest</option> <option value=\"most-clicked\">Most Clicked</option> <option value=\"least-clicked\">Least Clicked</option></select><div id=\"sort-spinner\" class=\"htmx-indicator hidden\"><svg class=\"animate-spin h-5 w-5 text-indigo-500\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><circle class=\"opacity-25\" cx=\"12\" cy=\"12\" r=\"10\" stroke=\"currentColor\" stroke-width=\"4\"></circle> <path class=\"opacity-75\" fill=\"currentColor\" d=\"M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z\"></path></svg></div></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"flex flex-col sm:flex-row gap-3 w-full md:w-auto\"><!-- Search --><div class=\"relative group w-full md:w-64\"><div class=\"absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none\"><i class=\"fas fa-search text-slate-400 group-focus-within:text-indigo-500 transition-colors\"></i></div><input type=\"text\" name=\"search\" class=\"block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:placeholder-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all shadow-sm\" placeholder=\"Search links...\" hx-get=\"/urls-search\" hx-trigger=\"keyup changed delay:500ms\" hx-target=\"#url-list\" hx-indicator=\"#loading-indicator\"></div><!-- Sort --><div class=\"relative w-full md:w-40\"><select name=\"sort\" class=\"block w-full pl-3 pr-10 py-2 text-base border-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg shadow-sm bg-white\" hx-get=\"/urls-sort\" hx-trigger=\"change\" hx-target=\"#url-list\"><option value=\"newest\">Newest First</option> <option value=\"most-clicked\">Most Popular</option> <option value=\"oldest\">Oldest First</option></select></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -106,7 +105,7 @@ func URLFilter() templ.Component {
 	})
 }
 
-func URLTable(urls []domain.URLStat, paginationLinks domain.PaginationLinks) templ.Component {
+func URLList(urls []domain.URLStat, paginationLinks domain.PaginationLinks) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -127,158 +126,24 @@ func URLTable(urls []domain.URLStat, paginationLinks domain.PaginationLinks) tem
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div id=\"url-table\" class=\"bg-white shadow overflow-hidden sm:rounded-lg\"><div class=\"overflow-x-auto\"><table class=\"min-w-full divide-y divide-gray-200\"><thead class=\"bg-gray-50\"><tr><th scope=\"col\" class=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">Original URL</th><th scope=\"col\" class=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">Short URL</th><th scope=\"col\" class=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">Clicks</th><th scope=\"col\" class=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">Created</th><th scope=\"col\" class=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">Actions</th></tr></thead> <tbody class=\"bg-white divide-y divide-gray-200\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div id=\"url-list\" class=\"space-y-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(urls) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<tr><td colspan=\"5\" class=\"px-6 py-10 text-center text-sm text-gray-500\"><div class=\"flex flex-col items-center justify-center\"><div class=\"mb-4 text-indigo-100\"><i class=\"fas fa-link text-4xl\"></i></div><h3 class=\"mt-2 text-lg font-medium text-gray-900\">No URLs found</h3><p class=\"mt-1 text-sm text-gray-500\">Get started by creating your first shortened link.</p><div class=\"mt-6\"><a href=\"/\" class=\"inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\"><i class=\"fas fa-plus mr-2\"></i> Create New URL</a></div></div></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"bg-white rounded-xl shadow-sm border border-slate-200 p-10 text-center\"><div class=\"flex flex-col items-center justify-center\"><div class=\"mb-4 text-indigo-100 bg-indigo-50 p-4 rounded-full\"><i class=\"fas fa-link text-4xl text-indigo-500\"></i></div><h3 class=\"mt-2 text-lg font-medium text-gray-900\">No URLs found</h3><p class=\"mt-1 text-sm text-gray-500\">Get started by creating your first shortened link.</p><div class=\"mt-6\"><a href=\"/\" class=\"inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\"><i class=\"fas fa-plus mr-2\"></i> Create New URL</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<!-- URL items will be loaded here -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
 			for _, url := range urls {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<tr class=\"hover:bg-gray-50 transition-colors duration-150\"><td class=\"px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate\"><a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var5 templ.SafeURL = templ.SafeURL(url.Long)
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var5)))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" class=\"hover:text-indigo-600\" target=\"_blank\" title=\"{ url.Long }\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(url.Long)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `urls.templ`, Line: 200, Col: 20}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</a></td><td class=\"px-6 py-4 whitespace-nowrap text-sm text-gray-900\"><div class=\"flex items-center\"><a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var7 templ.SafeURL = templ.SafeURL(url.Short)
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var7)))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"text-indigo-600 hover:text-indigo-900\" target=\"_blank\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `urls.templ`, Line: 210, Col: 22}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</a> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.JSFuncCall("copyToClipboard", url.Short))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<button class=\"ml-2 text-gray-400 hover:text-gray-600\" onclick=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var9 templ.ComponentScript = templ.JSFuncCall("copyToClipboard", url.Short)
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9.Call)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"><i class=\"fas fa-copy\"></i></button></div></td><td class=\"px-6 py-4 whitespace-nowrap text-sm text-gray-500\"><span class=\"px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", url.NrVisited))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `urls.templ`, Line: 224, Col: 44}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span></td><td class=\"px-6 py-4 whitespace-nowrap text-sm text-gray-500\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(url.CreatedAt.Format(domain.TimeFormat))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `urls.templ`, Line: 228, Col: 50}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</td><td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium\"><div class=\"flex items-center space-x-4\" x-data=\"qrCodeModal\"><a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var12 templ.SafeURL = templ.SafeURL(fmt.Sprintf("/urls/%s", url.Slug))
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var12)))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" class=\"inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200\"><i class=\"fas fa-chart-bar mr-1.5\"></i> Stats</a><div class=\"flex items-center space-x-1 pl-2 border-l border-gray-200\"><button class=\"p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200\" title=\"QR Code\" @click=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var13 string
-				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("showModal('%s')", url.Short))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `urls.templ`, Line: 243, Col: 62}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"><i class=\"fas fa-qrcode\"></i></button> <button class=\"p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors duration-200\" title=\"Delete\" hx-delete=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var14 string
-				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/urls/%d", url.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `urls.templ`, Line: 250, Col: 55}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" hx-confirm=\"Are you sure you want to delete this URL?\" hx-target=\"closest tr\" hx-swap=\"outerHTML swap:1s\"><i class=\"fas fa-trash\"></i></button></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.QRCodePopup(url).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></td></tr>")
+				templ_7745c5c3_Err = components.URLListItem(url).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</tbody></table></div><!-- Pagination -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<!-- Pagination -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -286,7 +151,7 @@ func URLTable(urls []domain.URLStat, paginationLinks domain.PaginationLinks) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

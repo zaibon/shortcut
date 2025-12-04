@@ -89,7 +89,7 @@ func (h *Handler) urlSort(w http.ResponseWriter, r *http.Request) {
 	urls = middleware.Paginate(urls, pagination)
 	urls = sortUrls(urls, sortBy)
 
-	if err := templates.URLTable(urls, paginationLinks).
+	if err := templates.URLList(urls, paginationLinks).
 		Render(r.Context(), w); err != nil {
 		log.Error("failed to render page", slog.Any("error", err))
 	}
@@ -124,7 +124,7 @@ func (h *Handler) urlSearch(w http.ResponseWriter, r *http.Request) {
 
 	urls = middleware.Paginate(urls, pagination)
 
-	if err := templates.URLTable(urls, paginationLinks).
+	if err := templates.URLList(urls, paginationLinks).
 		Render(r.Context(), w); err != nil {
 		log.Error("failed to render page", slog.Any("error", err))
 	}

@@ -1,0 +1,95 @@
+package components
+
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+)
+
+templ URLListItem(url domain.URLStat) {
+	<div 
+		class="bg-white rounded-xl shadow-sm border border-slate-200 hover:border-indigo-300 transition-all duration-200 group cursor-pointer"
+		onclick={ templ.JSFuncCall("navigateTo", fmt.Sprintf("/urls/%s", url.Slug)) }
+	>
+		<div class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+			
+			<!-- Left: Link Info -->
+			<div class="flex-1 min-w-0">
+				<div class="flex items-center gap-3 mb-1">
+					<!-- Favicon Placeholder -->
+					<div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-400">
+						<i class="fas fa-globe"></i>
+					</div>
+					<div class="flex items-center gap-2 min-w-0">
+						<a 
+							href={ templ.SafeURL(url.Short) } 
+							target="_blank" 
+							class="text-lg font-bold text-indigo-600 hover:text-indigo-800 truncate"
+							onclick="event.stopPropagation()"
+						>
+							{ url.Short }
+						</a>
+						<button 
+							@click.stop={ fmt.Sprintf("navigator.clipboard.writeText('%s'); copyFeedback = %d; setTimeout(() => copyFeedback = null, 2000)", url.Short, url.ID) }
+							class="text-slate-400 hover:text-indigo-600 p-1 rounded transition-colors"
+							title="Copy to clipboard">
+							<i class="far" :class={ fmt.Sprintf("copyFeedback === %d ? 'fa-check-circle text-green-500' : 'fa-copy'", url.ID) }></i>
+						</button>
+					</div>
+				</div>
+				<div class="flex items-center text-sm text-slate-500 pl-11">
+					<i class="fas fa-level-up-alt rotate-90 mr-2 text-slate-300"></i>
+					<a 
+						href={ templ.SafeURL(url.Long) } 
+						target="_blank" 
+						class="hover:text-slate-700 truncate max-w-md"
+						onclick="event.stopPropagation()"
+					>
+						{ url.Long }
+					</a>
+				</div>
+			</div>
+
+			<!-- Middle: Stats & Meta -->
+			<div class="flex items-center gap-6 pl-11 sm:pl-0 border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0">
+				<div class="flex flex-col items-start sm:items-end">
+					<span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Clicks</span>
+					<div class="flex items-center gap-1.5 text-slate-900 font-bold text-lg">
+						<i class="fas fa-mouse-pointer text-xs text-emerald-500"></i> { fmt.Sprintf("%d", url.NrVisited) }
+					</div>
+				</div>
+				<div class="hidden md:flex flex-col items-end min-w-[100px]">
+					<span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Created</span>
+					<span class="text-sm text-slate-600">{ url.CreatedAt.Format("Jan 02, 2006") }</span>
+				</div>
+			</div>
+
+			<!-- Right: Actions -->
+			<div class="flex items-center gap-2 pl-11 sm:pl-0">
+				<a 
+					href={ templ.SafeURL(fmt.Sprintf("/urls/%s", url.Slug)) } 
+					class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" 
+					title="Analytics"
+					onclick="event.stopPropagation()"
+				>
+					<i class="fas fa-chart-bar"></i>
+				</a>
+				<button 
+					@click.stop={ fmt.Sprintf("showQR = true; qrUrl = '%s'", url.Short) }
+					class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors" 
+					title="QR Code">
+					<i class="fas fa-qrcode"></i>
+				</button>
+				<div class="h-4 w-px bg-slate-200 mx-1"></div>
+				<button class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+						hx-delete={ fmt.Sprintf("/urls/%d", url.ID) }
+						hx-confirm="Are you sure you want to delete this URL?" 
+						hx-target="closest .group" 
+						hx-swap="outerHTML swap:500ms"
+						onclick="event.stopPropagation()">
+					<i class="far fa-trash-alt"></i>
+				</button>
+			</div>
+
+		</div>
+	</div>
+}
