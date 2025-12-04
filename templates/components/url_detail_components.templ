@@ -176,11 +176,11 @@ templ LocationsAndReferrers(url domain.URLStat) {
 					<div class="space-y-3">
 						for _, source := range url.Referrers {
 							<div class="flex items-center justify-between text-sm py-1">
-								<div class="flex items-center">
-									<span class="w-3 h-3 rounded-full mr-2 bg-indigo-500"></span>
-									<span class="text-slate-600 truncate max-w-[250px]">{ source.Source }</span>
+								<div class="flex items-center min-w-0 flex-1 mr-2">
+									<span class="w-3 h-3 rounded-full mr-2 bg-indigo-500 flex-shrink-0"></span>
+									<span class="text-slate-600 truncate" title={ source.Source }>{ source.Source }</span>
 								</div>
-								<span class="font-medium text-slate-900">{ fmt.Sprintf("%.1f%%", source.Percentage) }</span>
+								<span class="font-medium text-slate-900 flex-shrink-0">{ fmt.Sprintf("%.1f%%", source.Percentage) }</span>
 							</div>
 						}
 					</div>
