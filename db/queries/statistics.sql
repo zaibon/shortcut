@@ -126,9 +126,6 @@ ORDER BY
 -- name: BrowserDistribution :many
 SELECT
 	browsers.name,
-	browsers.version,
-	browsers.platform,
-  	browsers.mobile,
     count(v.id) AS visit_count,
     (count(v.id) * 100.0 / total_visits.total)::float AS percentage
 FROM
@@ -149,12 +146,34 @@ AND
     u.id = @url_id
 GROUP BY
     browsers.name, 
-    browsers.version, 
-    browsers.platform, 
-    browsers.mobile, 
     total_visits.total
 ORDER BY
     visit_count DESC;
+
+-- name: DeviceDistribution :many
+SELECT
+    browsers.mobile,
+    count(v.id) AS visit_count,
+    (count(v.id) * 100.0 / total_visits.total)::float AS percentage
+FROM
+    visits v
+JOIN
+    urls u ON v.url_id = u.id
+LEFT JOIN 
+	browsers ON browsers.id = v.browser_id
+CROSS JOIN (
+  SELECT count(*) AS total
+  FROM visits
+  JOIN urls ON urls.id = visits.url_id
+  WHERE urls.id = @url_id
+) AS total_visits
+WHERE
+	u.author_id = @author_id
+AND
+    u.id = @url_id
+GROUP BY
+    browsers.mobile, 
+    total_visits.total;
 
 -- name: UniqueVisitCount :one
 SELECT 

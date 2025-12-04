@@ -41,6 +41,7 @@ type URLStore interface {
 
 	LocationDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.LocationDistributionRow, error)
 	BrowserDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.BrowserDistributionRow, error)
+	DeviceDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.DeviceDistributionRow, error)
 	RefererDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.ReferrerDistributionRow, error)
 	UniqueVisitCount(ctx context.Context, urlID domain.ID) (int64, error)
 	TotalVisit(ctx context.Context, urlID domain.ID) (int64, error)
@@ -259,10 +260,23 @@ func (s *urlService) StatisticsDetail(ctx context.Context, authorID domain.ID, s
 			bd = []datastore.BrowserDistributionRow{}
 		}
 
-		stats.Devices = browserDistribution(bd)
-		stats.DeviceChart = devicesChart(bd)
 		stats.Browsers = browsers(bd)
 		stats.BrowserChart = browserChart(bd)
+
+		return nil
+	})
+
+	g.Go(func() error {
+		dd, err := s.repo.DeviceDistribution(gCtx, authorID, urlID)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get device distribution: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			dd = []datastore.DeviceDistributionRow{}
+		}
+
+		stats.Devices = calculateDeviceStats(dd)
+		stats.DeviceChart = devicesChart(dd)
 
 		return nil
 	})
@@ -425,7 +439,7 @@ func toURL(domain, id string) string {
 	return u
 }
 
-func browserDistribution(data []datastore.BrowserDistributionRow) map[domain.DeviceKind]domain.Device {
+func calculateDeviceStats(data []datastore.DeviceDistributionRow) map[domain.DeviceKind]domain.Device {
 	mobile := 0
 	desktop := 0
 	for _, v := range data {
@@ -447,7 +461,7 @@ func browserDistribution(data []datastore.BrowserDistributionRow) map[domain.Dev
 		},
 	}
 }
-func devicesChart(data []datastore.BrowserDistributionRow) []domain.TwoDimension {
+func devicesChart(data []datastore.DeviceDistributionRow) []domain.TwoDimension {
 	mobile := 0
 	desktop := 0
 	for _, v := range data {
@@ -474,10 +488,7 @@ func browsers(data []datastore.BrowserDistributionRow) []domain.BrowserStats {
 	for i, v := range data {
 		s[i] = domain.BrowserStats{
 			Browser: domain.Browser{
-				Name:     v.Name.String,
-				Version:  v.Version.String,
-				Platform: v.Platform.String,
-				IsMobile: v.Mobile.Bool,
+				Name: v.Name.String,
 			},
 			Percentage: float32(v.Percentage),
 		}

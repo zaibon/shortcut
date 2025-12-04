@@ -14,9 +14,6 @@ import (
 const browserDistribution = `-- name: BrowserDistribution :many
 SELECT
 	browsers.name,
-	browsers.version,
-	browsers.platform,
-  	browsers.mobile,
     count(v.id) AS visit_count,
     (count(v.id) * 100.0 / total_visits.total)::float AS percentage
 FROM
@@ -37,9 +34,6 @@ AND
     u.id = $1
 GROUP BY
     browsers.name, 
-    browsers.version, 
-    browsers.platform, 
-    browsers.mobile, 
     total_visits.total
 ORDER BY
     visit_count DESC
@@ -52,9 +46,6 @@ type BrowserDistributionParams struct {
 
 type BrowserDistributionRow struct {
 	Name       pgtype.Text `json:"name"`
-	Version    pgtype.Text `json:"version"`
-	Platform   pgtype.Text `json:"platform"`
-	Mobile     pgtype.Bool `json:"mobile"`
 	VisitCount int64       `json:"visit_count"`
 	Percentage float64     `json:"percentage"`
 }
@@ -69,14 +60,7 @@ func (q *Queries) BrowserDistribution(ctx context.Context, arg BrowserDistributi
 	items := []BrowserDistributionRow{}
 	for rows.Next() {
 		var i BrowserDistributionRow
-		if err := rows.Scan(
-			&i.Name,
-			&i.Version,
-			&i.Platform,
-			&i.Mobile,
-			&i.VisitCount,
-			&i.Percentage,
-		); err != nil {
+		if err := rows.Scan(&i.Name, &i.VisitCount, &i.Percentage); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -114,6 +98,63 @@ func (q *Queries) CountURLThisMonth(ctx context.Context, authorID int32) (int64,
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const deviceDistribution = `-- name: DeviceDistribution :many
+SELECT
+    browsers.mobile,
+    count(v.id) AS visit_count,
+    (count(v.id) * 100.0 / total_visits.total)::float AS percentage
+FROM
+    visits v
+JOIN
+    urls u ON v.url_id = u.id
+LEFT JOIN 
+	browsers ON browsers.id = v.browser_id
+CROSS JOIN (
+  SELECT count(*) AS total
+  FROM visits
+  JOIN urls ON urls.id = visits.url_id
+  WHERE urls.id = $1
+) AS total_visits
+WHERE
+	u.author_id = $2
+AND
+    u.id = $1
+GROUP BY
+    browsers.mobile, 
+    total_visits.total
+`
+
+type DeviceDistributionParams struct {
+	UrlID    int32 `json:"url_id"`
+	AuthorID int32 `json:"author_id"`
+}
+
+type DeviceDistributionRow struct {
+	Mobile     pgtype.Bool `json:"mobile"`
+	VisitCount int64       `json:"visit_count"`
+	Percentage float64     `json:"percentage"`
+}
+
+func (q *Queries) DeviceDistribution(ctx context.Context, arg DeviceDistributionParams) ([]DeviceDistributionRow, error) {
+	rows, err := q.db.Query(ctx, deviceDistribution, arg.UrlID, arg.AuthorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []DeviceDistributionRow{}
+	for rows.Next() {
+		var i DeviceDistributionRow
+		if err := rows.Scan(&i.Mobile, &i.VisitCount, &i.Percentage); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertVisitLocation = `-- name: InsertVisitLocation :one

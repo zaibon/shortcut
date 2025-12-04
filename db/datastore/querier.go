@@ -28,6 +28,7 @@ type Querier interface {
 	CountTotalVisitThisMonth(ctx context.Context, authorID int32) (int64, error)
 	CountURLThisMonth(ctx context.Context, authorID int32) (int64, error)
 	DeleteURL(ctx context.Context, arg DeleteURLParams) error
+	DeviceDistribution(ctx context.Context, arg DeviceDistributionParams) ([]DeviceDistributionRow, error)
 	GetByID(ctx context.Context, id int32) (Url, error)
 	GetCustomer(ctx context.Context, userID pgtype.UUID) (Customer, error)
 	// Description: Get customer by stripe id

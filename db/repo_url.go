@@ -210,6 +210,13 @@ func (a urlStore) BrowserDistribution(ctx context.Context, authorID, urlID domai
 	})
 }
 
+func (a urlStore) DeviceDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.DeviceDistributionRow, error) {
+	return a.db.DeviceDistribution(ctx, datastore.DeviceDistributionParams{
+		UrlID:    int32(urlID),
+		AuthorID: int32(authorID),
+	})
+}
+
 func (a urlStore) RefererDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.ReferrerDistributionRow, error) {
 	return a.db.ReferrerDistribution(ctx, datastore.ReferrerDistributionParams{
 		UrlID:    int32(urlID),
