@@ -40,8 +40,10 @@ var (
 )
 
 type LocationDistribution struct {
-	Country    string
-	Percentage float32
+	Country     string
+	CountryCode string
+	VisitCount  int
+	Percentage  float32
 }
 
 type Referrer struct {

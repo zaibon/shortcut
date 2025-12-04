@@ -1,0 +1,239 @@
+package components
+
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+	"strings"
+)
+
+templ KPIs(url domain.URLStat) {
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+		<!-- Card 1: Total Clicks -->
+		<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-start justify-between">
+			<div>
+				<p class="text-sm font-medium text-slate-500">Total Clicks</p>
+				<h3 class="text-3xl font-bold text-slate-900 mt-2">{ fmt.Sprintf("%d", url.NrVisited) }</h3>
+			</div>
+			<div class="p-3 bg-indigo-50 rounded-lg text-indigo-600">
+				<i class="fas fa-mouse-pointer text-xl"></i>
+			</div>
+		</div>
+		<!-- Card 2: Unique Visitors -->
+		<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-start justify-between">
+			<div>
+				<p class="text-sm font-medium text-slate-500">Unique Visitors</p>
+				<h3 class="text-3xl font-bold text-slate-900 mt-2">{ fmt.Sprintf("%d", url.UniqueVisitors) }</h3>
+			</div>
+			<div class="p-3 bg-blue-50 rounded-lg text-blue-600">
+				<i class="fas fa-users text-xl"></i>
+			</div>
+		</div>
+		<!-- Card 3: Top Source -->
+		<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-start justify-between">
+			<div>
+				<p class="text-sm font-medium text-slate-500">Top Source</p>
+				if len(url.Referrers) > 0 {
+					<h3 class="text-xl font-bold text-slate-900 mt-2 truncate max-w-[140px]">{ url.Referrers[0].Source }</h3>
+					<p class="text-xs text-slate-400 mt-1">{ fmt.Sprintf("%d clicks (%.1f%%)", url.Referrers[0].ClickCount, url.Referrers[0].Percentage) }</p>
+				} else {
+					<h3 class="text-xl font-bold text-slate-900 mt-2">N/A</h3>
+				}
+			</div>
+			{{
+				var source string
+				if len(url.Referrers) > 0 {
+					source = url.Referrers[0].Source
+				}
+				icon, bg, text := GetSourceIcon(source)
+			}}
+			<div class={ "p-3 rounded-lg", bg, text }>
+				<i class={ icon, "text-xl" }></i>
+			</div>
+		</div>
+		<!-- Card 4: Top Location -->
+		<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-start justify-between">
+			<div>
+				<p class="text-sm font-medium text-slate-500">Top Location</p>
+				if len(url.LocationDistribution) > 0 {
+					<h3 class="text-xl font-bold text-slate-900 mt-2">{ url.LocationDistribution[0].Country }</h3>
+					<p class="text-xs text-slate-400 mt-1">{ fmt.Sprintf("%.1f%% of traffic", url.LocationDistribution[0].Percentage) }</p>
+				} else {
+					<h3 class="text-xl font-bold text-slate-900 mt-2">N/A</h3>
+				}
+			</div>
+			<div class="p-3 bg-emerald-50 rounded-lg text-emerald-600">
+				<i class="fas fa-globe-americas text-xl"></i>
+			</div>
+		</div>
+	</div>
+}
+
+templ TrafficPerformance(url domain.URLStat) {
+	<div class="bg-white rounded-xl shadow-sm border border-slate-200 mb-8 overflow-hidden">
+		<div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+			<h2 class="text-lg font-semibold text-slate-900">Traffic Performance</h2>
+			<!-- Filters -->
+			<div class="flex bg-slate-100 p-1 rounded-lg">
+				<button
+					@click="timeRange = '24h'"
+					hx-get={ fmt.Sprintf("/urls/%d/clicks?range=day", url.ID) }
+					hx-target="#chartData"
+					hx-swap="innerHTML"
+					hx-on::after-request="updateChart()"
+					:class="timeRange === '24h' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+					class="px-3 py-1.5 text-sm font-medium rounded-md transition-all"
+				>24h</button>
+				<button
+					@click="timeRange = '7d'"
+					hx-get={ fmt.Sprintf("/urls/%d/clicks?range=week", url.ID) }
+					hx-target="#chartData"
+					hx-swap="innerHTML"
+					hx-on::after-request="updateChart()"
+					:class="timeRange === '7d' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+					class="px-3 py-1.5 text-sm font-medium rounded-md transition-all"
+				>7d</button>
+				<button
+					@click="timeRange = '30d'"
+					hx-get={ fmt.Sprintf("/urls/%d/clicks?range=month", url.ID) }
+					hx-target="#chartData"
+					hx-swap="innerHTML"
+					hx-on::after-request="updateChart()"
+					:class="timeRange === '30d' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+					class="px-3 py-1.5 text-sm font-medium rounded-md transition-all"
+				>30d</button>
+			</div>
+		</div>
+		<div class="p-6 h-80">
+			<div id="chartData" class="hidden">
+				@ChartData("visitOverTime", url.VisitPerDay)
+			</div>
+			<canvas id="mainChart"></canvas>
+		</div>
+	</div>
+}
+
+templ LocationsAndReferrers(url domain.URLStat) {
+	<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+		<!-- Locations -->
+		<div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col">
+			<div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+				<h3 class="font-semibold text-slate-900">Top Locations</h3>
+			</div>
+			<div class="p-6 flex-1 overflow-auto">
+				<!-- Map Container -->
+				<div id="jvm-map" class="w-full h-80 mb-6 z-0"></div>
+				@templ.JSONScript("locationData", url.LocationDistribution)
+				<div class="space-y-4">
+					for _, loc := range url.LocationDistribution {
+						<div class="flex items-center">
+							<span class="w-8 text-xl mr-3">
+								<img
+									src={ fmt.Sprintf("https://flagcdn.com/24x18/%s.png", strings.ToLower(loc.CountryCode)) }
+									alt={ loc.Country }
+									class="inline-block"
+								/>
+							</span>
+							<div class="flex-1">
+								<div class="flex justify-between mb-1">
+									<span class="text-sm font-medium text-slate-700">{ loc.Country }</span>
+									<span class="text-sm text-slate-500">{ fmt.Sprintf("%.1f%%", loc.Percentage) }</span>
+								</div>
+								<div class="w-full bg-slate-100 rounded-full h-2">
+									<div class="bg-indigo-500 h-2 rounded-full" style={ fmt.Sprintf("width: %f%%", loc.Percentage) }></div>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+		<!-- Referrers -->
+		<div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col">
+			<div class="px-6 py-4 border-b border-slate-100">
+				<h3 class="font-semibold text-slate-900">Traffic Sources</h3>
+			</div>
+			<div class="p-6 flex flex-col items-center justify-center flex-1">
+				<div class="h-48 w-48 relative">
+					@templ.JSONScript("referrerChartData", url.ReferrersChart)
+					<canvas id="referrerChart"></canvas>
+					<!-- Center Text -->
+					<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+						<div class="text-center">
+							<span class="block text-2xl font-bold text-slate-800">{ fmt.Sprintf("%d", url.NrVisited) }</span>
+							<span class="block text-xs text-slate-400 uppercase tracking-wide">Total</span>
+						</div>
+					</div>
+				</div>
+				<div class="mt-6 w-full space-y-3">
+					for i, source := range url.Referrers {
+						if i < 4 {
+							<div class="flex items-center justify-between text-sm">
+								<div class="flex items-center">
+									<span class="w-3 h-3 rounded-full mr-2 bg-indigo-500"></span>
+									<span class="text-slate-600 truncate max-w-[120px]">{ source.Source }</span>
+								</div>
+								<span class="font-medium text-slate-900">{ fmt.Sprintf("%.1f%%", source.Percentage) }</span>
+							</div>
+						}
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ DevicesAndBrowsers(url domain.URLStat) {
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+		<!-- Devices -->
+		<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+			<h3 class="font-semibold text-slate-900 mb-6">Device Breakdown</h3>
+			<div class="flex items-center justify-around text-center">
+				{{ mobile := url.Devices[domain.DeviceKindMobile] }}
+				{{ desktop := url.Devices[domain.DeviceKindDesktop] }}
+				<div class="p-4 rounded-xl bg-slate-50 w-full mr-4 border border-slate-100">
+					<div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 mb-3">
+						<i class="fas fa-desktop text-xl"></i>
+					</div>
+					<div class="text-2xl font-bold text-slate-900">{ fmt.Sprintf("%.0f%%", desktop.Percentage) }</div>
+					<div class="text-sm text-slate-500">Desktop</div>
+				</div>
+				<div class="p-4 rounded-xl bg-slate-50 w-full border border-slate-100">
+					<div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 text-purple-600 mb-3">
+						<i class="fas fa-mobile-alt text-xl"></i>
+					</div>
+					<div class="text-2xl font-bold text-slate-900">{ fmt.Sprintf("%.0f%%", mobile.Percentage) }</div>
+					<div class="text-sm text-slate-500">Mobile</div>
+				</div>
+			</div>
+		</div>
+		<!-- Browsers -->
+		<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+			<h3 class="font-semibold text-slate-900 mb-4">Top Browsers</h3>
+			<div class="overflow-hidden">
+				<table class="min-w-full text-left text-sm">
+					<thead class="bg-slate-50 text-slate-500 font-medium">
+						<tr>
+							<th class="py-2 pl-3 rounded-l-md">Browser</th>
+							<th class="py-2 text-right pr-3 rounded-r-md">Usage</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-slate-100">
+						for _, stats := range url.Browsers {
+							<tr>
+								<td class="py-3 pl-3 flex items-center gap-2">
+									// <i class="fab fa-chrome text-blue-500"></i> 
+									{ stats.Browser.Name }
+								</td>
+								<td class="py-3 pr-3 text-right font-medium">{ fmt.Sprintf("%.1f%%", stats.Percentage) }</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+}
+
+templ ChartData(id string, data []domain.TimeSeriesData) {
+	@templ.JSONScript(id, data)
+}

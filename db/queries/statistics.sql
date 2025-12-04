@@ -101,6 +101,7 @@ AND created_at BETWEEN date_trunc('month', CURRENT_DATE) AND date_trunc('month',
 -- SQL query to get the location distribution data for a specific URL
 -- name: LocationDistribution :many
 SELECT
+    vl.country_code,
     vl.country_name,
     count(vl.visit_id) AS visit_count,
     (count(vl.visit_id) * 100.0 / total_visits.total)::float AS percentage
@@ -116,7 +117,7 @@ WHERE
 AND
     u.id = @url_id -- Replace 'your_short_url' with the actual short URL
 GROUP BY
-    vl.country_name, total_visits.total
+    vl.country_code, vl.country_name, total_visits.total
 ORDER BY
     visit_count DESC;
 

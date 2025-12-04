@@ -13,6 +13,7 @@ import (
 	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/templates"
+	"github.com/zaibon/shortcut/templates/components"
 )
 
 func Paginate[T any](s []T, q *PaginationQuery) []T {
@@ -206,7 +207,7 @@ func (h *Handler) clickChart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := templates.ChartData("visitOverTime", data).
+	if err := components.ChartData("visitOverTime", data).
 		Render(r.Context(), w); err != nil {
 		log.Error("failed to render page", slog.Any("error", err))
 

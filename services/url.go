@@ -240,8 +240,10 @@ func (s *urlService) StatisticsDetail(ctx context.Context, authorID domain.ID, s
 
 		for _, v := range ld {
 			stats.LocationDistribution = append(stats.LocationDistribution, domain.LocationDistribution{
-				Country:    v.CountryName.String,
-				Percentage: float32(v.Percentage),
+				Country:     v.CountryName.String,
+				CountryCode: v.CountryCode.String,
+				VisitCount:  int(v.VisitCount),
+				Percentage:  float32(v.Percentage),
 			})
 		}
 

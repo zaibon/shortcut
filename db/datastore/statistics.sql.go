@@ -287,6 +287,7 @@ func (q *Queries) ListVisits(ctx context.Context) ([]Visit, error) {
 
 const locationDistribution = `-- name: LocationDistribution :many
 SELECT
+    vl.country_code,
     vl.country_name,
     count(vl.visit_id) AS visit_count,
     (count(vl.visit_id) * 100.0 / total_visits.total)::float AS percentage
@@ -302,7 +303,7 @@ WHERE
 AND
     u.id = $1 -- Replace 'your_short_url' with the actual short URL
 GROUP BY
-    vl.country_name, total_visits.total
+    vl.country_code, vl.country_name, total_visits.total
 ORDER BY
     visit_count DESC
 `
@@ -313,6 +314,7 @@ type LocationDistributionParams struct {
 }
 
 type LocationDistributionRow struct {
+	CountryCode pgtype.Text `json:"country_code"`
 	CountryName pgtype.Text `json:"country_name"`
 	VisitCount  int64       `json:"visit_count"`
 	Percentage  float64     `json:"percentage"`
@@ -328,7 +330,12 @@ func (q *Queries) LocationDistribution(ctx context.Context, arg LocationDistribu
 	items := []LocationDistributionRow{}
 	for rows.Next() {
 		var i LocationDistributionRow
-		if err := rows.Scan(&i.CountryName, &i.VisitCount, &i.Percentage); err != nil {
+		if err := rows.Scan(
+			&i.CountryCode,
+			&i.CountryName,
+			&i.VisitCount,
+			&i.Percentage,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
