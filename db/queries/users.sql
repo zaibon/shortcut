@@ -16,6 +16,10 @@ FROM users
 WHERE users.guid = @guid
 LIMIT 1;
 
+-- name: DeleteUser :exec
+DELETE FROM users
+WHERE guid = @guid;
+
 -- name: InsertOauth2State :exec
 INSERT INTO oauth2_state (state, provider)
 VALUES (@state, @provider);
@@ -51,4 +55,3 @@ SELECT *
 FROM user_providers
 WHERE user_id = @user_id
 ORDER BY created_at DESC;
-

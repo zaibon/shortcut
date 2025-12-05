@@ -29,6 +29,7 @@ type userStore interface {
 
 	GetUserProvider(ctx context.Context, userID uuid.UUID, provider domain.OauthProvider) (datastore.UserProvider, error)
 	GetUserProviderByProviderUserId(ctx context.Context, provider domain.OauthProvider, providerUserID string) (datastore.UserProvider, error)
+	DeleteUser(ctx context.Context, guid domain.GUID) error
 }
 
 var (
@@ -242,6 +243,10 @@ func (s *userService) ListConnectedProvider(ctx context.Context, userID domain.G
 	}
 
 	return ap, nil
+}
+
+func (s *userService) Delete(ctx context.Context, guid domain.GUID) error {
+	return s.store.DeleteUser(ctx, guid)
 }
 
 func oauthRedirectURL(domain string, tls bool) string {

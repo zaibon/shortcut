@@ -20,6 +20,7 @@ type AuthService interface {
 	IdentifyOauthUser(ctx context.Context, code string, provider domain.OauthProvider) (*domain.User, error)
 	VerifyOauthState(ctx context.Context, state string) (bool, domain.OauthProvider, error)
 	ListConnectedProvider(ctx context.Context, userID domain.GUID) ([]domain.AccountProvider, error)
+	Delete(ctx context.Context, guid domain.GUID) error
 }
 
 type URLUsageService interface {
@@ -55,6 +56,7 @@ func (h *UsersHandler) Routes(r chi.Router) {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticated)
 		r.Get("/account", h.myAccount)
+		r.Delete("/account", h.deleteAccount)
 	})
 }
 
@@ -92,6 +94,23 @@ func (h *UsersHandler) myAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	templates.AccountPage(*user, linkedProviders, stats).Render(r.Context(), w)
+}
+
+func (h *UsersHandler) deleteAccount(w http.ResponseWriter, r *http.Request) {
+	user := middleware.UserFromContext(r.Context())
+	if err := h.auth.Delete(r.Context(), user.GUID); err != nil {
+		slog.Error("failed to delete user", "error", err)
+		http.Error(w, "failed to delete account", http.StatusInternalServerError)
+		return
+	}
+
+	sess := session.GetSession(r)
+	if err := sess.Destroy(w, r); err != nil {
+		slog.Error("failed to destroy sessions", "id", sess.ID())
+	}
+
+	w.Header().Set("HX-Redirect", "/")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *UsersHandler) logout(w http.ResponseWriter, r *http.Request) {

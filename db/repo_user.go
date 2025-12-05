@@ -104,3 +104,10 @@ func (s *userStore) GetUserProviderByProviderUserId(ctx context.Context, provide
 	}
 	return row, nil
 }
+
+func (s *userStore) DeleteUser(ctx context.Context, guid domain.GUID) error {
+	return s.db.DeleteUser(ctx, pgtype.UUID{
+		Bytes: guid,
+		Valid: uuid.UUID(guid) != uuid.Nil,
+	})
+}

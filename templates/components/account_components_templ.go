@@ -336,7 +336,7 @@ func DangerZone() templ.Component {
 			templ_7745c5c3_Var16 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden\"><div class=\"p-6\"><h3 class=\"font-semibold text-red-600 text-sm uppercase tracking-wide mb-2\">Danger Zone</h3><p class=\"text-sm text-slate-600 mb-4\">Once you delete your account, there is no going back. Please be certain.</p><button class=\"text-red-600 hover:text-red-700 text-sm font-medium border border-red-200 hover:bg-red-50 px-4 py-2 rounded-lg w-full transition-colors\">Delete Account</button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden\"><div class=\"p-6\"><h3 class=\"font-semibold text-red-600 text-sm uppercase tracking-wide mb-2\">Danger Zone</h3><p class=\"text-sm text-slate-600 mb-4\">Once you delete your account, there is no going back. Please be certain.</p><button class=\"text-red-600 hover:text-red-700 text-sm font-medium border border-red-200 hover:bg-red-50 px-4 py-2 rounded-lg w-full transition-colors\" hx-delete=\"/account\" hx-confirm=\"Are you sure you want to delete your account? This action cannot be undone.\">Delete Account</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

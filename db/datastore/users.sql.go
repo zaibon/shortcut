@@ -11,6 +11,16 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users
+WHERE guid = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, guid pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUser, guid)
+	return err
+}
+
 const getOauth2State = `-- name: GetOauth2State :one
 SELECT state, created_at, expire_at, provider
 FROM oauth2_state
