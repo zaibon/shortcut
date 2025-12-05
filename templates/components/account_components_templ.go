@@ -307,7 +307,7 @@ func SubscriptionCard(stats domain.SubscriptionStats) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</p></div><div class=\"mt-6 pt-6 border-t border-slate-100\"><a href=\"/subscription\" class=\"block w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-center rounded-lg text-sm font-medium transition-colors shadow-sm\">Upgrade to Pro</a><p class=\"text-xs text-center text-slate-400 mt-3\">Unlock unlimited links & analytics</p></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</p></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

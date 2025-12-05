@@ -1,0 +1,134 @@
+package components
+
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+)
+
+templ CurrentPlanBanner(stats domain.SubscriptionStats) {
+	<div class="bg-white border border-indigo-100 rounded-xl shadow-sm p-6 mb-16 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
+		<div class="flex items-center gap-4">
+			<div class="h-12 w-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+				<i class="fas fa-check-circle text-2xl"></i>
+			</div>
+			<div>
+				<h3 class="text-lg font-bold text-slate-900">You are on the { stats.PlanName } Plan</h3>
+				<p class="text-slate-500 text-sm">{ fmt.Sprintf("%d / %d", stats.URLUsage, stats.URLLimit) } links used this month.</p>
+			</div>
+		</div>
+		<div class="w-full md:w-auto">
+			<a href="#plans" class="block w-full text-center px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+				Upgrade Now
+			</a>
+		</div>
+	</div>
+}
+
+templ PricingGrid() {
+	<div id="plans" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto" 
+		 x-data="{ 
+			billing: 'monthly',
+			plans: [
+				{
+					name: 'Free',
+					price: 0,
+					desc: 'Perfect for hobbyists and side projects.',
+					features: ['50 Short Links / mo', 'Basic Analytics', 'Standard Support', 'Ad-supported'],
+					cta: 'Current Plan',
+					current: true
+				},
+				{
+					name: 'Pro',
+					price: 12,
+					desc: 'For creators and small businesses.',
+					features: ['Unlimited Short Links', 'Advanced Analytics', 'Custom Branded Domains', 'Priority Support', 'API Access'],
+					cta: 'Upgrade to Pro',
+					popular: true
+				},
+				{
+					name: 'Business',
+					price: 49,
+					desc: 'For teams and high-volume needs.',
+					features: ['Everything in Pro', 'SSO & Team Management', '99.9% SLA', 'Dedicated Account Manager', 'Audit Logs'],
+					cta: 'Contact Sales',
+					enterprise: true
+				}
+			] 
+		 }">
+		
+		<template x-for="plan in plans" :key="plan.name">
+			<div :class="plan.popular ? 'border-indigo-200 shadow-xl scale-105 z-10' : 'border-slate-200 shadow-sm'" 
+				 class="bg-white rounded-2xl border p-8 flex flex-col relative transition-all duration-300">
+				
+				<div x-show="plan.popular" class="absolute top-0 right-0 -mt-3 mr-6 px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-md">
+					Most Popular
+				</div>
+
+				<div class="mb-6">
+					<h3 class="text-xl font-bold text-slate-900" x-text="plan.name"></h3>
+					<p class="text-slate-500 text-sm mt-2" x-text="plan.desc"></p>
+				</div>
+
+				<div class="mb-6 flex items-baseline gap-1">
+					<span class="text-4xl font-extrabold text-slate-900" x-text="'$' + plan.price"></span>
+					<span class="text-slate-500 font-medium">/month</span>
+				</div>
+
+				<ul class="space-y-4 mb-8 flex-1">
+					<template x-for="feature in plan.features">
+						<li class="flex items-start gap-3 text-sm text-slate-600">
+							<i class="fas fa-check text-emerald-500 mt-0.5"></i>
+							<span x-text="feature"></span>
+						</li>
+					</template>
+				</ul>
+
+				<button :class="plan.current ? 'bg-slate-100 text-slate-500 cursor-default' : (plan.popular ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-slate-900 text-white hover:bg-slate-800')"
+						class="w-full py-3 px-4 rounded-lg font-semibold transition-colors shadow-sm"
+						x-text="plan.cta">
+				</button>
+			</div>
+		</template>
+	</div>
+}
+
+templ FAQ() {
+	<div class="max-w-3xl mx-auto mt-24">
+		<h2 class="text-2xl font-bold text-slate-900 text-center mb-10">Frequently asked questions</h2>
+		
+		<div class="space-y-4" x-data="{ active: null }">
+			<!-- FAQ Item 1 -->
+			<div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+				<button @click="active === 1 ? active = null : active = 1" class="flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors">
+					<span class="font-medium text-slate-900">What happens when I reach my limit?</span>
+					<i class="fas text-slate-400 transition-transform duration-200" :class="active === 1 ? 'fa-minus' : 'fa-plus'"></i>
+				</button>
+				<div x-show="active === 1" x-collapse class="px-6 pb-4 pt-0 text-slate-600">
+					<p>On the Free plan, you won't be able to create new links until the next month resets. Pro plans have soft limits with overage options.</p>
+				</div>
+			</div>
+
+			<!-- FAQ Item 2 -->
+			<div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+				<button @click="active === 2 ? active = null : active = 2" class="flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors">
+					<span class="font-medium text-slate-900">Can I use my own domain?</span>
+					<i class="fas text-slate-400 transition-transform duration-200" :class="active === 2 ? 'fa-minus' : 'fa-plus'"></i>
+				</button>
+				<div x-show="active === 2" x-collapse class="px-6 pb-4 pt-0 text-slate-600">
+					<p>Yes! Custom domains are available on the Pro and Business plans. You can connect `links.yourbrand.com` in seconds.</p>
+				</div>
+			</div>
+
+			<!-- FAQ Item 3 -->
+			<div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+				<button @click="active === 3 ? active = null : active = 3" class="flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors">
+					<span class="font-medium text-slate-900">Can I cancel anytime?</span>
+					<i class="fas text-slate-400 transition-transform duration-200" :class="active === 3 ? 'fa-minus' : 'fa-plus'"></i>
+				</button>
+				<div x-show="active === 3" x-collapse class="px-6 pb-4 pt-0 text-slate-600">
+					<p>Absolutely. You can cancel your subscription from your dashboard at any time. You'll keep access until the end of your billing cycle.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+}

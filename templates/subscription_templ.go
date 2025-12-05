@@ -8,9 +8,12 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "fmt"
+import (
+	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/templates/components"
+)
 
-func SubscriptionPage(urlCreated, visitCount int64) templ.Component {
+func SubscriptionPage(stats domain.SubscriptionStats) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -43,33 +46,23 @@ func SubscriptionPage(urlCreated, visitCount int64) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-grow\"><div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\"><!-- Subscription Header --><div class=\"text-center mb-12\"><h1 class=\"text-3xl font-extrabold text-gray-900 sm:text-4xl\">Choose Your Plan</h1><p class=\"mt-4 max-w-2xl text-xl text-gray-500 mx-auto\">Select the perfect plan for your URL shortening needs.</p></div><!-- Current Plan (if subscribed) --><div class=\"bg-white shadow sm:rounded-lg mb-10\"><div class=\"px-4 py-5 sm:p-6\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Current Plan: <span class=\"text-indigo-600\">Free</span></h3><div class=\"mt-2 max-w-xl text-sm text-gray-500\"><p><!-- You are currently on the Free plan. Upgrade to unlock more features and higher limits. -->You are currently on the Free plan.</p></div><div class=\"mt-5\"><div class=\"rounded-md bg-gray-50 px-6 py-5 sm:flex sm:items-start sm:justify-between\"><div class=\"sm:flex sm:items-start\"><div class=\"mt-3 sm:mt-0 sm:ml-4\"><div class=\"text-sm font-medium text-gray-900\">Free Plan</div><div class=\"mt-1 text-sm text-gray-600 sm:flex sm:items-center\"><div>URLs created: <span class=\"font-medium\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16\"><!-- Header --><div class=\"text-center max-w-3xl mx-auto mb-16\"><h1 class=\"text-4xl font-extrabold text-slate-900 mb-4\">Simple, transparent pricing</h1><p class=\"text-xl text-slate-500\">Start for free, scale as you grow. No hidden fees.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", urlCreated))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `subscription.templ`, Line: 37, Col: 83}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			templ_7745c5c3_Err = components.CurrentPlanBanner(stats).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span> / <span class=\"text-gray-400\">50</span></div><div class=\"hidden sm:mx-2 sm:inline\">·</div><div class=\"mt-1 sm:mt-0\">Monthly clicks: <span class=\"font-medium\">")
+			templ_7745c5c3_Err = components.PricingGrid().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", visitCount))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `subscription.templ`, Line: 41, Col: 85}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			templ_7745c5c3_Err = components.FAQ().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span> / <span class=\"text-gray-400\">5,000</span></div></div></div></div></div></div></div></div><!-- FAQ Section --><div class=\"max-w-3xl mx-auto mt-20\"><h2 class=\"text-2xl font-extrabold text-gray-900 text-center\">Frequently asked questions</h2><div class=\"mt-12\" x-data=\"{selected:null}\"><div class=\"border-b border-gray-200\"><button @click=\"selected !== 1 ? selected = 1 : selected = null\" class=\"flex justify-between w-full py-6 text-left\"><span class=\"text-lg font-medium text-gray-900\">What happens when I reach my URL limit?</span> <span class=\"ml-6 flex-shrink-0\"><i x-show=\"selected !== 1\" class=\"fas fa-plus text-indigo-500\"></i> <i x-show=\"selected === 1\" class=\"fas fa-minus text-indigo-500\"></i></span></button><div x-show=\"selected === 1\" class=\"pb-6 prose prose-indigo\"><p>When you reach your URL limit, you'll need to upgrade to a higher plan to create more shortened URLs. Existing URLs will continue to work, but you won't be able to create new ones until you upgrade or delete some of your existing URLs.</p></div></div><div class=\"border-b border-gray-200\"><button @click=\"selected !== 2 ? selected = 2 : selected = null\" class=\"flex justify-between w-full py-6 text-left\"><span class=\"text-lg font-medium text-gray-900\">Can I customize my shortened URLs?</span> <span class=\"ml-6 flex-shrink-0\"><i x-show=\"selected !== 2\" class=\"fas fa-plus text-indigo-500\"></i> <i x-show=\"selected === 2\" class=\"fas fa-minus text-indigo-500\"></i></span></button><div x-show=\"selected === 2\" class=\"pb-6 prose prose-indigo\"><p>Yes, Pro and Business plans allow you to customize the slug portion of your shortened URLs. For example, instead of \"scut.ly/abc123\", you could have \"scut.ly/my-brand\". Business plans also support custom domains, allowing you to use your own domain for shortened URLs.</p></div></div><div class=\"border-b border-gray-200\"><button @click=\"selected !== 3 ? selected = 3 : selected = null\" class=\"flex justify-between w-full py-6 text-left\"><span class=\"text-lg font-medium text-gray-900\">How do I cancel my subscription?</span> <span class=\"ml-6 flex-shrink-0\"><i x-show=\"selected !== 3\" class=\"fas fa-plus text-indigo-500\"></i> <i x-show=\"selected === 3\" class=\"fas fa-minus text-indigo-500\"></i></span></button><div x-show=\"selected === 3\" class=\"pb-6 prose prose-indigo\"><p>You can cancel your subscription at any time from your account settings page. Your subscription will remain active until the end of your current billing period. After that, you'll be downgraded to the Free plan, but your existing URLs will continue to work.</p></div></div><div class=\"border-b border-gray-200\"><button @click=\"selected !== 4 ? selected = 4 : selected = null\" class=\"flex justify-between w-full py-6 text-left\"><span class=\"text-lg font-medium text-gray-900\">What analytics are available?</span> <span class=\"ml-6 flex-shrink-0\"><i x-show=\"selected !== 4\" class=\"fas fa-plus text-indigo-500\"></i> <i x-show=\"selected === 4\" class=\"fas fa-minus text-indigo-500\"></i></span></button><div x-show=\"selected === 4\" class=\"pb-6 prose prose-indigo\"><p>Free plans include basic click tracking. Pro plans add geographic data, referrer tracking, and device information. Business plans include all of the above plus custom reporting, data exports, and integration with popular analytics platforms.</p></div></div></div></div></div></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

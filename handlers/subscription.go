@@ -60,13 +60,23 @@ func (h *subscriptionHandlers) subscription(w http.ResponseWriter, r *http.Reque
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	visitCount, err := h.urls.CountMonthlyVisit(r.Context(), user.ID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+
+	limit := domain.FreePlanLimit
+	stats := domain.SubscriptionStats{
+		PlanName:        "Free",
+		URLUsage:        int(urlCount),
+		URLLimit:        limit,
+		Remaining:       limit - int(urlCount),
+		UsagePercentage: int((float64(urlCount) / float64(limit)) * 100),
+	}
+	if stats.UsagePercentage > 100 {
+		stats.UsagePercentage = 100
+	}
+	if stats.Remaining < 0 {
+		stats.Remaining = 0
 	}
 
-	templates.SubscriptionPage(urlCount, visitCount).
+	templates.SubscriptionPage(stats).
 		Render(r.Context(), w)
 }
 
