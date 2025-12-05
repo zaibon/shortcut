@@ -101,7 +101,7 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 
 	addFlash(w, r, fmt.Sprintf("URL shortened to %s", short), flashTypeInfo)
 
-	components.ShortenURL(short).Render(ctx, w)
+	components.ShortenURL(short, url).Render(ctx, w)
 }
 
 func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {

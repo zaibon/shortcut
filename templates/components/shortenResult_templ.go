@@ -8,7 +8,7 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func ShortenURL(url string) templ.Component {
+func ShortenURL(short, original string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -29,46 +29,59 @@ func ShortenURL(url string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"result\" class=\"mt-6 sm:mx-auto sm:max-w-xl bg-gray-50 p-4 rounded-lg border border-gray-200\"><div class=\"flex flex-col sm:flex-row items-center justify-between\"><div class=\"mb-3 sm:mb-0\"><p class=\"text-sm text-gray-500\">Your shortened URL:</p><div class=\"flex items-center mt-1\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-white rounded-xl shadow-lg border border-indigo-50 overflow-hidden text-left animate-fade-in-up\"><div class=\"p-6 flex flex-col sm:flex-row items-center justify-between gap-4\"><div class=\"flex-1 min-w-0\"><p class=\"text-sm text-gray-500 mb-1\">Your shortened URL:</p><div class=\"flex items-center gap-2\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 templ.SafeURL = templ.SafeURL(url)
+		var templ_7745c5c3_Var2 templ.SafeURL = templ.SafeURL(short)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var2)))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"text-indigo-600 font-medium\" target=\"_blank\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"text-2xl font-bold text-indigo-600 hover:text-indigo-800 truncate block\" target=\"_blank\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(url)
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(short)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/shortenResult.templ`, Line: 13, Col: 11}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/shortenResult.templ`, Line: 9, Col: 141}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</a> <span class=\"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800\">Active</span></div><p class=\"text-xs text-gray-400 mt-1 truncate\">Original: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.JSFuncCall("copyToClipboard", url))
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(original)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/shortenResult.templ`, Line: 12, Col: 71}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<button id=\"copyButton\" class=\"ml-2 text-gray-400 hover:text-gray-600\" onclick=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div><div class=\"flex items-center gap-3 w-full sm:w-auto\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var4 templ.ComponentScript = templ.JSFuncCall("copyToClipboard", url)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4.Call)
+		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.JSFuncCall("copyToClipboard", short))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><i class=\"fas fa-copy\"></i></button></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<button class=\"flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors group\" onclick=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 templ.ComponentScript = templ.JSFuncCall("copyToClipboard", short)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5.Call)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"><i class=\"far fa-copy mr-2 text-gray-400 group-hover:text-indigo-500\"></i> Copy</button></div></div><div class=\"bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center\"><a href=\"/urls\" class=\"text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center\">View Analytics <i class=\"fas fa-arrow-right ml-1 text-xs\"></i></a> <button class=\"text-gray-400 hover:text-gray-600 text-sm\" onclick=\"document.getElementById(&#39;result-container&#39;).innerHTML = &#39;&#39;\">Create another</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

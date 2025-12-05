@@ -1,25 +1,32 @@
 package components
 
-templ ShortenURL(url string) {
-	<div id="result" class="mt-6 sm:mx-auto sm:max-w-xl bg-gray-50 p-4 rounded-lg border border-gray-200">
-		<div class="flex flex-col sm:flex-row items-center justify-between">
-			<div class="mb-3 sm:mb-0">
-				<p class="text-sm text-gray-500">Your shortened URL:</p>
-				<div class="flex items-center mt-1">
-					<a
-						href={ templ.SafeURL(url) }
-						class="text-indigo-600 font-medium"
-						target="_blank"
-					>{ url }</a>
-					<button
-						id="copyButton"
-						class="ml-2 text-gray-400 hover:text-gray-600"
-						onclick={ templ.JSFuncCall("copyToClipboard", url) }
-					>
-						<i class="fas fa-copy"></i>
-					</button>
+templ ShortenURL(short, original string) {
+	<div class="bg-white rounded-xl shadow-lg border border-indigo-50 overflow-hidden text-left animate-fade-in-up">
+		<div class="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+			<div class="flex-1 min-w-0">
+				<p class="text-sm text-gray-500 mb-1">Your shortened URL:</p>
+				<div class="flex items-center gap-2">
+					<a href={ templ.SafeURL(short) } class="text-2xl font-bold text-indigo-600 hover:text-indigo-800 truncate block" target="_blank">{ short }</a>
+					<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
 				</div>
+				<p class="text-xs text-gray-400 mt-1 truncate">Original: { original }</p>
 			</div>
+			<div class="flex items-center gap-3 w-full sm:w-auto">
+				<button 
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors group"
+                    onclick={ templ.JSFuncCall("copyToClipboard", short) }
+                >
+					<i class="far fa-copy mr-2 text-gray-400 group-hover:text-indigo-500"></i> Copy
+				</button>
+			</div>
+		</div>
+		<div class="bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center">
+			<a href="/urls" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+				View Analytics <i class="fas fa-arrow-right ml-1 text-xs"></i>
+			</a>
+			<button class="text-gray-400 hover:text-gray-600 text-sm" onclick="document.getElementById('result-container').innerHTML = ''">
+				Create another
+			</button>
 		</div>
 	</div>
 }

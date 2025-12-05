@@ -8,7 +8,10 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/zaibon/shortcut/middleware"
+import (
+	"github.com/zaibon/shortcut/middleware"
+	"github.com/zaibon/shortcut/templates/components"
+)
 
 func IndexPage() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -44,22 +47,19 @@ func IndexPage() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-grow\"><div class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\"><!-- Hero section --><div class=\"bg-white overflow-hidden shadow rounded-lg\"><div class=\"px-4 py-5 sm:p-6\"><div class=\"text-center\"><h1 class=\"text-3xl font-extrabold text-gray-900 sm:text-4xl\">Shorten your links, expand your reach</h1><p class=\"mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl\">Create short, memorable links that redirect to your long URLs. Track clicks and manage your links in one place.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-grow\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if user == nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<!-- Call to action --> <div class=\"sm:mx-auto sm:max-w-xl bg-indigo-50 p-6 rounded-lg border border-indigo-100\"><div class=\"text-center\"><h2 class=\"text-xl font-semibold text-indigo-700 mb-2\">Create an account to start shortening URLs</h2><p class=\"text-indigo-600 mb-6\">Sign up for free and get access to all our URL shortening features.</p><div class=\"flex flex-col sm:flex-row justify-center gap-4\"><a href=\"/signup\" class=\"inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Sign up for free</a> <a href=\"/auth\" class=\"inline-flex justify-center py-3 px-6 border border-gray-300 shadow-sm text-base font-medium rounded-md text-indigo-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Log in</a></div></div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- URL shortener form --> <div class=\"mt-10 sm:mt-12\"><form class=\"sm:mx-auto sm:max-w-xl\" hx-post=\"/shorten\" hx-target=\"#result\" hx-swap=\"outerHTML\" hx-indicator=\"#spinner\"><div class=\"sm:flex\"><div class=\"min-w-0 flex-1\"><label for=\"url\" class=\"sr-only\">URL</label> <input id=\"url\" name=\"url\" type=\"text\" placeholder=\"Enter your long URL here\" required class=\"block w-full px-4 py-3 rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\"></div><div class=\"mt-3 sm:mt-0 sm:ml-3\"><button type=\"submit\" class=\"block w-full py-3 px-4 rounded-md shadow bg-indigo-600 text-white font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm\">Shorten URL</button></div></div><div id=\"spinner\" class=\"htmx-indicator flex justify-center mt-4\"><svg class=\"animate-spin h-5 w-5 text-indigo-500\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><circle class=\"opacity-25\" cx=\"12\" cy=\"12\" r=\"10\" stroke=\"currentColor\" stroke-width=\"4\"></circle> <path class=\"opacity-75\" fill=\"currentColor\" d=\"M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z\"></path></svg></div></form><!-- Result area --><div id=\"result\" class=\"mt-6 sm:mx-auto sm:max-w-xl\"></div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			templ_7745c5c3_Err = components.HeroSection(user).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><!-- Features section --><div class=\"mt-10\"><div class=\"grid grid-cols-1 gap-4 sm:grid-cols-3\"><div class=\"bg-white overflow-hidden shadow rounded-lg\"><div class=\"px-4 py-5 sm:p-6 text-center\"><div class=\"text-indigo-500 text-3xl mb-3\"><i class=\"fas fa-bolt\"></i></div><h3 class=\"text-lg font-medium text-gray-900\">Lightning Fast</h3><p class=\"mt-2 text-sm text-gray-500\">Our service is optimized for speed, ensuring your links redirect instantly.</p></div></div><div class=\"bg-white overflow-hidden shadow rounded-lg\"><div class=\"px-4 py-5 sm:p-6 text-center\"><div class=\"text-indigo-500 text-3xl mb-3\"><i class=\"fas fa-chart-line\"></i></div><h3 class=\"text-lg font-medium text-gray-900\">Detailed Analytics</h3><p class=\"mt-2 text-sm text-gray-500\">Track clicks, referrers, and geographic data for all your shortened links.</p></div></div><div class=\"bg-white overflow-hidden shadow rounded-lg\"><div class=\"px-4 py-5 sm:p-6 text-center\"><div class=\"text-indigo-500 text-3xl mb-3\"><i class=\"fas fa-shield-alt\"></i></div><h3 class=\"text-lg font-medium text-gray-900\">Secure & Reliable</h3><p class=\"mt-2 text-sm text-gray-500\">Your links are secure and will never expire unless you want them to.</p></div></div></div></div></div></main>")
+			templ_7745c5c3_Err = components.FeaturesSection().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
