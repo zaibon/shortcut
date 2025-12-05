@@ -264,7 +264,7 @@ func setupSentry(c config) {
 	}
 
 	err := sentry.Init(sentry.ClientOptions{
-		Dsn: "https://fad5df13174de890d07ab7f41f9fd495@o4506180497899520.ingest.us.sentry.io/4509379018620928",
+		Dsn: c.SentryDSN,
 		// Set TracesSampleRate to 1.0 to capture 100%
 		// of transactions for tracing.
 		// We recommend adjusting this value in production,

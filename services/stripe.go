@@ -177,6 +177,8 @@ func (s *stripeService) CreateCheckoutSession(ctx context.Context, user *domain.
 	var customerID *string
 	if err == nil {
 		customerID = &customer.StripeID
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return "", fmt.Errorf("failed to get customer: %w", err)
 	}
 
 	params := &stripe.CheckoutSessionParams{
