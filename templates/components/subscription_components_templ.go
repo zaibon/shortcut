@@ -68,7 +68,7 @@ func CurrentPlanBanner(stats domain.SubscriptionStats) templ.Component {
 	})
 }
 
-func PricingGrid() templ.Component {
+func PricingGrid(plans []domain.Plan) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -89,7 +89,162 @@ func PricingGrid() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"plans\" class=\"grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto\" x-data=\"{ \n\t\t\tbilling: &#39;monthly&#39;,\n\t\t\tplans: [\n\t\t\t\t{\n\t\t\t\t\tname: &#39;Free&#39;,\n\t\t\t\t\tprice: 0,\n\t\t\t\t\tdesc: &#39;Perfect for hobbyists and side projects.&#39;,\n\t\t\t\t\tfeatures: [&#39;50 Short Links / mo&#39;, &#39;Basic Analytics&#39;, &#39;Standard Support&#39;, &#39;Ad-supported&#39;],\n\t\t\t\t\tcta: &#39;Current Plan&#39;,\n\t\t\t\t\tcurrent: true\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\tname: &#39;Pro&#39;,\n\t\t\t\t\tprice: 12,\n\t\t\t\t\tdesc: &#39;For creators and small businesses.&#39;,\n\t\t\t\t\tfeatures: [&#39;Unlimited Short Links&#39;, &#39;Advanced Analytics&#39;, &#39;Custom Branded Domains&#39;, &#39;Priority Support&#39;, &#39;API Access&#39;],\n\t\t\t\t\tcta: &#39;Upgrade to Pro&#39;,\n\t\t\t\t\tpopular: true\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\tname: &#39;Business&#39;,\n\t\t\t\t\tprice: 49,\n\t\t\t\t\tdesc: &#39;For teams and high-volume needs.&#39;,\n\t\t\t\t\tfeatures: [&#39;Everything in Pro&#39;, &#39;SSO &amp; Team Management&#39;, &#39;99.9% SLA&#39;, &#39;Dedicated Account Manager&#39;, &#39;Audit Logs&#39;],\n\t\t\t\t\tcta: &#39;Contact Sales&#39;,\n\t\t\t\t\tenterprise: true\n\t\t\t\t}\n\t\t\t] \n\t\t }\"><template x-for=\"plan in plans\" :key=\"plan.name\"><div :class=\"plan.popular ? &#39;border-indigo-200 shadow-xl scale-105 z-10&#39; : &#39;border-slate-200 shadow-sm&#39;\" class=\"bg-white rounded-2xl border p-8 flex flex-col relative transition-all duration-300\"><div x-show=\"plan.popular\" class=\"absolute top-0 right-0 -mt-3 mr-6 px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-md\">Most Popular</div><div class=\"mb-6\"><h3 class=\"text-xl font-bold text-slate-900\" x-text=\"plan.name\"></h3><p class=\"text-slate-500 text-sm mt-2\" x-text=\"plan.desc\"></p></div><div class=\"mb-6 flex items-baseline gap-1\"><span class=\"text-4xl font-extrabold text-slate-900\" x-text=\"&#39;$&#39; + plan.price\"></span> <span class=\"text-slate-500 font-medium\">/month</span></div><ul class=\"space-y-4 mb-8 flex-1\"><template x-for=\"feature in plan.features\"><li class=\"flex items-start gap-3 text-sm text-slate-600\"><i class=\"fas fa-check text-emerald-500 mt-0.5\"></i> <span x-text=\"feature\"></span></li></template></ul><button :class=\"plan.current ? &#39;bg-slate-100 text-slate-500 cursor-default&#39; : (plan.popular ? &#39;bg-indigo-600 text-white hover:bg-indigo-700&#39; : &#39;bg-slate-900 text-white hover:bg-slate-800&#39;)\" class=\"w-full py-3 px-4 rounded-lg font-semibold transition-colors shadow-sm\" x-text=\"plan.cta\"></button></div></template></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"plans\" class=\"grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto\"><!-- Free Plan (Static) --><div class=\"border-slate-200 shadow-sm bg-white rounded-2xl border p-8 flex flex-col relative transition-all duration-300\"><div class=\"mb-6\"><h3 class=\"text-xl font-bold text-slate-900\">Free</h3><p class=\"text-slate-500 text-sm mt-2\">Perfect for hobbyists and side projects.</p></div><div class=\"mb-6 flex items-baseline gap-1\"><span class=\"text-4xl font-extrabold text-slate-900\">$0</span> <span class=\"text-slate-500 font-medium\">/month</span></div><ul class=\"space-y-4 mb-8 flex-1\"><li class=\"flex items-start gap-3 text-sm text-slate-600\"><i class=\"fas fa-check text-emerald-500 mt-0.5\"></i> <span>10 Short Links / Month</span></li><li class=\"flex items-start gap-3 text-sm text-slate-600\"><i class=\"fas fa-check text-emerald-500 mt-0.5\"></i> <span>Analytics</span></li><li class=\"flex items-start gap-3 text-sm text-slate-600\"><i class=\"fas fa-check text-emerald-500 mt-0.5\"></i> <span>Standard Support</span></li></ul><button class=\"w-full py-3 px-4 rounded-lg font-semibold transition-colors shadow-sm bg-slate-100 text-slate-500 cursor-default\" disabled>Current Plan</button></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, plan := range plans {
+			var templ_7745c5c3_Var5 = []any{"bg-white rounded-2xl border p-8 flex flex-col relative transition-all duration-300",
+				templ.KV("border-indigo-200 shadow-xl scale-105 z-10", plan.Name == "Pro"),
+				templ.KV("border-slate-200 shadow-sm", plan.Name != "Pro")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var5).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/subscription_components.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if plan.Name == "Pro" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"absolute top-0 right-0 -mt-3 mr-6 px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-md\">Most Popular</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"mb-6\"><h3 class=\"text-xl font-bold text-slate-900\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(plan.Name)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/subscription_components.templ`, Line: 69, Col: 61}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</h3><p class=\"text-slate-500 text-sm mt-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(plan.Description)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/subscription_components.templ`, Line: 70, Col: 62}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</p></div><div class=\"mb-6 flex items-baseline gap-1\"><span class=\"text-4xl font-extrabold text-slate-900\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("$%.0f", plan.Price))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/subscription_components.templ`, Line: 73, Col: 92}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span> <span class=\"text-slate-500 font-medium\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/%s", plan.Interval))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/subscription_components.templ`, Line: 74, Col: 81}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span></div><ul class=\"space-y-4 mb-8 flex-1\"><li class=\"flex items-start gap-3 text-sm text-slate-600\"><i class=\"fas fa-check text-emerald-500 mt-0.5\"></i> <span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d Short Links / Month", plan.Features.LinksNumber))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/subscription_components.templ`, Line: 79, Col: 77}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></li><li class=\"flex items-start gap-3 text-sm text-slate-600\"><i class=\"fas fa-check text-emerald-500 mt-0.5\"></i> <span>Analytics</span></li><li class=\"flex items-start gap-3 text-sm text-slate-600\"><i class=\"fas fa-check text-emerald-500 mt-0.5\"></i> <span>Standard Support</span></li></ul><form method=\"POST\" action=\"/subscription/checkout\" class=\"w-full\"><input type=\"hidden\" name=\"price_id\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(plan.PriceID)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/subscription_components.templ`, Line: 91, Col: 62}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 = []any{"w-full py-3 px-4 rounded-lg font-semibold transition-colors shadow-sm",
+				templ.KV("bg-indigo-600 text-white hover:bg-indigo-700", plan.Features.Promoted),
+				templ.KV("bg-slate-900 text-white hover:bg-slate-800", !plan.Features.Promoted)}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<button type=\"submit\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var13).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/subscription_components.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">Upgrade to ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(plan.Name)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/subscription_components.templ`, Line: 98, Col: 28}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</button></form></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -113,12 +268,12 @@ func FAQ() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var5 == nil {
-			templ_7745c5c3_Var5 = templ.NopComponent
+		templ_7745c5c3_Var16 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var16 == nil {
+			templ_7745c5c3_Var16 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"max-w-3xl mx-auto mt-24\"><h2 class=\"text-2xl font-bold text-slate-900 text-center mb-10\">Frequently asked questions</h2><div class=\"space-y-4\" x-data=\"{ active: null }\"><!-- FAQ Item 1 --><div class=\"bg-white border border-slate-200 rounded-lg overflow-hidden\"><button @click=\"active === 1 ? active = null : active = 1\" class=\"flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors\"><span class=\"font-medium text-slate-900\">What happens when I reach my limit?</span> <i class=\"fas text-slate-400 transition-transform duration-200\" :class=\"active === 1 ? &#39;fa-minus&#39; : &#39;fa-plus&#39;\"></i></button><div x-show=\"active === 1\" x-collapse class=\"px-6 pb-4 pt-0 text-slate-600\"><p>On the Free plan, you won't be able to create new links until the next month resets. Pro plans have soft limits with overage options.</p></div></div><!-- FAQ Item 2 --><div class=\"bg-white border border-slate-200 rounded-lg overflow-hidden\"><button @click=\"active === 2 ? active = null : active = 2\" class=\"flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors\"><span class=\"font-medium text-slate-900\">Can I use my own domain?</span> <i class=\"fas text-slate-400 transition-transform duration-200\" :class=\"active === 2 ? &#39;fa-minus&#39; : &#39;fa-plus&#39;\"></i></button><div x-show=\"active === 2\" x-collapse class=\"px-6 pb-4 pt-0 text-slate-600\"><p>Yes! Custom domains are available on the Pro and Business plans. You can connect `links.yourbrand.com` in seconds.</p></div></div><!-- FAQ Item 3 --><div class=\"bg-white border border-slate-200 rounded-lg overflow-hidden\"><button @click=\"active === 3 ? active = null : active = 3\" class=\"flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors\"><span class=\"font-medium text-slate-900\">Can I cancel anytime?</span> <i class=\"fas text-slate-400 transition-transform duration-200\" :class=\"active === 3 ? &#39;fa-minus&#39; : &#39;fa-plus&#39;\"></i></button><div x-show=\"active === 3\" x-collapse class=\"px-6 pb-4 pt-0 text-slate-600\"><p>Absolutely. You can cancel your subscription from your dashboard at any time. You'll keep access until the end of your billing cycle.</p></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"max-w-3xl mx-auto mt-24\"><h2 class=\"text-2xl font-bold text-slate-900 text-center mb-10\">Frequently asked questions</h2><div class=\"space-y-4\" x-data=\"{ active: null }\"><!-- FAQ Item 1 --><div class=\"bg-white border border-slate-200 rounded-lg overflow-hidden\"><button @click=\"active === 1 ? active = null : active = 1\" class=\"flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors\"><span class=\"font-medium text-slate-900\">What happens when I reach my limit?</span> <i class=\"fas text-slate-400 transition-transform duration-200\" :class=\"active === 1 ? &#39;fa-minus&#39; : &#39;fa-plus&#39;\"></i></button><div x-show=\"active === 1\" x-collapse class=\"px-6 pb-4 pt-0 text-slate-600\"><p>On the Free plan, you won't be able to create new links until the next month resets. Pro plans have soft limits with overage options.</p></div></div><!-- FAQ Item 2 --><div class=\"bg-white border border-slate-200 rounded-lg overflow-hidden\"><button @click=\"active === 2 ? active = null : active = 2\" class=\"flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors\"><span class=\"font-medium text-slate-900\">Can I use my own domain?</span> <i class=\"fas text-slate-400 transition-transform duration-200\" :class=\"active === 2 ? &#39;fa-minus&#39; : &#39;fa-plus&#39;\"></i></button><div x-show=\"active === 2\" x-collapse class=\"px-6 pb-4 pt-0 text-slate-600\"><p>Yes! Custom domains are available on the Pro and Business plans. You can connect `links.yourbrand.com` in seconds.</p></div></div><!-- FAQ Item 3 --><div class=\"bg-white border border-slate-200 rounded-lg overflow-hidden\"><button @click=\"active === 3 ? active = null : active = 3\" class=\"flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors\"><span class=\"font-medium text-slate-900\">Can I cancel anytime?</span> <i class=\"fas text-slate-400 transition-transform duration-200\" :class=\"active === 3 ? &#39;fa-minus&#39; : &#39;fa-plus&#39;\"></i></button><div x-show=\"active === 3\" x-collapse class=\"px-6 pb-4 pt-0 text-slate-600\"><p>Absolutely. You can cancel your subscription from your dashboard at any time. You'll keep access until the end of your billing cycle.</p></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

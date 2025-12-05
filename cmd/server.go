@@ -181,7 +181,7 @@ func runServer(ctx context.Context, c config) error {
 	setupSentry(c)
 
 	// HTTP handlers
-	urlHandlers := handlers.NewURLHandlers(urlService)
+	urlHandlers := handlers.NewURLHandlers(urlService, stripeService)
 	userHandlers := handlers.NewUsersHandler(userService, stripeService, urlService, c.StripePubKey)
 	healthzHandlers := handlers.NewHealtzHandlers(stdlib.OpenDBFromPool(dbPool))
 	subscriptionHandlers := handlers.NewSubscriptionHandlers(c.StripeKey, c.StripeEndpointSecret, stripeService, urlService)

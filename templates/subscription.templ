@@ -5,7 +5,7 @@ import (
 	"github.com/zaibon/shortcut/templates/components"
 )
 
-templ SubscriptionPage(stats domain.SubscriptionStats) {
+templ SubscriptionPage(stats domain.SubscriptionStats, plans []domain.Plan) {
 	@Layout() {
 		<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 			<!-- Header -->
@@ -14,7 +14,7 @@ templ SubscriptionPage(stats domain.SubscriptionStats) {
 				<p class="text-xl text-slate-500">Start for free, scale as you grow. No hidden fees.</p>
 			</div>
 			@components.CurrentPlanBanner(stats)
-			@components.PricingGrid()
+			@components.PricingGrid(plans)
 			@components.FAQ()
 		</main>
 	}

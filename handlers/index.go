@@ -38,14 +38,16 @@ type URLService interface {
 }
 
 type Handler struct {
-	htmx *htmx.HTMX
-	svc  URLService
+	htmx   *htmx.HTMX
+	svc    URLService
+	stripe stripeService
 }
 
-func NewURLHandlers(shortURL URLService) *Handler {
+func NewURLHandlers(shortURL URLService, stripe stripeService) *Handler {
 	return &Handler{
-		htmx: htmx.New(),
-		svc:  shortURL,
+		htmx:   htmx.New(),
+		svc:    shortURL,
+		stripe: stripe,
 	}
 }
 
@@ -98,7 +100,17 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if count >= domain.FreePlanLimit {
+	limit := domain.FreePlanLimit
+	sub, err := h.stripe.GetSubscription(ctx, user)
+	if err == nil && sub != nil {
+		if sub.Features.LinksNumber > 0 {
+			limit = sub.Features.LinksNumber
+		} else if sub.Product().Name == "Pro" || sub.Product().Name == "Business" {
+			limit = 1000000
+		}
+	}
+
+	if count >= int64(limit) {
 		addFlash(w, r, "You have reached your monthly limit of URLs", flashTypeError)
 		// We return 200 OK so HTMX swaps the content (which will be empty/hidden or we could render a specific error state)
 		// Or we can just return and let the flash message speak.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -171,8 +172,93 @@ func (s *stripeService) GenerateCustomerPortalURL(ctx context.Context, user *dom
 	return sess.URL, nil
 }
 
+func (s *stripeService) CreateCheckoutSession(ctx context.Context, user *domain.User, priceID string) (string, error) {
+	customer, err := s.store.GetCustomer(ctx, user)
+	var customerID *string
+	if err == nil {
+		customerID = &customer.StripeID
+	}
+
+	params := &stripe.CheckoutSessionParams{
+		SuccessURL:        stripe.String(s.returnURL + "?success=true"),
+		CancelURL:         stripe.String(s.returnURL + "?canceled=true"),
+		Mode:              stripe.String(string(stripe.CheckoutSessionModeSubscription)),
+		ClientReferenceID: stripe.String(user.GUID.String()),
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				Price:    stripe.String(priceID),
+				Quantity: stripe.Int64(1),
+			},
+		},
+	}
+
+	if customerID != nil {
+		params.Customer = customerID
+	} else {
+		params.CustomerEmail = stripe.String(user.Email)
+	}
+
+	sess, err := s.client.CheckoutSessions.New(params)
+	if err != nil {
+		return "", err
+	}
+	return sess.URL, nil
+}
+
+func (s *stripeService) ListPlans(ctx context.Context) ([]domain.Plan, error) {
+	params := &stripe.PriceListParams{}
+	params.Active = stripe.Bool(true)
+	params.AddExpand("data.product")
+
+	iter := s.client.Prices.List(params)
+	var plans []domain.Plan
+
+	for iter.Next() {
+		p := iter.Price()
+		if p == nil || p.Recurring == nil {
+			continue
+		}
+
+		if p.Product == nil || p.Product.Deleted {
+			continue
+		}
+		if !p.Product.Active {
+			continue
+		}
+
+		plan := domain.Plan{
+			ID:          p.Product.ID,
+			Name:        p.Product.Name,
+			Description: p.Product.Description,
+			Price:       float64(p.UnitAmount) / 100.0,
+			Currency:    string(p.Currency),
+			Interval:    string(p.Recurring.Interval),
+			PriceID:     p.ID,
+			Features:    domain.NewPlanFeature(p.Product.Metadata),
+		}
+
+		plans = append(plans, plan)
+	}
+
+	if err := iter.Err(); err != nil {
+		return nil, fmt.Errorf("error listing prices: %w", err)
+	}
+
+	slices.SortFunc(plans, func(a domain.Plan, b domain.Plan) int {
+		if a.Price < b.Price {
+			return -1
+		} else if a.Price > b.Price {
+			return 1
+		} else {
+			return 0
+		}
+	})
+
+	return plans, nil
+}
+
 func customerRedirectURL(domain string, tls bool) string {
-	url := fmt.Sprintf("%s/my-account", domain)
+	url := fmt.Sprintf("%s/account", domain)
 	if tls {
 		return fmt.Sprintf("https://%s", url)
 	} else {

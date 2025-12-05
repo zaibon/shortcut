@@ -2,13 +2,19 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 
 	"github.com/donseba/go-htmx"
 	"github.com/go-chi/chi/v5"
 	"github.com/stripe/stripe-go/v78"
+	"github.com/stripe/stripe-go/v78/webhook"
 
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/templates"
 )
@@ -18,6 +24,8 @@ type stripeService interface {
 	HandleSessionCheckout(ctx context.Context, session *stripe.CheckoutSession) error
 	HandleSubscriptionUpdated(ctx context.Context, sub *stripe.Subscription) error
 	GenerateCustomerPortalURL(ctx context.Context, user *domain.User) (string, error)
+	CreateCheckoutSession(ctx context.Context, user *domain.User, priceID string) (string, error)
+	ListPlans(ctx context.Context) ([]domain.Plan, error)
 }
 
 type subscriptionHandlers struct {
@@ -47,8 +55,9 @@ func NewSubscriptionHandlers(
 func (h *subscriptionHandlers) Routes(r chi.Router) {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticated)
+		r.Post("/subscription/checkout", h.checkout)
 	})
-	// r.Post("/subscription/webhook", h.webhook)
+	r.Post("/subscription/webhook", h.webhook)
 	r.Get("/subscription", h.subscription)
 }
 
@@ -62,8 +71,20 @@ func (h *subscriptionHandlers) subscription(w http.ResponseWriter, r *http.Reque
 	}
 
 	limit := domain.FreePlanLimit
+	planName := "Free"
+
+	sub, err := h.payment.GetSubscription(r.Context(), user)
+	if err == nil && sub != nil {
+		planName = sub.Product().Name
+		if sub.Features.LinksNumber > 0 {
+			limit = sub.Features.LinksNumber
+		} else if planName == "Pro" || planName == "Business" {
+			limit = 1000000
+		}
+	}
+
 	stats := domain.SubscriptionStats{
-		PlanName:        "Free",
+		PlanName:        planName,
 		URLUsage:        int(urlCount),
 		URLLimit:        limit,
 		Remaining:       limit - int(urlCount),
@@ -76,85 +97,108 @@ func (h *subscriptionHandlers) subscription(w http.ResponseWriter, r *http.Reque
 		stats.Remaining = 0
 	}
 
-	templates.SubscriptionPage(stats).
+	plans, err := h.payment.ListPlans(r.Context())
+	if err != nil {
+		log.Error("failed to list plans", "error", err)
+	}
+
+	templates.SubscriptionPage(stats, plans).
 		Render(r.Context(), w)
 }
 
-// func (h *subscriptionHandlers) webhook(w http.ResponseWriter, r *http.Request) {
-// 	const MaxBodyBytes = int64(65536)
-// 	r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)
-// 	payload, err := io.ReadAll(r.Body)
-// 	if err != nil {
-// 		log.Error("Error reading request body", "err", err)
-// 		w.WriteHeader(http.StatusServiceUnavailable)
-// 		return
-// 	}
+func (h *subscriptionHandlers) checkout(w http.ResponseWriter, r *http.Request) {
+	user := middleware.UserFromContext(r.Context())
+	priceID := r.FormValue("price_id")
 
-// 	event, err := h.verifyWebhookSignature(payload, r.Header.Get("Stripe-Signature"))
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusBadRequest) // Return a 400 error on a bad signature
-// 		return
-// 	}
+	if priceID == "" {
+		http.Error(w, "price_id is required", http.StatusBadRequest)
+		return
+	}
 
-// 	log.Info("Received event", "type", event.Type)
+	url, err := h.payment.CreateCheckoutSession(r.Context(), user, priceID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-// 	// Unmarshal the event data into an appropriate struct depending on its Type
-// 	switch event.Type {
-// 	case "checkout.session.completed":
-// 		if err := h.handlerSessionCompleted(r.Context(), event); err != nil {
-// 			log.Error("Error handling session completed", "err", err)
-// 			w.WriteHeader(http.StatusInternalServerError)
-// 			return
-// 		}
-// 	case "customer.subscription.updated", "customer.subscription.deleted":
-// 		if err := h.handleSubscriptionUpdated(r.Context(), event); err != nil {
-// 			log.Error("Error handling subscription updated", "err", err)
-// 			w.WriteHeader(http.StatusInternalServerError)
-// 			return
-// 		}
-// 	default:
-// 		fmt.Fprintf(os.Stderr, "Unhandled event type: %s\n", event.Type)
-// 	}
+	http.Redirect(w, r, url, http.StatusSeeOther)
+}
 
-// 	w.WriteHeader(http.StatusOK)
-// }
+func (h *subscriptionHandlers) webhook(w http.ResponseWriter, r *http.Request) {
+	const MaxBodyBytes = int64(65536)
+	r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)
+	payload, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Error("Error reading request body", "err", err)
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
 
-// func (h *subscriptionHandlers) verifyWebhookSignature(payload []byte, signature string) (*stripe.Event, error) {
-// 	// Pass the request body and Stripe-Signature header to ConstructEvent, along
-// 	// with the webhook signing key.
-// 	event, err := webhook.ConstructEvent(payload, signature, h.stripeEndpointSecret)
+	event, err := h.verifyWebhookSignature(payload, r.Header.Get("Stripe-Signature"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest) // Return a 400 error on a bad signature
+		return
+	}
 
-// 	if err != nil {
-// 		log.Error("Error verifying webhook signature", "err", err)
-// 		return nil, err
-// 	}
-// 	return &event, nil
-// }
+	log.Info("Received event", "type", event.Type)
 
-// func (h *subscriptionHandlers) handlerSessionCompleted(ctx context.Context, event *stripe.Event) error {
-// 	var session stripe.CheckoutSession
-// 	err := json.Unmarshal(event.Data.Raw, &session)
-// 	if err != nil {
-// 		return fmt.Errorf("error parsing webhook JSON: %w", err)
-// 	}
+	// Unmarshal the event data into an appropriate struct depending on its Type
+	switch event.Type {
+	case "checkout.session.completed":
+		if err := h.handlerSessionCompleted(r.Context(), event); err != nil {
+			log.Error("Error handling session completed", "err", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	case "customer.subscription.updated", "customer.subscription.deleted":
+		if err := h.handleSubscriptionUpdated(r.Context(), event); err != nil {
+			log.Error("Error handling subscription updated", "err", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	default:
+		fmt.Fprintf(os.Stderr, "Unhandled event type: %s\n", event.Type)
+	}
 
-// 	if err := h.svc.HandleSessionCheckout(ctx, &session); err != nil {
-// 		return fmt.Errorf("error handling checkout session completed event: %w", err)
-// 	}
+	w.WriteHeader(http.StatusOK)
+}
 
-// 	return nil
-// }
+func (h *subscriptionHandlers) verifyWebhookSignature(payload []byte, signature string) (*stripe.Event, error) {
+	// Pass the request body and Stripe-Signature header to ConstructEvent, along
+	// with the webhook signing key.
+	event, err := webhook.ConstructEvent(payload, signature, h.stripeEndpointSecret)
 
-// func (h *subscriptionHandlers) handleSubscriptionUpdated(ctx context.Context, event *stripe.Event) error {
-// 	var sub stripe.Subscription
-// 	err := json.Unmarshal(event.Data.Raw, &sub)
-// 	if err != nil {
-// 		return fmt.Errorf("error parsing webhook JSON: %w", err)
-// 	}
+	if err != nil {
+		log.Error("Error verifying webhook signature", "err", err)
+		return nil, err
+	}
+	return &event, nil
+}
 
-// 	if err := h.svc.HandleSubscriptionUpdated(ctx, &sub); err != nil {
-// 		return fmt.Errorf("error handling checkout session completed event: %w", err)
-// 	}
+func (h *subscriptionHandlers) handlerSessionCompleted(ctx context.Context, event *stripe.Event) error {
+	var session stripe.CheckoutSession
+	err := json.Unmarshal(event.Data.Raw, &session)
+	if err != nil {
+		return fmt.Errorf("error parsing webhook JSON: %w", err)
+	}
 
-// 	return nil
-// }
+	if err := h.payment.HandleSessionCheckout(ctx, &session); err != nil {
+		return fmt.Errorf("error handling checkout session completed event: %w", err)
+	}
+
+	return nil
+}
+
+func (h *subscriptionHandlers) handleSubscriptionUpdated(ctx context.Context, event *stripe.Event) error {
+	var sub stripe.Subscription
+	err := json.Unmarshal(event.Data.Raw, &sub)
+	if err != nil {
+		return fmt.Errorf("error parsing webhook JSON: %w", err)
+	}
+
+	if err := h.payment.HandleSubscriptionUpdated(ctx, &sub); err != nil {
+		return fmt.Errorf("error handling checkout session completed event: %w", err)
+	}
+
+	return nil
+}

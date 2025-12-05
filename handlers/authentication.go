@@ -79,8 +79,18 @@ func (h *UsersHandler) myAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	limit := domain.FreePlanLimit
+	planName := "Free"
+
+	sub, err := h.stripe.GetSubscription(r.Context(), user)
+	if err == nil && sub != nil {
+		planName = sub.Product().Name
+		if sub.Features.LinksNumber > 0 {
+			limit = sub.Features.LinksNumber
+		}
+	}
+
 	stats := domain.SubscriptionStats{
-		PlanName:        "Free",
+		PlanName:        planName,
 		URLUsage:        int(count),
 		URLLimit:        limit,
 		Remaining:       limit - int(count),

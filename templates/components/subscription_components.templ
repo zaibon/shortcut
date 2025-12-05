@@ -24,78 +24,88 @@ templ CurrentPlanBanner(stats domain.SubscriptionStats) {
 	</div>
 }
 
-templ PricingGrid() {
-	<div id="plans" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto" 
-		 x-data="{ 
-			billing: 'monthly',
-			plans: [
-				{
-					name: 'Free',
-					price: 0,
-					desc: 'Perfect for hobbyists and side projects.',
-					features: ['50 Short Links / mo', 'Basic Analytics', 'Standard Support', 'Ad-supported'],
-					cta: 'Current Plan',
-					current: true
-				},
-				{
-					name: 'Pro',
-					price: 12,
-					desc: 'For creators and small businesses.',
-					features: ['Unlimited Short Links', 'Advanced Analytics', 'Custom Branded Domains', 'Priority Support', 'API Access'],
-					cta: 'Upgrade to Pro',
-					popular: true
-				},
-				{
-					name: 'Business',
-					price: 49,
-					desc: 'For teams and high-volume needs.',
-					features: ['Everything in Pro', 'SSO & Team Management', '99.9% SLA', 'Dedicated Account Manager', 'Audit Logs'],
-					cta: 'Contact Sales',
-					enterprise: true
-				}
-			] 
-		 }">
-		
-		<template x-for="plan in plans" :key="plan.name">
-			<div :class="plan.popular ? 'border-indigo-200 shadow-xl scale-105 z-10' : 'border-slate-200 shadow-sm'" 
-				 class="bg-white rounded-2xl border p-8 flex flex-col relative transition-all duration-300">
-				
-				<div x-show="plan.popular" class="absolute top-0 right-0 -mt-3 mr-6 px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-md">
-					Most Popular
-				</div>
-
-				<div class="mb-6">
-					<h3 class="text-xl font-bold text-slate-900" x-text="plan.name"></h3>
-					<p class="text-slate-500 text-sm mt-2" x-text="plan.desc"></p>
-				</div>
-
-				<div class="mb-6 flex items-baseline gap-1">
-					<span class="text-4xl font-extrabold text-slate-900" x-text="'$' + plan.price"></span>
-					<span class="text-slate-500 font-medium">/month</span>
-				</div>
-
-				<ul class="space-y-4 mb-8 flex-1">
-					<template x-for="feature in plan.features">
-						<li class="flex items-start gap-3 text-sm text-slate-600">
-							<i class="fas fa-check text-emerald-500 mt-0.5"></i>
-							<span x-text="feature"></span>
-						</li>
-					</template>
-				</ul>
-
-				<button :class="plan.current ? 'bg-slate-100 text-slate-500 cursor-default' : (plan.popular ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-slate-900 text-white hover:bg-slate-800')"
-						class="w-full py-3 px-4 rounded-lg font-semibold transition-colors shadow-sm"
-						x-text="plan.cta">
-				</button>
+templ PricingGrid(plans []domain.Plan) {
+	<div id="plans" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+		<!-- Free Plan (Static) -->
+		<div class="border-slate-200 shadow-sm bg-white rounded-2xl border p-8 flex flex-col relative transition-all duration-300">
+			<div class="mb-6">
+				<h3 class="text-xl font-bold text-slate-900">Free</h3>
+				<p class="text-slate-500 text-sm mt-2">Perfect for hobbyists and side projects.</p>
 			</div>
-		</template>
+			<div class="mb-6 flex items-baseline gap-1">
+				<span class="text-4xl font-extrabold text-slate-900">$0</span>
+				<span class="text-slate-500 font-medium">/month</span>
+			</div>
+			<ul class="space-y-4 mb-8 flex-1">
+				<li class="flex items-start gap-3 text-sm text-slate-600">
+					<i class="fas fa-check text-emerald-500 mt-0.5"></i>
+					<span>10 Short Links / Month</span>
+				</li>
+				<li class="flex items-start gap-3 text-sm text-slate-600">
+					<i class="fas fa-check text-emerald-500 mt-0.5"></i>
+					<span>Analytics</span>
+				</li>
+				<li class="flex items-start gap-3 text-sm text-slate-600">
+					<i class="fas fa-check text-emerald-500 mt-0.5"></i>
+					<span>Standard Support</span>
+				</li>
+			</ul>
+			<button class="w-full py-3 px-4 rounded-lg font-semibold transition-colors shadow-sm bg-slate-100 text-slate-500 cursor-default" disabled>
+				Current Plan
+			</button>
+		</div>
+		for _, plan := range plans {
+			<div
+				class={ "bg-white rounded-2xl border p-8 flex flex-col relative transition-all duration-300",
+                templ.KV("border-indigo-200 shadow-xl scale-105 z-10", plan.Name == "Pro"),
+                templ.KV("border-slate-200 shadow-sm", plan.Name != "Pro") }
+			>
+				if plan.Name == "Pro" {
+					<div class="absolute top-0 right-0 -mt-3 mr-6 px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-md">
+						Most Popular
+					</div>
+				}
+				<div class="mb-6">
+					<h3 class="text-xl font-bold text-slate-900">{ plan.Name }</h3>
+					<p class="text-slate-500 text-sm mt-2">{ plan.Description }</p>
+				</div>
+				<div class="mb-6 flex items-baseline gap-1">
+					<span class="text-4xl font-extrabold text-slate-900">{ fmt.Sprintf("$%.0f", plan.Price) }</span>
+					<span class="text-slate-500 font-medium">{ fmt.Sprintf("/%s", plan.Interval) }</span>
+				</div>
+				<ul class="space-y-4 mb-8 flex-1">
+					<li class="flex items-start gap-3 text-sm text-slate-600">
+						<i class="fas fa-check text-emerald-500 mt-0.5"></i>
+						<span>{ fmt.Sprintf("%d Short Links / Month",plan.Features.LinksNumber) }</span>
+					</li>
+					<li class="flex items-start gap-3 text-sm text-slate-600">
+						<i class="fas fa-check text-emerald-500 mt-0.5"></i>
+						<span>Analytics</span>
+					</li>
+					<li class="flex items-start gap-3 text-sm text-slate-600">
+						<i class="fas fa-check text-emerald-500 mt-0.5"></i>
+						<span>Standard Support</span>
+					</li>
+				</ul>
+				<form method="POST" action="/subscription/checkout" class="w-full">
+					<input type="hidden" name="price_id" value={ plan.PriceID }/>
+					<button
+						type="submit"
+						class={ "w-full py-3 px-4 rounded-lg font-semibold transition-colors shadow-sm",
+                                templ.KV("bg-indigo-600 text-white hover:bg-indigo-700", plan.Features.Promoted),
+                                templ.KV("bg-slate-900 text-white hover:bg-slate-800", !plan.Features.Promoted) }
+					>
+						Upgrade to { plan.Name }
+					</button>
+				</form>
+			</div>
+		}
 	</div>
 }
 
 templ FAQ() {
 	<div class="max-w-3xl mx-auto mt-24">
 		<h2 class="text-2xl font-bold text-slate-900 text-center mb-10">Frequently asked questions</h2>
-		
 		<div class="space-y-4" x-data="{ active: null }">
 			<!-- FAQ Item 1 -->
 			<div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
@@ -107,7 +117,6 @@ templ FAQ() {
 					<p>On the Free plan, you won't be able to create new links until the next month resets. Pro plans have soft limits with overage options.</p>
 				</div>
 			</div>
-
 			<!-- FAQ Item 2 -->
 			<div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
 				<button @click="active === 2 ? active = null : active = 2" class="flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors">
@@ -118,7 +127,6 @@ templ FAQ() {
 					<p>Yes! Custom domains are available on the Pro and Business plans. You can connect `links.yourbrand.com` in seconds.</p>
 				</div>
 			</div>
-
 			<!-- FAQ Item 3 -->
 			<div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
 				<button @click="active === 3 ? active = null : active = 3" class="flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-slate-50 transition-colors">

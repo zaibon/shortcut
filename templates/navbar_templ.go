@@ -125,6 +125,10 @@ func NavBar() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = navLink(NavBarLink{Name: "Subscription", Href: "/subscription"}, currentPath).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></div><div class=\"hidden sm:ml-6 sm:flex sm:items-center\"><div class=\"ml-3 relative\" x-data=\"{ open: false }\">")
 		if templ_7745c5c3_Err != nil {
