@@ -118,3 +118,11 @@ type GithubEmail struct {
 	Primary    bool   `json:"primary"`
 	Visibility string `json:"visibility"`
 }
+
+type SubscriptionStats struct {
+	PlanName        string
+	URLUsage        int
+	URLLimit        int
+	Remaining       int
+	UsagePercentage int
+}

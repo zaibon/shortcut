@@ -182,7 +182,7 @@ func runServer(ctx context.Context, c config) error {
 
 	// HTTP handlers
 	urlHandlers := handlers.NewURLHandlers(urlService)
-	userHandlers := handlers.NewUsersHandler(userService, stripeService, c.StripePubKey)
+	userHandlers := handlers.NewUsersHandler(userService, stripeService, urlService, c.StripePubKey)
 	healthzHandlers := handlers.NewHealtzHandlers(stdlib.OpenDBFromPool(dbPool))
 	subscriptionHandlers := handlers.NewSubscriptionHandlers(c.StripeKey, c.StripeEndpointSecret, stripeService, urlService)
 	adminHandlers := handlers.NewAdministrationHandlers(adminService)

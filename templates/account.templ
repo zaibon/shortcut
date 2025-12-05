@@ -1,247 +1,30 @@
 package templates
 
 import (
-	"fmt"
 	"github.com/zaibon/shortcut/domain"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
+	"github.com/zaibon/shortcut/templates/components"
 )
 
-templ AccountPage(user domain.User, linkedProviders []domain.AccountProvider) {
+templ AccountPage(user domain.User, linkedProviders []domain.AccountProvider, stats domain.SubscriptionStats) {
 	@Layout() {
-		<main class="flex-grow">
-			<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-				<!-- Account Header -->
-				<div class="md:flex md:items-center md:justify-between mb-8">
-					<div class="flex-1 min-w-0">
-						<h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-							Your Account
-						</h2>
-					</div>
+		<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+			<!-- Page Header -->
+			<div class="mb-8">
+				<h1 class="text-2xl font-bold text-slate-900">Account Settings</h1>
+				<p class="text-slate-500 mt-1">Manage your profile, subscription, and connected services.</p>
+			</div>
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+				<!-- Left Column: Profile & Subscription -->
+				<div class="lg:col-span-2 space-y-8">
+					@components.ProfileCard(user)
+					@components.ConnectedAccounts(linkedProviders)
 				</div>
-				<!-- Profile Information -->
-				<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
-					<div class="px-4 py-5 sm:px-6 flex justify-between items-center">
-						<div>
-							<h3 class="text-lg leading-6 font-medium text-gray-900">
-								Profile Information
-							</h3>
-							<p class="mt-1 max-w-2xl text-sm text-gray-500">
-								Personal details from your connected account.
-							</p>
-						</div>
-						<div class="flex-shrink-0">
-							<img class="h-16 w-16 rounded-full" src={ user.Avatar } alt="Profile photo"/>
-						</div>
-					</div>
-					<div class="border-t border-gray-200">
-						<dl>
-							<div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-								<dt class="text-sm font-medium text-gray-500">
-									Username
-								</dt>
-								<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-									{ user.Name }
-								</dd>
-							</div>
-							<div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-								<dt class="text-sm font-medium text-gray-500">
-									Email address
-								</dt>
-								<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-									{ user.Email }
-								</dd>
-							</div>
-							<div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-								<dt class="text-sm font-medium text-gray-500">
-									Account created
-								</dt>
-								<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-									{ user.CreatedAt.Format(domain.TimeFormat) }
-								</dd>
-							</div>
-							<div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-								<dt class="text-sm font-medium text-gray-500">
-									Subscription plan
-								</dt>
-								<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-										Free
-									</span>
-									<a href="subscription.html" class="ml-2 text-xs text-indigo-600 hover:text-indigo-500">
-										Upgrade plan
-									</a>
-								</dd>
-							</div>
-						</dl>
-					</div>
+				<!-- Right Column: Subscription & Actions -->
+				<div class="space-y-8">
+					@components.SubscriptionCard(stats)
+					@components.DangerZone()
 				</div>
-				<!-- Connected Accounts Section -->
-				<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
-					<div class="px-4 py-5 sm:px-6">
-						<h3 class="text-lg leading-6 font-medium text-gray-900">
-							Connected Accounts
-						</h3>
-						<p class="mt-1 max-w-2xl text-sm text-gray-500">
-							Authentication providers linked to your account.
-						</p>
-					</div>
-					<div class="border-t border-gray-200">
-						<div class="px-4 py-5 sm:p-6">
-							<div class="space-y-4">
-								for _,p:= range linkedProviders {
-									<!-- Google Account -->
-									<div class="flex items-center justify-between">
-										<div class="flex items-center">
-											switch p.Provider {
-												case domain.OauthProviderGoogle:
-													<i class="fab fa-google text-lg text-red-500 mr-3"></i>
-												case domain.OauthProviderGithub:
-													<i class="fab fa-github text-lg text-gray-900 mr-3"></i>
-											}
-											<div>
-												<p class="text-sm font-medium text-gray-900">{ titleCase(string(p.Provider)) }</p>
-												// <p class="text-xs text-gray-500">tom@example.com</p>
-											</div>
-										</div>
-										<div>
-											if p.Connected {
-												<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-													Connected
-												</span>
-											} else {
-												<a href={ templ.SafeURL(fmt.Sprintf("/oauth/login/%s", p.Provider)) } class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-													Link account
-												</a>
-											}
-										</div>
-									</div>
-								}
-							</div>
-							<div class="mt-6 text-sm text-gray-500">
-								<p>
-									<i class="fas fa-info-circle text-indigo-500 mr-1"></i>
-									Your account information is managed through your connected authentication provider.
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-				// <!-- Account Security Section -->
-				// <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
-				// 	<div class="px-4 py-5 sm:px-6">
-				// 		<h3 class="text-lg leading-6 font-medium text-gray-900">
-				// 			Account Security
-				// 		</h3>
-				// 		<p class="mt-1 max-w-2xl text-sm text-gray-500">
-				// 			Security settings and recent activity.
-				// 		</p>
-				// 	</div>
-				// 	<div class="border-t border-gray-200">
-				// 		<div class="px-4 py-5 sm:p-6">
-				// 			<!-- Two-Factor Authentication Status -->
-				// 			<div class="flex items-center justify-between mb-6">
-				// 				<div>
-				// 					<h4 class="text-sm font-medium text-gray-900">Two-factor authentication</h4>
-				// 					<p class="text-xs text-gray-500 mt-1">Extra security for your account</p>
-				// 				</div>
-				// 				<div>
-				// 					<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-				// 						Not enabled
-				// 					</span>
-				// 				</div>
-				// 			</div>
-				// 			<!-- Recent Account Activity -->
-				// 			<div>
-				// 				<h4 class="text-sm font-medium text-gray-900 mb-3">Recent account activity</h4>
-				// 				<div class="bg-gray-50 rounded-md p-4">
-				// 					<div class="space-y-4">
-				// 						<div class="flex justify-between">
-				// 							<div>
-				// 								<p class="text-xs font-medium text-gray-900">Sign in with Google</p>
-				// 								<p class="text-xs text-gray-500">Chrome on Windows • New York, USA</p>
-				// 							</div>
-				// 							<p class="text-xs text-gray-500">Today, 10:32 AM</p>
-				// 						</div>
-				// 						<div class="flex justify-between">
-				// 							<div>
-				// 								<p class="text-xs font-medium text-gray-900">Sign in with Google</p>
-				// 								<p class="text-xs text-gray-500">Safari on iPhone • New York, USA</p>
-				// 							</div>
-				// 							<p class="text-xs text-gray-500">Yesterday, 4:15 PM</p>
-				// 						</div>
-				// 						<div class="flex justify-between">
-				// 							<div>
-				// 								<p class="text-xs font-medium text-gray-900">Sign in with Google</p>
-				// 								<p class="text-xs text-gray-500">Chrome on macOS • New York, USA</p>
-				// 							</div>
-				// 							<p class="text-xs text-gray-500">Jun 12, 2023, 9:24 AM</p>
-				// 						</div>
-				// 					</div>
-				// 				</div>
-				// 			</div>
-				// 		</div>
-				// 	</div>
-				// </div>
-				// <!-- Notification Preferences -->
-				// <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-				// 	<div class="px-4 py-5 sm:px-6">
-				// 		<h3 class="text-lg leading-6 font-medium text-gray-900">
-				// 			Notification Preferences
-				// 		</h3>
-				// 		<p class="mt-1 max-w-2xl text-sm text-gray-500">
-				// 			Your current communication settings.
-				// 		</p>
-				// 	</div>
-				// 	<div class="border-t border-gray-200">
-				// 		<div class="px-4 py-5 sm:p-6">
-				// 			<div class="space-y-4">
-				// 				<div class="flex items-start">
-				// 					<div class="flex-shrink-0 mt-0.5">
-				// 						<i class="fas fa-check-circle text-green-500"></i>
-				// 					</div>
-				// 					<div class="ml-3">
-				// 						<p class="text-sm font-medium text-gray-900">URL activity</p>
-				// 						<p class="text-xs text-gray-500">Notifications about significant traffic to your URLs</p>
-				// 					</div>
-				// 				</div>
-				// 				<div class="flex items-start">
-				// 					<div class="flex-shrink-0 mt-0.5">
-				// 						<i class="fas fa-check-circle text-green-500"></i>
-				// 					</div>
-				// 					<div class="ml-3">
-				// 						<p class="text-sm font-medium text-gray-900">Account updates</p>
-				// 						<p class="text-xs text-gray-500">Important information about your account</p>
-				// 					</div>
-				// 				</div>
-				// 				<div class="flex items-start">
-				// 					<div class="flex-shrink-0 mt-0.5">
-				// 						<i class="fas fa-times-circle text-gray-400"></i>
-				// 					</div>
-				// 					<div class="ml-3">
-				// 						<p class="text-sm font-medium text-gray-900">Marketing and offers</p>
-				// 						<p class="text-xs text-gray-500">New features and special offers</p>
-				// 					</div>
-				// 				</div>
-				// 			</div>
-				// 		</div>
-				// 	</div>
-				// </div>
-				// <!-- Data and Privacy -->
-				// <div class="mt-8 flex justify-end">
-				// 	<a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">
-				// 		Download your data
-				// 	</a>
-				// 	<span class="mx-2 text-gray-500">•</span>
-				// 	<a href="#" class="text-sm text-red-600 hover:text-red-500">
-				// 		Delete account
-				// 	</a>
-				// </div>
 			</div>
 		</main>
 	}
-}
-
-func titleCase(s string) string {
-	return cases.Title(language.English).String(s)
 }

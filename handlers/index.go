@@ -91,6 +91,21 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	count, err := h.svc.CountMonthlyURL(ctx, user.ID)
+	if err != nil {
+		log.Error("failed to count monthly url", slog.Any("error", err))
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	if count >= domain.FreePlanLimit {
+		addFlash(w, r, "You have reached your monthly limit of URLs", flashTypeError)
+		// We return 200 OK so HTMX swaps the content (which will be empty/hidden or we could render a specific error state)
+		// Or we can just return and let the flash message speak.
+		// Since result-container has empty:hidden, sending empty string hides it.
+		return
+	}
+
 	short, err := h.svc.Shorten(ctx, url, title, user.ID)
 	if err != nil {
 		log.Error("failed to shorten url", slog.Any("error", err))

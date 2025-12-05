@@ -22,18 +22,24 @@ type AuthService interface {
 	ListConnectedProvider(ctx context.Context, userID domain.GUID) ([]domain.AccountProvider, error)
 }
 
+type URLUsageService interface {
+	CountMonthlyURL(ctx context.Context, authorID domain.ID) (int64, error)
+}
+
 type UsersHandler struct {
 	htmx         *htmx.HTMX
 	auth         AuthService
 	stripe       stripeService
+	urlService   URLUsageService
 	stripePubKey string
 }
 
-func NewUsersHandler(svc AuthService, stripe stripeService, stripePubKey string) *UsersHandler {
+func NewUsersHandler(svc AuthService, stripe stripeService, urlService URLUsageService, stripePubKey string) *UsersHandler {
 	return &UsersHandler{
 		htmx:         htmx.New(),
 		auth:         svc,
 		stripe:       stripe,
+		urlService:   urlService,
 		stripePubKey: stripePubKey,
 	}
 }
@@ -65,7 +71,27 @@ func (h *UsersHandler) myAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates.AccountPage(*user, linkedProviders).Render(r.Context(), w)
+	count, err := h.urlService.CountMonthlyURL(r.Context(), user.ID)
+	if err != nil {
+		slog.Error("failed to get url count", "error", err)
+	}
+
+	limit := domain.FreePlanLimit
+	stats := domain.SubscriptionStats{
+		PlanName:        "Free",
+		URLUsage:        int(count),
+		URLLimit:        limit,
+		Remaining:       limit - int(count),
+		UsagePercentage: int((float64(count) / float64(limit)) * 100),
+	}
+	if stats.UsagePercentage > 100 {
+		stats.UsagePercentage = 100
+	}
+	if stats.Remaining < 0 {
+		stats.Remaining = 0
+	}
+
+	templates.AccountPage(*user, linkedProviders, stats).Render(r.Context(), w)
 }
 
 func (h *UsersHandler) logout(w http.ResponseWriter, r *http.Request) {
