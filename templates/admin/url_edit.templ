@@ -1,0 +1,58 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/zaibon/shortcut/domain"
+)
+
+templ URLEdit(data AdminDashboardData, url domain.URL) {
+	@AdminLayout(data) {
+		<div class="mb-8">
+			<div class="sm:flex sm:items-center justify-between">
+				<div class="sm:flex-auto">
+					<h1 class="text-2xl font-semibold text-gray-900">Edit URL</h1>
+					<p class="mt-2 text-sm text-gray-700">Update the destination or title of the shortened URL.</p>
+				</div>
+				<div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+					<a href="/admin/urls" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+						<i class="fas fa-arrow-left mr-2"></i>
+						Back to URLs
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="bg-white shadow sm:rounded-lg">
+			<div class="px-4 py-5 sm:p-6">
+				<form action={ templ.SafeURL(fmt.Sprintf("/admin/urls/%d", url.ID)) } method="POST">
+					<div class="grid grid-cols-6 gap-6">
+						<div class="col-span-6 sm:col-span-4">
+							<label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+							<input type="text" name="title" id="title" value={ url.Title } class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+						</div>
+
+						<div class="col-span-6 sm:col-span-4">
+							<label for="long_url" class="block text-sm font-medium text-gray-700">Destination URL</label>
+							<input type="url" name="long_url" id="long_url" value={ url.Long } class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+						</div>
+
+						<div class="col-span-6 sm:col-span-4">
+							<label class="block text-sm font-medium text-gray-700">Short URL</label>
+							<div class="mt-1 flex rounded-md shadow-sm">
+								<span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+									{ url.Short }
+								</span>
+							</div>
+							<p class="mt-2 text-sm text-gray-500">The short URL cannot be changed.</p>
+						</div>
+					</div>
+					<div class="mt-6 flex items-center justify-end">
+						<button type="submit" class="bg-indigo-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+							Save Changes
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	}
+}

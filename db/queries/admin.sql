@@ -224,3 +224,19 @@ GROUP BY
 ORDER BY
     count DESC
 LIMIT 5;
+
+-- name: AdminDeleteURL :exec
+DELETE FROM urls
+WHERE id = @id;
+
+-- name: AdminUpdateURLStatus :exec
+UPDATE urls
+SET is_archived = @is_archived
+WHERE id = @id;
+
+-- name: AdminUpdateURL :one
+UPDATE urls
+SET title = @title,
+    long_url = @long_url
+WHERE id = @id
+RETURNING *;

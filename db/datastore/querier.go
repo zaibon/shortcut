@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
+	AdminDeleteURL(ctx context.Context, id int32) error
 	AdminGetDailyActiveVisitors(ctx context.Context) ([]AdminGetDailyActiveVisitorsRow, error)
 	AdminGetGeoDistribution(ctx context.Context) ([]AdminGetGeoDistributionRow, error)
 	AdminGetOverviewStatistics(ctx context.Context) (AdminGetOverviewStatisticsRow, error)
@@ -22,6 +23,8 @@ type Querier interface {
 	AdminGetUserGrowth(ctx context.Context) ([]AdminGetUserGrowthRow, error)
 	AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDetailsRow, error)
 	AdminListUsers(ctx context.Context) ([]AdminListUsersRow, error)
+	AdminUpdateURL(ctx context.Context, arg AdminUpdateURLParams) (Url, error)
+	AdminUpdateURLStatus(ctx context.Context, arg AdminUpdateURLStatusParams) error
 	ArchiveURL(ctx context.Context, arg ArchiveURLParams) error
 	// SQL query to get the distribution of browsers for a specific URL
 	BrowserDistribution(ctx context.Context, arg BrowserDistributionParams) ([]BrowserDistributionRow, error)

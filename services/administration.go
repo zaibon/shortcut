@@ -2,6 +2,13 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
@@ -200,4 +207,206 @@ func (s *Administration) GetAnalyticsStats(ctx context.Context) (*domain.AdminAn
 		TopURLs:           topURLs,
 		GeoDistribution:   geoDist,
 	}, nil
+}
+
+func (s *Administration) DeleteURL(ctx context.Context, id domain.ID) error {
+	return s.db.AdminDeleteURL(ctx, int32(id))
+}
+
+func (s *Administration) ToggleURLStatus(ctx context.Context, id domain.ID, isArchived bool) error {
+	return s.db.AdminUpdateURLStatus(ctx, datastore.AdminUpdateURLStatusParams{
+		ID:         int32(id),
+		IsArchived: pgtype.Bool{Bool: isArchived, Valid: true},
+	})
+}
+
+func (s *Administration) UpdateURL(ctx context.Context, id domain.ID, title, longURL string) error {
+	_, err := s.db.AdminUpdateURL(ctx, datastore.AdminUpdateURLParams{
+		ID:      int32(id),
+		Title:   title,
+		LongUrl: longURL,
+	})
+	return err
+}
+
+func (s *Administration) GetURL(ctx context.Context, id domain.ID) (domain.URL, error) {
+	row, err := s.db.GetByID(ctx, int32(id))
+	if err != nil {
+		return domain.URL{}, err
+	}
+	return domain.URL{
+		ID:         domain.ID(row.ID),
+		Title:      row.Title,
+		Long:       row.LongUrl,
+		Short:      toURL(s.domain, row.ShortUrl),
+		Slug:       row.ShortUrl,
+		IsArchived: row.IsArchived.Bool,
+		CreatedAt:  row.CreatedAt.Time,
+	}, nil
+}
+
+func (s *Administration) GetURLStats(ctx context.Context, slug string) (domain.URLStat, error) {
+	url, err := s.db.GetShortURL(ctx, slug)
+	if err != nil {
+		return domain.URLStat{}, fmt.Errorf("failed to get url: %w", err)
+	}
+	urlID := domain.ID(url.ID)
+	authorID := domain.ID(url.AuthorID)
+
+	var (
+		g, gCtx = errgroup.WithContext(ctx)
+		stats   = domain.URLStat{
+			URL: domain.URL{
+				ID:         domain.ID(url.ID),
+				Title:      url.Title,
+				Long:       url.LongUrl,
+				Short:      toURL(s.domain, url.ShortUrl),
+				Slug:       slug,
+				IsArchived: url.IsArchived.Bool,
+				CreatedAt:  url.CreatedAt.Time,
+				NrVisited:  0,
+			},
+		}
+	)
+
+	g.Go(func() error {
+		ld, err := s.db.LocationDistribution(gCtx, datastore.LocationDistributionParams{
+			UrlID:    int32(urlID),
+			AuthorID: int32(authorID),
+		})
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get location distribution: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			ld = []datastore.LocationDistributionRow{}
+		}
+
+		for _, v := range ld {
+			stats.LocationDistribution = append(stats.LocationDistribution, domain.LocationDistribution{
+				Country:     v.CountryName.String,
+				CountryCode: v.CountryCode.String,
+				VisitCount:  int(v.VisitCount),
+				Percentage:  float32(v.Percentage),
+			})
+		}
+
+		return nil
+	})
+
+	g.Go(func() error {
+		bd, err := s.db.BrowserDistribution(gCtx, datastore.BrowserDistributionParams{
+			UrlID:    int32(urlID),
+			AuthorID: int32(authorID),
+		})
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get browser distribution: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			bd = []datastore.BrowserDistributionRow{}
+		}
+
+		stats.Browsers = browsers(bd)
+		stats.BrowserChart = browserChart(bd)
+
+		return nil
+	})
+
+	g.Go(func() error {
+		dd, err := s.db.DeviceDistribution(gCtx, datastore.DeviceDistributionParams{
+			UrlID:    int32(urlID),
+			AuthorID: int32(authorID),
+		})
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get device distribution: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			dd = []datastore.DeviceDistributionRow{}
+		}
+
+		stats.Devices = calculateDeviceStats(dd)
+		stats.DeviceChart = devicesChart(dd)
+
+		return nil
+	})
+
+	g.Go(func() error {
+		rd, err := s.db.ReferrerDistribution(gCtx, datastore.ReferrerDistributionParams{
+			UrlID:    int32(urlID),
+			AuthorID: int32(authorID),
+		})
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get referer distribution: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			rd = []datastore.ReferrerDistributionRow{}
+		}
+
+		stats.Referrers = referers(rd)
+		stats.ReferrersChart = refererChart(rd)
+
+		return nil
+	})
+
+	g.Go(func() error {
+		total, err := s.db.TotalVisit(gCtx, int32(urlID))
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get total visit: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			total = 0
+		}
+		stats.NrVisited = int(total)
+		return nil
+	})
+
+	g.Go(func() error {
+		unique, err := s.db.UniqueVisitCount(gCtx, int32(urlID))
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get unique visit count: %w", err)
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			unique = 0
+		}
+
+		stats.UniqueVisitors = int(unique)
+		return nil
+	})
+
+	g.Go(func() error {
+		now := time.Now()
+		since := now.AddDate(0, 0, -1).Truncate(time.Hour)
+		until := now
+		period := domain.Period{Since: since, Until: until}
+
+		visitsPerDay, err := s.db.VisitOverTime(gCtx, datastore.VisitOverTimeParams{
+			TimeTrunc: "hour",
+			StartDate: pgtype.Timestamp{Time: since, Valid: true},
+			EndDate:   pgtype.Timestamp{Time: until, Valid: true},
+			UrlID:     int32(urlID),
+		})
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("failed to get unique visit count: %w", err)
+		}
+
+		if errors.Is(err, pgx.ErrNoRows) {
+			visitsPerDay = []datastore.VisitOverTimeRow{}
+		}
+
+		var domainVisits []domain.TimeSeriesData
+		for _, v := range visitsPerDay {
+			domainVisits = append(domainVisits, domain.TimeSeriesData{
+				Time:  v.VisitDate.Time,
+				Count: v.VisitCount,
+			})
+		}
+		stats.VisitPerDay = visitPerDay(domainVisits, period, time.Hour)
+
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return domain.URLStat{}, err
+	}
+
+	return stats, nil
 }

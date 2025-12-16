@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/zaibon/shortcut/db/datastore"
+	"github.com/zaibon/shortcut/domain"
 	"github.com/zaibon/shortcut/middleware"
 	"github.com/zaibon/shortcut/services"
 	"github.com/zaibon/shortcut/templates/admin"
@@ -37,9 +39,114 @@ func (h *AdministrationHandlers) Routes(r chi.Router, pool *pgxpool.Pool) {
 		r.Get("/admin/overview", h.overview)
 		r.Get("/admin/users", h.users)
 		r.Get("/admin/urls", h.urls)
+		r.Get("/admin/urls/{slug}", h.urlDetail)
+		r.Get("/admin/urls/{id}/edit", h.editURL)
+		r.Post("/admin/urls/{id}", h.updateURL)
+		r.Delete("/admin/urls/{id}", h.deleteURL)
+		r.Patch("/admin/urls/{id}/status", h.toggleURLStatus)
 		r.Get("/admin/analytics", h.analytics)
 		r.Get("/admin/settings", h.settings)
 	})
+}
+
+func (h *AdministrationHandlers) editURL(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid URL ID", http.StatusBadRequest)
+		return
+	}
+
+	url, err := h.service.GetURL(r.Context(), domain.ID(id))
+	if err != nil {
+		http.Error(w, "Failed to retrieve URL", http.StatusInternalServerError)
+		return
+	}
+
+	data := admin.AdminDashboardData{
+		Tab: "urls",
+	}
+
+	admin.URLEdit(data, url).Render(r.Context(), w)
+}
+
+func (h *AdministrationHandlers) updateURL(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid URL ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	title := r.FormValue("title")
+	longURL := r.FormValue("long_url")
+
+	if err := h.service.UpdateURL(r.Context(), domain.ID(id), title, longURL); err != nil {
+		http.Error(w, "Failed to update URL", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/admin/urls", http.StatusFound)
+}
+
+func (h *AdministrationHandlers) urlDetail(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+	stats, err := h.service.GetURLStats(r.Context(), slug)
+	if err != nil {
+		http.Error(w, "Failed to retrieve URL stats", http.StatusInternalServerError)
+		return
+	}
+
+	data := admin.AdminDashboardData{
+		Tab: "urls",
+	}
+
+	admin.URLDetail(data, stats).Render(r.Context(), w)
+}
+
+func (h *AdministrationHandlers) deleteURL(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid URL ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.service.DeleteURL(r.Context(), domain.ID(id)); err != nil {
+		http.Error(w, "Failed to delete URL", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *AdministrationHandlers) toggleURLStatus(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid URL ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	isArchivedStr := r.FormValue("is_archived")
+	isArchived := isArchivedStr == "true"
+
+	if err := h.service.ToggleURLStatus(r.Context(), domain.ID(id), isArchived); err != nil {
+		http.Error(w, "Failed to update URL status", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *AdministrationHandlers) overview(w http.ResponseWriter, r *http.Request) {

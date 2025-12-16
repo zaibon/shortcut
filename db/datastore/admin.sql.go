@@ -11,6 +11,16 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const adminDeleteURL = `-- name: AdminDeleteURL :exec
+DELETE FROM urls
+WHERE id = $1
+`
+
+func (q *Queries) AdminDeleteURL(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, adminDeleteURL, id)
+	return err
+}
+
 const adminGetDailyActiveVisitors = `-- name: AdminGetDailyActiveVisitors :many
 WITH date_series AS (
     SELECT generate_series(
@@ -518,6 +528,51 @@ func (q *Queries) AdminListUsers(ctx context.Context) ([]AdminListUsersRow, erro
 		return nil, err
 	}
 	return items, nil
+}
+
+const adminUpdateURL = `-- name: AdminUpdateURL :one
+UPDATE urls
+SET title = $1,
+    long_url = $2
+WHERE id = $3
+RETURNING id, short_url, long_url, author_id, created_at, title, is_archived
+`
+
+type AdminUpdateURLParams struct {
+	Title   string `json:"title"`
+	LongUrl string `json:"long_url"`
+	ID      int32  `json:"id"`
+}
+
+func (q *Queries) AdminUpdateURL(ctx context.Context, arg AdminUpdateURLParams) (Url, error) {
+	row := q.db.QueryRow(ctx, adminUpdateURL, arg.Title, arg.LongUrl, arg.ID)
+	var i Url
+	err := row.Scan(
+		&i.ID,
+		&i.ShortUrl,
+		&i.LongUrl,
+		&i.AuthorID,
+		&i.CreatedAt,
+		&i.Title,
+		&i.IsArchived,
+	)
+	return i, err
+}
+
+const adminUpdateURLStatus = `-- name: AdminUpdateURLStatus :exec
+UPDATE urls
+SET is_archived = $1
+WHERE id = $2
+`
+
+type AdminUpdateURLStatusParams struct {
+	IsArchived pgtype.Bool `json:"is_archived"`
+	ID         int32       `json:"id"`
+}
+
+func (q *Queries) AdminUpdateURLStatus(ctx context.Context, arg AdminUpdateURLStatusParams) error {
+	_, err := q.db.Exec(ctx, adminUpdateURLStatus, arg.IsArchived, arg.ID)
+	return err
 }
 
 const isAdmin = `-- name: IsAdmin :one
