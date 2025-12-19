@@ -35,6 +35,6 @@ func RobotsHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
-		w.Write(robottxt)
+		w.Write(robottxt) //nolint:errcheck
 	})
 }
