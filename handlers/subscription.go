@@ -56,9 +56,9 @@ func (h *subscriptionHandlers) Routes(r chi.Router) {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticated)
 		r.Post("/subscription/checkout", h.checkout)
+		r.Get("/subscription", h.subscription)
 	})
 	r.Post("/subscription/webhook", h.webhook)
-	r.Get("/subscription", h.subscription)
 }
 
 func (h *subscriptionHandlers) subscription(w http.ResponseWriter, r *http.Request) {
