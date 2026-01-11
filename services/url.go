@@ -169,13 +169,23 @@ func (s *urlService) TrackRedirect(ctx context.Context, urlID domain.ID, r *http
 		return fmt.Errorf("failed to track redirect: %w", err)
 	}
 
+	var loc domain.IPLocation
+
 	ip := requestInfo.IpAddress()
 	ipLoc, err := ipquery.QueryIP(ip)
 	if err != nil {
 		log.Warn("failed to get country", "err", err, "ip", ip)
-		return nil
+		if requestInfo.Country() != "" {
+			loc = domain.IPLocation{
+				IP:          ip,
+				CountryCode: requestInfo.Country(),
+			}
+		} else {
+			return nil
+		}
+	} else {
+		loc = fromIPQuery(*ipLoc)
 	}
-	loc := fromIPQuery(*ipLoc)
 
 	if err := s.repo.InsertVisitLocation(ctx, domain.ID(visit.ID), loc); err != nil {
 		log.Warn("failed to insert visit location", "err", err)
@@ -423,15 +433,19 @@ func generateShortID(length int) (string, error) {
 }
 
 func parseRequest(r *http.Request) domain.RequestInfo {
-	var ipAddress, userAgent, referer string
-	ipAddress = r.Header.Get("X-Forwarded-For")
+	var ipAddress, userAgent, referer, country string
+	ipAddress = r.Header.Get("CF-Connecting-IP")
+	if ipAddress == "" {
+		ipAddress = r.Header.Get("X-Forwarded-For")
+	}
 	if ipAddress == "" {
 		ipAddress = r.RemoteAddr
 	}
 	userAgent = r.Header.Get("User-Agent")
 	referer = r.Header.Get("Referer")
+	country = r.Header.Get("CF-IPCountry")
 
-	return *domain.NewRequestInfo(ipAddress, userAgent, referer)
+	return *domain.NewRequestInfo(ipAddress, userAgent, referer, country)
 }
 
 func toURL(domain, id string) string {

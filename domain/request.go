@@ -10,13 +10,15 @@ type RequestInfo struct {
 	ipAddress string
 	userAgent string
 	referer   string
+	country   string
 }
 
-func NewRequestInfo(ipAddress, userAgent, referer string) *RequestInfo {
+func NewRequestInfo(ipAddress, userAgent, referer, country string) *RequestInfo {
 	return &RequestInfo{
 		ipAddress: ipAddress,
 		userAgent: userAgent,
 		referer:   referer,
+		country:   country,
 	}
 }
 
@@ -32,6 +34,9 @@ func (r *RequestInfo) UserAgent() string {
 }
 func (r *RequestInfo) Referer() string {
 	return r.referer
+}
+func (r *RequestInfo) Country() string {
+	return r.country
 }
 func (r *RequestInfo) Browser() Browser {
 	ua := user_agent.New(r.userAgent)
