@@ -39,6 +39,8 @@ type config struct {
 	StripeEndpointSecret string
 
 	SentryDSN string
+
+	SessionLifetime int
 }
 
 func (c config) SafeDBString() string {

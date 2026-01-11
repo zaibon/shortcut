@@ -22,6 +22,7 @@ import (
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 
 	"github.com/zaibon/shortcut/db"
+	"github.com/zaibon/shortcut/domain"
 	"github.com/zaibon/shortcut/env"
 	"github.com/zaibon/shortcut/handlers"
 	"github.com/zaibon/shortcut/log"
@@ -122,6 +123,13 @@ var serverFlags = []cli.Flag{
 		EnvVars:     []string{"SHORTCUT_SENTRY_DSN"},
 		Destination: &c.SentryDSN,
 	},
+	&cli.IntFlag{
+		Name:        "session-lifetime",
+		Usage:       "session lifetime in seconds",
+		Value:       domain.SessionLifetime,
+		EnvVars:     []string{"SHORTCUT_SESSION_LIFETIME"},
+		Destination: &c.SessionLifetime,
+	},
 }
 
 func listenSignals(ctx context.Context, c config, f func(context.Context, config) error, sig ...os.Signal) error {
@@ -217,9 +225,11 @@ func runServer(ctx context.Context, c config) error {
 				Provider:       "postgres",
 				ProviderConfig: c.DBConnString,
 				CookieName:     "shortcut_session",
-				Secure:         false,
+				Secure:         c.TLS,
 				SameSite:       http.SameSiteLaxMode,
 				IDLength:       32,
+				Maxlifetime:    int64(c.SessionLifetime),
+				CookieLifeTime: c.SessionLifetime,
 			},
 		))
 		r.Use(middleware.UserContext)
