@@ -38,6 +38,7 @@ func (h *AdministrationHandlers) Routes(r chi.Router, pool *pgxpool.Pool) {
 		})
 		r.Get("/admin/overview", h.overview)
 		r.Get("/admin/users", h.users)
+		r.Get("/admin/users/{guid}", h.userDetail)
 		r.Get("/admin/urls", h.urls)
 		r.Get("/admin/urls/{slug}", h.urlDetail)
 		r.Get("/admin/urls/{id}/edit", h.editURL)
@@ -48,6 +49,33 @@ func (h *AdministrationHandlers) Routes(r chi.Router, pool *pgxpool.Pool) {
 		r.Get("/admin/analytics", h.analytics)
 		r.Get("/admin/settings", h.settings)
 	})
+}
+
+func (h *AdministrationHandlers) userDetail(w http.ResponseWriter, r *http.Request) {
+	guidStr := chi.URLParam(r, "guid")
+	guid, err := domain.ParseGUID(guidStr)
+	if err != nil {
+		http.Error(w, "Invalid User GUID", http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.service.GetUser(r.Context(), guid)
+	if err != nil {
+		http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
+		return
+	}
+
+	urls, err := h.service.GetUserURLs(r.Context(), guid)
+	if err != nil {
+		http.Error(w, "Failed to retrieve user URLs", http.StatusInternalServerError)
+		return
+	}
+
+	data := admin.AdminDashboardData{
+		Tab: "users",
+	}
+
+	admin.UserDetail(data, user, urls).Render(r.Context(), w)
 }
 
 func (h *AdministrationHandlers) editURL(w http.ResponseWriter, r *http.Request) {
@@ -214,6 +242,12 @@ func (h *AdministrationHandlers) toggleUserSuspension(w http.ResponseWriter, r *
 	updatedUser, err := h.service.GetUser(r.Context(), guid)
 	if err != nil {
 		http.Error(w, "Failed to fetch updated user", http.StatusInternalServerError)
+		return
+	}
+
+	target := r.Header.Get("HX-Target")
+	if target == "user-header" {
+		admin.UserDetailHeader(updatedUser).Render(r.Context(), w)
 		return
 	}
 

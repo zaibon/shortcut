@@ -523,6 +523,72 @@ func (q *Queries) AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDeta
 	return items, nil
 }
 
+const adminListUserURLs = `-- name: AdminListUserURLs :many
+SELECT
+    urls.id, urls.short_url, urls.long_url, urls.author_id, urls.created_at, urls.title, urls.is_archived, urls.is_active,
+    users.id, users.username, users.email, users.created_at, users.is_oauth, users.guid, users.updated_at, users.is_suspended,
+    users.username AS author_name,
+    COUNT(visits.id) AS click_count
+FROM
+    urls
+JOIN
+    users ON urls.author_id = users.id
+LEFT JOIN
+    visits ON urls.id = visits.url_id
+WHERE
+    users.guid = $1
+GROUP BY
+    urls.id, users.username, users.id
+ORDER BY
+    urls.created_at DESC
+`
+
+type AdminListUserURLsRow struct {
+	Url        Url    `json:"url"`
+	User       User   `json:"user"`
+	AuthorName string `json:"author_name"`
+	ClickCount int64  `json:"click_count"`
+}
+
+func (q *Queries) AdminListUserURLs(ctx context.Context, guid pgtype.UUID) ([]AdminListUserURLsRow, error) {
+	rows, err := q.db.Query(ctx, adminListUserURLs, guid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AdminListUserURLsRow{}
+	for rows.Next() {
+		var i AdminListUserURLsRow
+		if err := rows.Scan(
+			&i.Url.ID,
+			&i.Url.ShortUrl,
+			&i.Url.LongUrl,
+			&i.Url.AuthorID,
+			&i.Url.CreatedAt,
+			&i.Url.Title,
+			&i.Url.IsArchived,
+			&i.Url.IsActive,
+			&i.User.ID,
+			&i.User.Username,
+			&i.User.Email,
+			&i.User.CreatedAt,
+			&i.User.IsOauth,
+			&i.User.Guid,
+			&i.User.UpdatedAt,
+			&i.User.IsSuspended,
+			&i.AuthorName,
+			&i.ClickCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const adminListUsers = `-- name: AdminListUsers :many
 SELECT
     u.id, u.username, u.email, u.created_at, u.is_oauth, u.guid, u.updated_at, u.is_suspended,

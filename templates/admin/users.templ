@@ -90,7 +90,11 @@ templ UsersTab(data AdminDashboardData) {
 }
 
 templ UserRow(user domain.AdminUser) {
-	<tr id={ fmt.Sprintf("user-row-%s", user.GUID) }>
+	<tr 
+		id={ fmt.Sprintf("user-row-%s", user.GUID) }
+		class="hover:bg-gray-50 cursor-pointer transition-colors"
+		onclick={ templ.JSFuncCall("navigateTo", fmt.Sprintf("/admin/users/%s", user.GUID)) }
+	>
 		<td class="px-6 py-4 whitespace-nowrap">
 			<div class="flex items-center">
 				// <div class="flex-shrink-0 h-10 w-10">
@@ -115,7 +119,7 @@ templ UserRow(user domain.AdminUser) {
 			}
 		</td>
 		<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ user.CreatedAt.Format(domain.TimeFormat) }</td>
-		<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+		<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation()">
 			<div class="flex space-x-2">
 				if user.IsSuspended {
 					<button hx-patch={ fmt.Sprintf("/admin/users/%s/status", user.GUID) } hx-vals='{"is_suspended": "false"}' hx-target="closest tr" hx-swap="outerHTML" class="text-green-600 hover:text-green-900" title="Unsuspend User">

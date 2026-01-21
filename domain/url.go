@@ -17,7 +17,8 @@ type URL struct {
 
 type AdminURL struct {
 	URL
-	Author string
+	Author     string
+	AuthorGUID GUID
 }
 
 type URLStat struct {

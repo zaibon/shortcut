@@ -102,7 +102,37 @@ func (s *Administration) ListURLs(ctx context.Context) ([]domain.AdminURL, error
 				CreatedAt:  row.Url.CreatedAt.Time,
 				NrVisited:  int(row.ClickCount),
 			},
-			Author: row.AuthorName,
+			Author:     row.AuthorName,
+			AuthorGUID: domain.GUID(row.User.Guid.Bytes),
+		}
+		urls = append(urls, url)
+	}
+
+	return urls, nil
+}
+
+func (s *Administration) GetUserURLs(ctx context.Context, guid domain.GUID) ([]domain.AdminURL, error) {
+	urlsRows, err := s.db.AdminListUserURLs(ctx, pgtype.UUID{Bytes: guid, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+
+	var urls []domain.AdminURL
+	for _, row := range urlsRows {
+		url := domain.AdminURL{
+			URL: domain.URL{
+				ID:         domain.ID(row.Url.ID),
+				Title:      row.Url.Title,
+				Long:       row.Url.LongUrl,
+				Short:      toURL(s.domain, row.Url.ShortUrl),
+				Slug:       row.Url.ShortUrl,
+				IsArchived: row.Url.IsArchived.Bool,
+				IsActive:   row.Url.IsActive,
+				CreatedAt:  row.Url.CreatedAt.Time,
+				NrVisited:  int(row.ClickCount),
+			},
+			Author:     row.AuthorName,
+			AuthorGUID: domain.GUID(row.User.Guid.Bytes),
 		}
 		urls = append(urls, url)
 	}

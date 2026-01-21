@@ -191,6 +191,25 @@ GROUP BY
 ORDER BY
     urls.created_at DESC;
 
+-- name: AdminListUserURLs :many
+SELECT
+    sqlc.embed(urls),
+    sqlc.embed(users),
+    users.username AS author_name,
+    COUNT(visits.id) AS click_count
+FROM
+    urls
+JOIN
+    users ON urls.author_id = users.id
+LEFT JOIN
+    visits ON urls.id = visits.url_id
+WHERE
+    users.guid = @guid
+GROUP BY
+    urls.id, users.username, users.id
+ORDER BY
+    urls.created_at DESC;
+
 -- name: AdminGetDailyActiveVisitors :many
 WITH date_series AS (
     SELECT generate_series(

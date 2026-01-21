@@ -23,6 +23,7 @@ type Querier interface {
 	AdminGetUser(ctx context.Context, guid pgtype.UUID) (AdminGetUserRow, error)
 	AdminGetUserGrowth(ctx context.Context) ([]AdminGetUserGrowthRow, error)
 	AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDetailsRow, error)
+	AdminListUserURLs(ctx context.Context, guid pgtype.UUID) ([]AdminListUserURLsRow, error)
 	AdminListUsers(ctx context.Context) ([]AdminListUsersRow, error)
 	AdminUpdateURL(ctx context.Context, arg AdminUpdateURLParams) (Url, error)
 	AdminUpdateURLStatus(ctx context.Context, arg AdminUpdateURLStatusParams) error
