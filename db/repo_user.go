@@ -111,3 +111,13 @@ func (s *userStore) DeleteUser(ctx context.Context, guid domain.GUID) error {
 		Valid: uuid.UUID(guid) != uuid.Nil,
 	})
 }
+
+func (s *userStore) UpdateUserSuspension(ctx context.Context, guid domain.GUID, isSuspended bool) error {
+	return s.db.UpdateUserSuspension(ctx, datastore.UpdateUserSuspensionParams{
+		Guid: pgtype.UUID{
+			Bytes: guid,
+			Valid: uuid.UUID(guid) != uuid.Nil,
+		},
+		IsSuspended: isSuspended,
+	})
+}

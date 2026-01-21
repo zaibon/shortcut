@@ -42,7 +42,7 @@ func (q *Queries) GetOauth2State(ctx context.Context, state string) (Oauth2State
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, email, created_at, is_oauth, guid, updated_at
+SELECT id, username, email, created_at, is_oauth, guid, updated_at, is_suspended
 FROM users
 WHERE users.email = $1
 LIMIT 1
@@ -59,12 +59,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.IsOauth,
 		&i.Guid,
 		&i.UpdatedAt,
+		&i.IsSuspended,
 	)
 	return i, err
 }
 
 const getUserByGUID = `-- name: GetUserByGUID :one
-SELECT id, username, email, created_at, is_oauth, guid, updated_at
+SELECT id, username, email, created_at, is_oauth, guid, updated_at, is_suspended
 FROM users
 WHERE users.guid = $1
 LIMIT 1
@@ -81,6 +82,7 @@ func (q *Queries) GetUserByGUID(ctx context.Context, guid pgtype.UUID) (User, er
 		&i.IsOauth,
 		&i.Guid,
 		&i.UpdatedAt,
+		&i.IsSuspended,
 	)
 	return i, err
 }
@@ -158,7 +160,7 @@ const insertUserOauth = `-- name: InsertUserOauth :one
 INSERT INTO users (guid, username, email, is_oauth)
 VALUES ($1, $2, $3, true)
 ON CONFLICT (email) DO UPDATE SET username = $2
-RETURNING id, username, email, created_at, is_oauth, guid, updated_at
+RETURNING id, username, email, created_at, is_oauth, guid, updated_at, is_suspended
 `
 
 type InsertUserOauthParams struct {
@@ -178,6 +180,7 @@ func (q *Queries) InsertUserOauth(ctx context.Context, arg InsertUserOauthParams
 		&i.IsOauth,
 		&i.Guid,
 		&i.UpdatedAt,
+		&i.IsSuspended,
 	)
 	return i, err
 }
@@ -240,4 +243,20 @@ func (q *Queries) ListUserProviders(ctx context.Context, userID pgtype.UUID) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateUserSuspension = `-- name: UpdateUserSuspension :exec
+UPDATE users
+SET is_suspended = $1
+WHERE guid = $2
+`
+
+type UpdateUserSuspensionParams struct {
+	IsSuspended bool        `json:"is_suspended"`
+	Guid        pgtype.UUID `json:"guid"`
+}
+
+func (q *Queries) UpdateUserSuspension(ctx context.Context, arg UpdateUserSuspensionParams) error {
+	_, err := q.db.Exec(ctx, updateUserSuspension, arg.IsSuspended, arg.Guid)
+	return err
 }

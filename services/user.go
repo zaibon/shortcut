@@ -30,6 +30,7 @@ type userStore interface {
 	GetUserProvider(ctx context.Context, userID uuid.UUID, provider domain.OauthProvider) (datastore.UserProvider, error)
 	GetUserProviderByProviderUserId(ctx context.Context, provider domain.OauthProvider, providerUserID string) (datastore.UserProvider, error)
 	DeleteUser(ctx context.Context, guid domain.GUID) error
+	UpdateUserSuspension(ctx context.Context, guid domain.GUID, isSuspended bool) error
 }
 
 var (
@@ -74,6 +75,10 @@ func NewUser(store userStore, ownDomain string, tls bool,
 		store:        store,
 		oauthConfigs: configs,
 	}
+}
+
+func (s *userService) ToggleUserSuspension(ctx context.Context, guid domain.GUID, isSuspended bool) error {
+	return s.store.UpdateUserSuspension(ctx, guid, isSuspended)
 }
 
 func (s *userService) VerifyOauthState(ctx context.Context, state string) (bool, domain.OauthProvider, error) {
@@ -144,14 +149,15 @@ func (s *userService) IdentifyOauthUser(ctx context.Context, code string, provid
 	}
 
 	return &domain.User{
-		GUID:      domain.GUID(user.Guid.Bytes),
-		ID:        domain.ID(user.ID),
-		Name:      userInfo.ProviderName(),
-		Email:     userInfo.ProviderEmail(),
-		Avatar:    userInfo.Avatar(),
-		CreatedAt: user.CreatedAt.Time,
-		IsOauth:   true,
-		Provider:  provider,
+		GUID:        domain.GUID(user.Guid.Bytes),
+		ID:          domain.ID(user.ID),
+		Name:        userInfo.ProviderName(),
+		Email:       userInfo.ProviderEmail(),
+		Avatar:      userInfo.Avatar(),
+		CreatedAt:   user.CreatedAt.Time,
+		IsOauth:     true,
+		Provider:    provider,
+		IsSuspended: user.IsSuspended,
 	}, nil
 }
 

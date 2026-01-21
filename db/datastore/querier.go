@@ -20,6 +20,7 @@ type Querier interface {
 	AdminGetTopURLs(ctx context.Context) ([]AdminGetTopURLsRow, error)
 	AdminGetTotalUsersTrend(ctx context.Context) ([]AdminGetTotalUsersTrendRow, error)
 	AdminGetURLCreationTrends(ctx context.Context) ([]AdminGetURLCreationTrendsRow, error)
+	AdminGetUser(ctx context.Context, guid pgtype.UUID) (AdminGetUserRow, error)
 	AdminGetUserGrowth(ctx context.Context) ([]AdminGetUserGrowthRow, error)
 	AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDetailsRow, error)
 	AdminListUsers(ctx context.Context) ([]AdminListUsersRow, error)
@@ -65,6 +66,8 @@ type Querier interface {
 	UniqueVisitCount(ctx context.Context, urlID int32) (int64, error)
 	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error)
 	UpdateTitle(ctx context.Context, arg UpdateTitleParams) (Url, error)
+	UpdateURLStatus(ctx context.Context, arg UpdateURLStatusParams) error
+	UpdateUserSuspension(ctx context.Context, arg UpdateUserSuspensionParams) error
 	UpsertBrowser(ctx context.Context, arg UpsertBrowserParams) (Browser, error)
 	VisitOverTime(ctx context.Context, arg VisitOverTimeParams) ([]VisitOverTimeRow, error)
 }

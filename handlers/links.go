@@ -138,6 +138,11 @@ func (h *Handler) deleteURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.IsSuspended {
+		http.Error(w, "Account is suspended", http.StatusForbidden)
+		return
+	}
+
 	sid := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(sid, 10, 32)
 	if err != nil {

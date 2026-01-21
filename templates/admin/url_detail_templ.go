@@ -47,139 +47,11 @@ func URLDetail(data AdminDashboardData, url domain.URLStat) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css\"><script src=\"https://cdn.jsdelivr.net/npm/jsvectormap\"></script> <script src=\"https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js\"></script> <main class=\"w-full py-8\" x-data=\"dashboardData()\"><div class=\"mb-8 flex justify-between items-center\"><h1 class=\"text-2xl font-bold text-gray-900\">URL Analytics</h1><a href=\"/admin/urls\" class=\"inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none\"><i class=\"fas fa-arrow-left mr-2\"></i> Back to URLs</a></div><!-- Header: Link Info --><div class=\"flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8\"><div><div class=\"flex items-center gap-3 mb-1\"><h1 class=\"text-2xl font-bold text-slate-900\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css\"><script src=\"https://cdn.jsdelivr.net/npm/jsvectormap\"></script> <script src=\"https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js\"></script> <main class=\"w-full py-8\" x-data=\"dashboardData()\"><div class=\"mb-8 flex justify-between items-center\"><h1 class=\"text-2xl font-bold text-gray-900\">URL Analytics</h1><a href=\"/admin/urls\" class=\"inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none\"><i class=\"fas fa-arrow-left mr-2\"></i> Back to URLs</a></div><!-- Header: Link Info -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(url.Title)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 26, Col: 63}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</h1>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if !url.IsArchived {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200\">Active</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span class=\"px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200\">Archived</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"flex items-center text-sm text-slate-500 gap-4\"><span class=\"flex items-center gap-1.5\"><i class=\"far fa-calendar\"></i> Created ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(url.CreatedAt.Format("Jan 02, 2006"))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 34, Col: 124}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span> <a href=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var5 templ.SafeURL = templ.SafeURL(url.Short)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var5)))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" target=\"_blank\" class=\"flex items-center gap-1.5 text-indigo-600 hover:text-indigo-700 font-medium\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 36, Col: 18}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " <i class=\"fas fa-external-link-alt text-xs\"></i></a><div class=\"text-sm text-gray-500\">Long URL: <a href=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 templ.SafeURL = templ.SafeURL(url.Long)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var7)))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" target=\"_blank\" class=\"text-indigo-600 hover:underline\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(url.Long)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 39, Col: 119}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</a></div></div></div><div class=\"flex gap-3\" x-data=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("qrCodeModal('%s')", url.Short))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 43, Col: 80}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><button @click=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("copyToClipboard('%s')", url.Short))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 44, Col: 69}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors\"><i class=\"far fa-copy mr-2\"></i> <span>Copy Link</span></button> <button @click=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("showModal('%s')", url.Short))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 47, Col: 63}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors\"><i class=\"fas fa-qrcode mr-2\"></i> QR Code</button>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.QRCodePopup(url).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div>")
+			templ_7745c5c3_Err = URLDetailHeader(url).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -199,13 +71,221 @@ func URLDetail(data AdminDashboardData, url domain.URLStat) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</main><script>\n        document.addEventListener('alpine:init', () => {\n            Alpine.data('dashboardData', () => ({\n                timeRange: '24h',\n            }));\n        });\n\n\t\tfunction getData(){\n\t\t\tconst input = JSON.parse(document.getElementById('visitOverTime').textContent);\n\t\t\treturn input.map((p) => {\n\t\t\t\treturn {\n\t\t\t\t\t\"x\": new Date(p.Time),\n\t\t\t\t\t\"y\": p.Count,\t\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t\t\n\t\tfunction updateChart() {\n\t\t\tconst data = getData();\n\t\t\twindow.mainChart.data.datasets[0].data = data;\n\t\t\twindow.mainChart.update();\n\t\t}\n\n\t\tfunction initMap() {\n\t\t\tconst locations = JSON.parse(document.getElementById('locationData').textContent) || [];\n\t\t\tconst mapData = {};\n\t\t\tlocations.forEach(l => {\n\t\t\t\tmapData[l.CountryCode] = l.VisitCount;\n\t\t\t});\n\n\t\t\tnew jsVectorMap({\n\t\t\t\tselector: '#jvm-map',\n\t\t\t\tmap: 'world',\n\t\t\t\tvisualizeData: {\n\t\t\t\t\tscale: ['#a5b4fc', '#4338ca'],\n\t\t\t\t\tvalues: mapData\n\t\t\t\t},\n\t\t\t\tzoomButtons: false,\n\t\t\t\tonRegionTooltipShow(event, tooltip, code) {\n\t\t\t\t\ttooltip.text(tooltip.text() + ' (' + (mapData[code] || 0) + ')');\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\n        document.addEventListener('DOMContentLoaded', function() {\n\t\t\tinitMap();\n\n            // Main Line Chart\n\t\t\tconst data = getData();\n            const ctxMain = document.getElementById('mainChart').getContext('2d');\n            window.mainChart = new Chart(ctxMain, {\n                type: 'line',\n                data: {\n                    datasets: [{\n                        label: 'Clicks',\n                        data: data,\n                        borderColor: '#4f46e5',\n                        backgroundColor: 'rgba(79, 70, 229, 0.05)',\n                        borderWidth: 2,\n                        tension: 0.4,\n                        fill: true,\n                        pointRadius: 0,\n                        pointHoverRadius: 6\n                    }]\n                },\n                options: {\n                    responsive: true,\n                    maintainAspectRatio: false,\n                    plugins: { legend: { display: false } },\n                    scales: {\n                        y: { \n                            beginAtZero: true, \n                            grid: { borderDash: [2, 4], color: '#f1f5f9' },\n                            ticks: { font: { size: 11 } }\n                        },\n                        x: { \n\t\t\t\t\t\t\ttype: 'time',\n\t\t\t\t\t\t\ttime: {\n\t\t\t\t\t\t\t\tunit: 'hour'\n\t\t\t\t\t\t\t},\n                            grid: { display: false },\n                            ticks: { font: { size: 11 } }\n                        }\n                    },\n                    interaction: {\n                        intersect: false,\n                        mode: 'index',\n                    },\n                }\n            });\n\n            // Referrer Donut Chart\n\t\t\tconst {labels, data: refData} = load2dData('referrerChartData');\n            const ctxRef = document.getElementById('referrerChart').getContext('2d');\n            new Chart(ctxRef, {\n                type: 'doughnut',\n                data: {\n                    labels: labels,\n                    datasets: [{\n                        data: refData,\n                        backgroundColor: ['#6366f1', '#a5b4fc', '#c7d2fe', '#e0e7ff', '#312e81'],\n                        borderWidth: 0,\n                        hoverOffset: 4\n                    }]\n                },\n                options: {\n                    responsive: true,\n                    maintainAspectRatio: false,\n                    cutout: '75%',\n                    plugins: { legend: { display: false } }\n                }\n            });\n        });\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main><script>\n        document.addEventListener('alpine:init', () => {\n            Alpine.data('dashboardData', () => ({\n                timeRange: '24h',\n            }));\n        });\n\n\t\tfunction getData(){\n\t\t\tconst input = JSON.parse(document.getElementById('visitOverTime').textContent);\n\t\t\treturn input.map((p) => {\n\t\t\t\treturn {\n\t\t\t\t\t\"x\": new Date(p.Time),\n\t\t\t\t\t\"y\": p.Count,\t\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t\t\n\t\tfunction updateChart() {\n\t\t\tconst data = getData();\n\t\t\twindow.mainChart.data.datasets[0].data = data;\n\t\t\twindow.mainChart.update();\n\t\t}\n\n\t\tfunction initMap() {\n\t\t\tconst locations = JSON.parse(document.getElementById('locationData').textContent) || [];\n\t\t\tconst mapData = {};\n\t\t\tlocations.forEach(l => {\n\t\t\t\tmapData[l.CountryCode] = l.VisitCount;\n\t\t\t});\n\n\t\t\tnew jsVectorMap({\n\t\t\t\tselector: '#jvm-map',\n\t\t\t\tmap: 'world',\n\t\t\t\tvisualizeData: {\n\t\t\t\t\tscale: ['#a5b4fc', '#4338ca'],\n\t\t\t\t\tvalues: mapData\n\t\t\t\t},\n\t\t\t\tzoomButtons: false,\n\t\t\t\tonRegionTooltipShow(event, tooltip, code) {\n\t\t\t\t\ttooltip.text(tooltip.text() + ' (' + (mapData[code] || 0) + ')');\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\n        document.addEventListener('DOMContentLoaded', function() {\n\t\t\tinitMap();\n\n            // Main Line Chart\n\t\t\tconst data = getData();\n            const ctxMain = document.getElementById('mainChart').getContext('2d');\n            window.mainChart = new Chart(ctxMain, {\n                type: 'line',\n                data: {\n                    datasets: [{\n                        label: 'Clicks',\n                        data: data,\n                        borderColor: '#4f46e5',\n                        backgroundColor: 'rgba(79, 70, 229, 0.05)',\n                        borderWidth: 2,\n                        tension: 0.4,\n                        fill: true,\n                        pointRadius: 0,\n                        pointHoverRadius: 6\n                    }]\n                },\n                options: {\n                    responsive: true,\n                    maintainAspectRatio: false,\n                    plugins: { legend: { display: false } },\n                    scales: {\n                        y: { \n                            beginAtZero: true, \n                            grid: { borderDash: [2, 4], color: '#f1f5f9' },\n                            ticks: { font: { size: 11 } }\n                        },\n                        x: { \n\t\t\t\t\t\t\ttype: 'time',\n\t\t\t\t\t\t\ttime: {\n\t\t\t\t\t\t\t\tunit: 'hour'\n\t\t\t\t\t\t\t},\n                            grid: { display: false },\n                            ticks: { font: { size: 11 } }\n                        }\n                    },\n                    interaction: {\n                        intersect: false,\n                        mode: 'index',\n                    },\n                }\n            });\n\n            // Referrer Donut Chart\n\t\t\tconst {labels, data: refData} = load2dData('referrerChartData');\n            const ctxRef = document.getElementById('referrerChart').getContext('2d');\n            new Chart(ctxRef, {\n                type: 'doughnut',\n                data: {\n                    labels: labels,\n                    datasets: [{\n                        data: refData,\n                        backgroundColor: ['#6366f1', '#a5b4fc', '#c7d2fe', '#e0e7ff', '#312e81'],\n                        borderWidth: 0,\n                        hoverOffset: 4\n                    }]\n                },\n                options: {\n                    responsive: true,\n                    maintainAspectRatio: false,\n                    cutout: '75%',\n                    plugins: { legend: { display: false } }\n                }\n            });\n        });\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
 		templ_7745c5c3_Err = AdminLayout(data).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func URLDetailHeader(url domain.URLStat) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var3 == nil {
+			templ_7745c5c3_Var3 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- Header: Link Info --><div id=\"url-header\" class=\"flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8\"><div><div class=\"flex items-center gap-3 mb-1\"><h1 class=\"text-2xl font-bold text-slate-900\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(url.Title)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 151, Col: 61}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !url.IsArchived {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span class=\"px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200\">Active</span> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200\">Archived</span> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if !url.IsActive {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span class=\"px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200\">Disabled</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"flex items-center text-sm text-slate-500 gap-4\"><span class=\"flex items-center gap-1.5\"><i class=\"far fa-calendar\"></i> Created ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(url.CreatedAt.Format("Jan 02, 2006"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 162, Col: 122}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span> <a href=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 templ.SafeURL = templ.SafeURL(url.Short)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var6)))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" target=\"_blank\" class=\"flex items-center gap-1.5 text-indigo-600 hover:text-indigo-700 font-medium\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 164, Col: 16}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " <i class=\"fas fa-external-link-alt text-xs\"></i></a><div class=\"text-sm text-gray-500\">Long URL: <a href=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var8 templ.SafeURL = templ.SafeURL(url.Long)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var8)))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" target=\"_blank\" class=\"text-indigo-600 hover:underline\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(url.Long)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 167, Col: 117}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</a></div></div></div><div class=\"flex gap-3\" x-data=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("qrCodeModal('%s')", url.Short))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 171, Col: 78}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if url.IsActive {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<button hx-patch=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/urls/%d/status", url.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 173, Col: 67}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" hx-vals=\"{&#34;is_active&#34;: &#34;false&#34;}\" hx-target=\"#url-header\" hx-swap=\"outerHTML\" class=\"inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors\"><i class=\"fas fa-ban mr-2\"></i> Disable</button> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<button hx-patch=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/urls/%d/status", url.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 177, Col: 67}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" hx-vals=\"{&#34;is_active&#34;: &#34;true&#34;}\" hx-target=\"#url-header\" hx-swap=\"outerHTML\" class=\"inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors\"><i class=\"fas fa-check mr-2\"></i> Enable</button> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<button @click=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var13 string
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("copyToClipboard('%s')", url.Short))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 181, Col: 67}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors\"><i class=\"far fa-copy mr-2\"></i> <span>Copy Link</span></button> <button @click=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 string
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("showModal('%s')", url.Short))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 184, Col: 61}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors\"><i class=\"fas fa-qrcode mr-2\"></i> QR Code</button>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.QRCodePopup(url).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

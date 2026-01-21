@@ -174,6 +174,13 @@ func (s urlStore) UpdateTitle(ctx context.Context, authorID domain.ID, slug, tit
 	})
 }
 
+func (s urlStore) UpdateURLStatus(ctx context.Context, shortURL string, isActive bool) error {
+	return s.db.UpdateURLStatus(ctx, datastore.UpdateURLStatusParams{
+		ShortUrl: shortURL,
+		IsActive: isActive,
+	})
+}
+
 func (s urlStore) ArchiveURL(ctx context.Context, authorID domain.ID, slug string) error {
 	return s.db.ArchiveURL(ctx, datastore.ArchiveURLParams{
 		ShortUrl: slug,

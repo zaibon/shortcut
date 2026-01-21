@@ -44,6 +44,7 @@ func (h *AdministrationHandlers) Routes(r chi.Router, pool *pgxpool.Pool) {
 		r.Post("/admin/urls/{id}", h.updateURL)
 		r.Delete("/admin/urls/{id}", h.deleteURL)
 		r.Patch("/admin/urls/{id}/status", h.toggleURLStatus)
+		r.Patch("/admin/users/{guid}/status", h.toggleUserSuspension)
 		r.Get("/admin/analytics", h.analytics)
 		r.Get("/admin/settings", h.settings)
 	})
@@ -140,13 +141,64 @@ func (h *AdministrationHandlers) toggleURLStatus(w http.ResponseWriter, r *http.
 
 	isArchivedStr := r.FormValue("is_archived")
 	isArchived := isArchivedStr == "true"
+	isActiveStr := r.FormValue("is_active")
+	isActive := isActiveStr == "true"
 
-	if err := h.service.ToggleURLStatus(r.Context(), domain.ID(id), isArchived); err != nil {
+	if err := h.service.ToggleURLStatus(r.Context(), domain.ID(id), isArchived, isActive); err != nil {
 		http.Error(w, "Failed to update URL status", http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	// Fetch updated URL stats
+	url, err := h.service.GetURL(r.Context(), domain.ID(id))
+	if err != nil {
+		http.Error(w, "Failed to fetch updated URL", http.StatusInternalServerError)
+		return
+	}
+	// Note: We need URLStat for the component, but GetURL returns URL.
+	// We can construct a minimal URLStat or fetch proper stats.
+	// Since the header only needs fields present in URL (plus basic stats which are 0 or we can fetch them),
+	// we should probably just re-fetch stats or map it.
+	// Actually GetURLStats(slug) is available but we have ID here.
+	// Let's use GetURLStats if we can resolve slug, or just map what we have if the component allows.
+	// The component uses domain.URLStat. GetURLStats takes slug.
+	stats, err := h.service.GetURLStats(r.Context(), url.Slug)
+	if err != nil {
+		http.Error(w, "Failed to fetch updated URL stats", http.StatusInternalServerError)
+		return
+	}
+
+	admin.URLDetailHeader(stats).Render(r.Context(), w)
+}
+
+func (h *AdministrationHandlers) toggleUserSuspension(w http.ResponseWriter, r *http.Request) {
+	guidStr := chi.URLParam(r, "guid")
+	guid, err := domain.ParseGUID(guidStr)
+	if err != nil {
+		http.Error(w, "Invalid User GUID", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	isSuspendedStr := r.FormValue("is_suspended")
+	isSuspended := isSuspendedStr == "true"
+
+	if err := h.service.ToggleUserSuspension(r.Context(), guid, isSuspended); err != nil {
+		http.Error(w, "Failed to update user suspension status", http.StatusInternalServerError)
+		return
+	}
+
+	updatedUser, err := h.service.GetUser(r.Context(), guid)
+	if err != nil {
+		http.Error(w, "Failed to fetch updated user", http.StatusInternalServerError)
+		return
+	}
+
+	admin.UserRow(updatedUser).Render(r.Context(), w)
 }
 
 func (h *AdministrationHandlers) overview(w http.ResponseWriter, r *http.Request) {

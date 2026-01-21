@@ -56,16 +56,18 @@ type Url struct {
 	CreatedAt  pgtype.Timestamp `json:"created_at"`
 	Title      string           `json:"title"`
 	IsArchived pgtype.Bool      `json:"is_archived"`
+	IsActive   bool             `json:"is_active"`
 }
 
 type User struct {
-	ID        int32            `json:"id"`
-	Username  string           `json:"username"`
-	Email     string           `json:"email"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	IsOauth   pgtype.Bool      `json:"is_oauth"`
-	Guid      pgtype.UUID      `json:"guid"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	ID          int32            `json:"id"`
+	Username    string           `json:"username"`
+	Email       string           `json:"email"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	IsOauth     pgtype.Bool      `json:"is_oauth"`
+	Guid        pgtype.UUID      `json:"guid"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	IsSuspended bool             `json:"is_suspended"`
 }
 
 type UserProvider struct {

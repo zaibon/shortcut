@@ -14,14 +14,15 @@ func init() {
 }
 
 type User struct {
-	ID        ID
-	GUID      GUID
-	Name      string
-	Email     string
-	Avatar    string
-	CreatedAt time.Time
-	IsOauth   bool
-	Provider  OauthProvider
+	ID          ID
+	GUID        GUID
+	Name        string
+	Email       string
+	Avatar      string
+	CreatedAt   time.Time
+	IsOauth     bool
+	Provider    OauthProvider
+	IsSuspended bool
 }
 
 type GoogleUserInfo struct {

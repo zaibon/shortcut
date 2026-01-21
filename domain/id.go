@@ -20,3 +20,11 @@ func (id GUID) PgType() pgtype.UUID {
 		Valid: !id.IsNil(),
 	}
 }
+
+func ParseGUID(s string) (GUID, error) {
+	id, err := uuid.Parse(s)
+	if err != nil {
+		return GUID(uuid.Nil), err
+	}
+	return GUID(id), nil
+}

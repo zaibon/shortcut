@@ -93,6 +93,12 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.IsSuspended {
+		addFlash(w, r, "Your account is suspended. You cannot create new links.", flashTypeError)
+		// Return 200 OK to allow htmx to process the flash message (or empty swap)
+		return
+	}
+
 	count, err := h.svc.CountMonthlyURL(ctx, user.ID)
 	if err != nil {
 		log.Error("failed to count monthly url", slog.Any("error", err))
@@ -148,6 +154,12 @@ func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
 
 		log.Error("failed to expand url", slog.Any("error", err))
 		http.Error(w, "failed to expand url", http.StatusInternalServerError)
+		return
+	}
+
+	if !url.IsActive {
+		w.WriteHeader(http.StatusNotFound)
+		templates.NotFoundPage().Render(r.Context(), w)
 		return
 	}
 

@@ -26,6 +26,31 @@ func NewAdministrationService(db datastore.DBTX, domain string) *Administration 
 	}
 }
 
+func (s *Administration) GetUser(ctx context.Context, guid domain.GUID) (domain.AdminUser, error) {
+	r, err := s.db.AdminGetUser(ctx, pgtype.UUID{Bytes: guid, Valid: true})
+	if err != nil {
+		return domain.AdminUser{}, err
+	}
+
+	return domain.AdminUser{
+		User: domain.User{
+			ID:          domain.ID(r.ID),
+			GUID:        r.Guid.Bytes,
+			Name:        r.Username,
+			Email:       r.Email,
+			Avatar:      "",
+			CreatedAt:   r.CreatedAt.Time,
+			IsOauth:     r.IsOauth.Bool,
+			Provider:    "",
+			IsSuspended: r.UserStatus == "suspended",
+		},
+		Plan:       r.PlanName,
+		URLCount:   int(r.UrlCount),
+		ClickCount: int(r.ClickCount),
+		Status:     r.UserStatus,
+	}, nil
+}
+
 func (s *Administration) ListUsers(ctx context.Context) ([]domain.AdminUser, error) {
 	rows, err := s.db.AdminListUsers(ctx)
 	if err != nil {
@@ -36,14 +61,15 @@ func (s *Administration) ListUsers(ctx context.Context) ([]domain.AdminUser, err
 	for _, r := range rows {
 		user := domain.AdminUser{
 			User: domain.User{
-				ID:        domain.ID(r.ID),
-				GUID:      r.Guid.Bytes,
-				Name:      r.Username,
-				Email:     r.Email,
-				Avatar:    "",
-				CreatedAt: r.CreatedAt.Time,
-				IsOauth:   r.IsOauth.Bool,
-				Provider:  "",
+				ID:          domain.ID(r.ID),
+				GUID:        r.Guid.Bytes,
+				Name:        r.Username,
+				Email:       r.Email,
+				Avatar:      "",
+				CreatedAt:   r.CreatedAt.Time,
+				IsOauth:     r.IsOauth.Bool,
+				Provider:    "",
+				IsSuspended: r.UserStatus == "suspended",
 			},
 			Plan:       r.PlanName,
 			URLCount:   int(r.UrlCount),
@@ -72,6 +98,7 @@ func (s *Administration) ListURLs(ctx context.Context) ([]domain.AdminURL, error
 				Short:      toURL(s.domain, row.Url.ShortUrl),
 				Slug:       row.Url.ShortUrl,
 				IsArchived: row.Url.IsArchived.Bool,
+				IsActive:   row.Url.IsActive,
 				CreatedAt:  row.Url.CreatedAt.Time,
 				NrVisited:  int(row.ClickCount),
 			},
@@ -213,10 +240,21 @@ func (s *Administration) DeleteURL(ctx context.Context, id domain.ID) error {
 	return s.db.AdminDeleteURL(ctx, int32(id))
 }
 
-func (s *Administration) ToggleURLStatus(ctx context.Context, id domain.ID, isArchived bool) error {
+func (s *Administration) ToggleURLStatus(ctx context.Context, id domain.ID, isArchived, isActive bool) error {
 	return s.db.AdminUpdateURLStatus(ctx, datastore.AdminUpdateURLStatusParams{
 		ID:         int32(id),
 		IsArchived: pgtype.Bool{Bool: isArchived, Valid: true},
+		IsActive:   isActive,
+	})
+}
+
+func (s *Administration) ToggleUserSuspension(ctx context.Context, guid domain.GUID, isSuspended bool) error {
+	return s.db.UpdateUserSuspension(ctx, datastore.UpdateUserSuspensionParams{
+		Guid: pgtype.UUID{
+			Bytes: guid,
+			Valid: true,
+		},
+		IsSuspended: isSuspended,
 	})
 }
 
@@ -241,6 +279,7 @@ func (s *Administration) GetURL(ctx context.Context, id domain.ID) (domain.URL, 
 		Short:      toURL(s.domain, row.ShortUrl),
 		Slug:       row.ShortUrl,
 		IsArchived: row.IsArchived.Bool,
+		IsActive:   row.IsActive,
 		CreatedAt:  row.CreatedAt.Time,
 	}, nil
 }
@@ -263,6 +302,7 @@ func (s *Administration) GetURLStats(ctx context.Context, slug string) (domain.U
 				Short:      toURL(s.domain, url.ShortUrl),
 				Slug:       slug,
 				IsArchived: url.IsArchived.Bool,
+				IsActive:   url.IsActive,
 				CreatedAt:  url.CreatedAt.Time,
 				NrVisited:  0,
 			},

@@ -20,36 +20,7 @@ templ URLDetail(data AdminDashboardData, url domain.URLStat) {
 			</div>
 
 			<!-- Header: Link Info -->
-			<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-				<div>
-					<div class="flex items-center gap-3 mb-1">
-						<h1 class="text-2xl font-bold text-slate-900">{ url.Title }</h1>
-						if !url.IsArchived {
-							<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">Active</span>
-						} else {
-							<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">Archived</span>
-						}
-					</div>
-					<div class="flex items-center text-sm text-slate-500 gap-4">
-						<span class="flex items-center gap-1.5"><i class="far fa-calendar"></i> Created { url.CreatedAt.Format("Jan 02, 2006") }</span>
-						<a href={ templ.SafeURL(url.Short) } target="_blank" class="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-700 font-medium">
-							{ url.Short } <i class="fas fa-external-link-alt text-xs"></i>
-						</a>
-						<div class="text-sm text-gray-500">
-							Long URL: <a href={ templ.SafeURL(url.Long) } target="_blank" class="text-indigo-600 hover:underline">{ url.Long }</a>
-						</div>
-					</div>
-				</div>
-				<div class="flex gap-3" x-data={ fmt.Sprintf("qrCodeModal('%s')", url.Short) }>
-					<button @click={ fmt.Sprintf("copyToClipboard('%s')", url.Short) } class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-						<i class="far fa-copy mr-2"></i> <span>Copy Link</span>
-					</button>
-					<button @click={ fmt.Sprintf("showModal('%s')", url.Short) } class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-						<i class="fas fa-qrcode mr-2"></i> QR Code
-					</button>
-					@components.QRCodePopup(url)
-				</div>
-			</div>
+			@URLDetailHeader(url)
 			@components.KPIs(url)
 			@components.TrafficPerformance(url)
 			@components.LocationsAndReferrers(url)
@@ -170,4 +141,50 @@ templ URLDetail(data AdminDashboardData, url domain.URLStat) {
         });
 		</script>
 	}
+}
+
+templ URLDetailHeader(url domain.URLStat) {
+	<!-- Header: Link Info -->
+	<div id="url-header" class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+		<div>
+			<div class="flex items-center gap-3 mb-1">
+				<h1 class="text-2xl font-bold text-slate-900">{ url.Title }</h1>
+				if !url.IsArchived {
+					<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">Active</span>
+				} else {
+					<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">Archived</span>
+				}
+				if !url.IsActive {
+					<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">Disabled</span>
+				}
+			</div>
+			<div class="flex items-center text-sm text-slate-500 gap-4">
+				<span class="flex items-center gap-1.5"><i class="far fa-calendar"></i> Created { url.CreatedAt.Format("Jan 02, 2006") }</span>
+				<a href={ templ.SafeURL(url.Short) } target="_blank" class="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-700 font-medium">
+					{ url.Short } <i class="fas fa-external-link-alt text-xs"></i>
+				</a>
+				<div class="text-sm text-gray-500">
+					Long URL: <a href={ templ.SafeURL(url.Long) } target="_blank" class="text-indigo-600 hover:underline">{ url.Long }</a>
+				</div>
+			</div>
+		</div>
+		<div class="flex gap-3" x-data={ fmt.Sprintf("qrCodeModal('%s')", url.Short) }>
+			if url.IsActive {
+				<button hx-patch={ fmt.Sprintf("/admin/urls/%d/status", url.ID) } hx-vals='{"is_active": "false"}' hx-target="#url-header" hx-swap="outerHTML" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+					<i class="fas fa-ban mr-2"></i> Disable
+				</button>
+			} else {
+				<button hx-patch={ fmt.Sprintf("/admin/urls/%d/status", url.ID) } hx-vals='{"is_active": "true"}' hx-target="#url-header" hx-swap="outerHTML" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+					<i class="fas fa-check mr-2"></i> Enable
+				</button>
+			}
+			<button @click={ fmt.Sprintf("copyToClipboard('%s')", url.Short) } class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+				<i class="far fa-copy mr-2"></i> <span>Copy Link</span>
+			</button>
+			<button @click={ fmt.Sprintf("showModal('%s')", url.Short) } class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+				<i class="fas fa-qrcode mr-2"></i> QR Code
+			</button>
+			@components.QRCodePopup(url)
+		</div>
+	</div>
 }

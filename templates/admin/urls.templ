@@ -112,7 +112,11 @@ templ URLsTab(data AdminDashboardData) {
 									</span>
 								</td>
 								<td class="px-6 py-4 whitespace-nowrap">
-									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+									if url.IsActive {
+										<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+									} else {
+										<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Disabled</span>
+									}
 								</td>
 								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ url.CreatedAt.Format(domain.TimeFormat) }</td>
 								<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -124,8 +128,8 @@ templ URLsTab(data AdminDashboardData) {
 											<i class="fas fa-edit"></i>
 										</a>
 										if url.IsArchived {
-											<button 
-												class="text-green-600 hover:text-green-900" 
+											<button
+												class="text-green-600 hover:text-green-900"
 												title="Enable URL"
 												hx-patch={ fmt.Sprintf("/admin/urls/%d/status", url.ID) }
 												hx-vals='{"is_archived": false}'
@@ -134,8 +138,8 @@ templ URLsTab(data AdminDashboardData) {
 												<i class="fas fa-check-circle"></i>
 											</button>
 										} else {
-											<button 
-												class="text-red-600 hover:text-red-900" 
+											<button
+												class="text-red-600 hover:text-red-900"
 												title="Disable URL"
 												hx-patch={ fmt.Sprintf("/admin/urls/%d/status", url.ID) }
 												hx-confirm="Are you sure you want to disable this URL?"

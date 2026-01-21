@@ -43,3 +43,8 @@ UPDATE urls
 SET is_archived = false
 WHERE urls.short_url = @short_url
 AND urls.author_id = @author_id;
+
+-- name: UpdateURLStatus :exec
+UPDATE urls
+SET is_active = @is_active
+WHERE urls.short_url = @short_url;

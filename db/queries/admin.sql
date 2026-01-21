@@ -14,7 +14,10 @@ SELECT
     COALESCE(s.stripe_product_name, 'Free') AS plan_name,
     COUNT(DISTINCT urls.id) AS url_count,
     COUNT(DISTINCT v.id) AS click_count,
-    'active' AS user_status
+    CASE 
+        WHEN u.is_suspended THEN 'suspended'
+        ELSE 'active'
+    END AS user_status
 FROM
     users u
 LEFT JOIN
@@ -29,6 +32,30 @@ GROUP BY
     u.id, u.username, u.email, u.created_at, s.stripe_product_name, s.status
 ORDER BY
     u.created_at DESC;
+
+-- name: AdminGetUser :one
+SELECT
+    u.*,
+    COALESCE(s.stripe_product_name, 'Free') AS plan_name,
+    COUNT(DISTINCT urls.id) AS url_count,
+    COUNT(DISTINCT v.id) AS click_count,
+    CASE 
+        WHEN u.is_suspended THEN 'suspended'
+        ELSE 'active'
+    END AS user_status
+FROM
+    users u
+LEFT JOIN
+    customer c ON u.guid = c.user_id
+LEFT JOIN
+    subscription s ON c.user_id = s.customer_id
+LEFT JOIN
+    urls ON u.id = urls.author_id
+LEFT JOIN
+    visits v ON urls.id = v.url_id
+WHERE u.guid = @guid
+GROUP BY
+    u.id, u.username, u.email, u.created_at, s.stripe_product_name, s.status;
 
 
 -- name: AdminGetOverviewStatistics :one
@@ -231,7 +258,8 @@ WHERE id = @id;
 
 -- name: AdminUpdateURLStatus :exec
 UPDATE urls
-SET is_archived = @is_archived
+SET is_archived = @is_archived,
+    is_active = @is_active
 WHERE id = @id;
 
 -- name: AdminUpdateURL :one

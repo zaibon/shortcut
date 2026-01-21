@@ -9,6 +9,7 @@ type URL struct {
 	Short      string
 	Slug       string
 	IsArchived bool
+	IsActive   bool
 	CreatedAt  time.Time
 
 	NrVisited int

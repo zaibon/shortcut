@@ -78,41 +78,7 @@ templ UsersTab(data AdminDashboardData) {
 					</thead>
 					<tbody class="bg-white divide-y divide-gray-200">
 						for _, user := range data.Users {
-							<tr>
-								<td class="px-6 py-4 whitespace-nowrap">
-									<div class="flex items-center">
-										// <div class="flex-shrink-0 h-10 w-10">
-										// 	<img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60" alt=""/>
-										// </div>
-										<div class="ml-4">
-											<div class="text-sm font-medium text-gray-900">{ user.Name }</div>
-											<div class="text-sm text-gray-500">{ user.Email }</div>
-										</div>
-									</div>
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap">
-									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{ user.Plan }</span>
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ fmt.Sprintf("%d",user.URLCount) }</td>
-								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ fmt.Sprintf("%d",user.ClickCount) }</td>
-								<td class="px-6 py-4 whitespace-nowrap">
-									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{ user.Status }</span>
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ user.CreatedAt.Format(domain.TimeFormat) }</td>
-								<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-									<div class="flex space-x-2">
-										// <button class="text-indigo-600 hover:text-indigo-900" title="View Details">
-										// 	<i class="fas fa-eye"></i>
-										// </button>
-										// <button class="text-indigo-600 hover:text-indigo-900" title="Edit User">
-										// 	<i class="fas fa-edit"></i>
-										// </button>
-										<button class="text-red-600 hover:text-red-900" title="Suspend User">
-											<i class="fas fa-ban"></i>
-										</button>
-									</div>
-								</td>
-							</tr>
+							@UserRow(user)
 						}
 					</tbody>
 				</table>
@@ -121,4 +87,46 @@ templ UsersTab(data AdminDashboardData) {
 			</div>
 		</div>
 	}
+}
+
+templ UserRow(user domain.AdminUser) {
+	<tr id={ fmt.Sprintf("user-row-%s", user.GUID) }>
+		<td class="px-6 py-4 whitespace-nowrap">
+			<div class="flex items-center">
+				// <div class="flex-shrink-0 h-10 w-10">
+				// 	<img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60" alt=""/>
+				// </div>
+				<div class="ml-4">
+					<div class="text-sm font-medium text-gray-900">{ user.Name }</div>
+					<div class="text-sm text-gray-500">{ user.Email }</div>
+				</div>
+			</div>
+		</td>
+		<td class="px-6 py-4 whitespace-nowrap">
+			<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{ user.Plan }</span>
+		</td>
+		<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ fmt.Sprintf("%d",user.URLCount) }</td>
+		<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ fmt.Sprintf("%d",user.ClickCount) }</td>
+		<td class="px-6 py-4 whitespace-nowrap">
+			if user.IsSuspended {
+				<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Suspended</span>
+			} else {
+				<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+			}
+		</td>
+		<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ user.CreatedAt.Format(domain.TimeFormat) }</td>
+		<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+			<div class="flex space-x-2">
+				if user.IsSuspended {
+					<button hx-patch={ fmt.Sprintf("/admin/users/%s/status", user.GUID) } hx-vals='{"is_suspended": "false"}' hx-target="closest tr" hx-swap="outerHTML" class="text-green-600 hover:text-green-900" title="Unsuspend User">
+						<i class="fas fa-check-circle"></i>
+					</button>
+				} else {
+					<button hx-patch={ fmt.Sprintf("/admin/users/%s/status", user.GUID) } hx-vals='{"is_suspended": "true"}' hx-target="closest tr" hx-swap="outerHTML" class="text-red-600 hover:text-red-900" title="Suspend User">
+						<i class="fas fa-ban"></i>
+					</button>
+				}
+			</div>
+		</td>
+	</tr>
 }

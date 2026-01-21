@@ -45,6 +45,7 @@ type URLStore interface {
 	RefererDistribution(ctx context.Context, authorID, urlID domain.ID) ([]datastore.ReferrerDistributionRow, error)
 	UniqueVisitCount(ctx context.Context, urlID domain.ID) (int64, error)
 	TotalVisit(ctx context.Context, urlID domain.ID) (int64, error)
+	UpdateURLStatus(ctx context.Context, shortURL string, isActive bool) error
 }
 
 type urlService struct {
@@ -77,6 +78,10 @@ func (s *urlService) Shorten(ctx context.Context, url, title string, userID doma
 	return toURL(s.shortDomain, shortURL), nil
 }
 
+func (s *urlService) ToggleLinkStatus(ctx context.Context, shortURL string, isActive bool) error {
+	return s.repo.UpdateURLStatus(ctx, shortURL, isActive)
+}
+
 func (s *urlService) ExtractTitle(url string) string {
 	return ExtractTitle(url)
 }
@@ -94,6 +99,7 @@ func (s *urlService) Get(ctx context.Context, authorID domain.ID, slug string) (
 		Short:      toURL(s.shortDomain, row.ShortUrl),
 		Slug:       row.ShortUrl,
 		IsArchived: row.IsArchived.Bool,
+		IsActive:   row.IsActive,
 		CreatedAt:  row.CreatedAt.Time,
 	}, nil
 }
@@ -111,6 +117,7 @@ func (s *urlService) GetByID(ctx context.Context, id domain.ID) (domain.URL, err
 		Short:      toURL(s.shortDomain, row.ShortUrl),
 		Slug:       row.ShortUrl,
 		IsArchived: row.IsArchived.Bool,
+		IsActive:   row.IsActive,
 		CreatedAt:  row.CreatedAt.Time,
 	}, nil
 }
@@ -155,9 +162,10 @@ func (s *urlService) Expand(ctx context.Context, short string) (domain.URL, erro
 	}
 
 	return domain.URL{
-		ID:    domain.ID(item.ID),
-		Long:  item.LongUrl,
-		Short: short,
+		ID:       domain.ID(item.ID),
+		Long:     item.LongUrl,
+		Short:    short,
+		IsActive: item.IsActive,
 	}, nil
 }
 

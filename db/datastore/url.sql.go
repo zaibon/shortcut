@@ -14,7 +14,7 @@ import (
 const addShortURL = `-- name: AddShortURL :one
 INSERT INTO urls (title,short_url, long_url, author_id) 
 VALUES ($1, $2, $3, $4)
-RETURNING id, short_url, long_url, author_id, created_at, title, is_archived
+RETURNING id, short_url, long_url, author_id, created_at, title, is_archived, is_active
 `
 
 type AddShortURLParams struct {
@@ -40,6 +40,7 @@ func (q *Queries) AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, 
 		&i.CreatedAt,
 		&i.Title,
 		&i.IsArchived,
+		&i.IsActive,
 	)
 	return i, err
 }
@@ -78,7 +79,7 @@ func (q *Queries) DeleteURL(ctx context.Context, arg DeleteURLParams) error {
 }
 
 const getByID = `-- name: GetByID :one
-SELECT id, short_url, long_url, author_id, created_at, title, is_archived
+SELECT id, short_url, long_url, author_id, created_at, title, is_archived, is_active
 FROM urls
 WHERE urls.id = $1
 `
@@ -94,12 +95,13 @@ func (q *Queries) GetByID(ctx context.Context, id int32) (Url, error) {
 		&i.CreatedAt,
 		&i.Title,
 		&i.IsArchived,
+		&i.IsActive,
 	)
 	return i, err
 }
 
 const getShortURL = `-- name: GetShortURL :one
-SELECT id, short_url, long_url, author_id, created_at, title, is_archived
+SELECT id, short_url, long_url, author_id, created_at, title, is_archived, is_active
 FROM urls
 WHERE urls.short_url = $1
 `
@@ -115,12 +117,13 @@ func (q *Queries) GetShortURL(ctx context.Context, shortUrl string) (Url, error)
 		&i.CreatedAt,
 		&i.Title,
 		&i.IsArchived,
+		&i.IsActive,
 	)
 	return i, err
 }
 
 const listShortURLs = `-- name: ListShortURLs :many
-SELECT id, short_url, long_url, author_id, created_at, title, is_archived
+SELECT id, short_url, long_url, author_id, created_at, title, is_archived, is_active
 FROM urls
 WHERE urls.author_id = $1
 AND urls.is_archived = $2
@@ -149,6 +152,7 @@ func (q *Queries) ListShortURLs(ctx context.Context, arg ListShortURLsParams) ([
 			&i.CreatedAt,
 			&i.Title,
 			&i.IsArchived,
+			&i.IsActive,
 		); err != nil {
 			return nil, err
 		}
@@ -182,7 +186,7 @@ UPDATE urls
 SET title = $1
 WHERE urls.short_url = $2
 AND urls.author_id = $3
-RETURNING id, short_url, long_url, author_id, created_at, title, is_archived
+RETURNING id, short_url, long_url, author_id, created_at, title, is_archived, is_active
 `
 
 type UpdateTitleParams struct {
@@ -202,6 +206,23 @@ func (q *Queries) UpdateTitle(ctx context.Context, arg UpdateTitleParams) (Url, 
 		&i.CreatedAt,
 		&i.Title,
 		&i.IsArchived,
+		&i.IsActive,
 	)
 	return i, err
+}
+
+const updateURLStatus = `-- name: UpdateURLStatus :exec
+UPDATE urls
+SET is_active = $1
+WHERE urls.short_url = $2
+`
+
+type UpdateURLStatusParams struct {
+	IsActive bool   `json:"is_active"`
+	ShortUrl string `json:"short_url"`
+}
+
+func (q *Queries) UpdateURLStatus(ctx context.Context, arg UpdateURLStatusParams) error {
+	_, err := q.db.Exec(ctx, updateURLStatus, arg.IsActive, arg.ShortUrl)
+	return err
 }

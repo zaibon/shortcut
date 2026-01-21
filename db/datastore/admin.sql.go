@@ -353,6 +353,66 @@ func (q *Queries) AdminGetURLCreationTrends(ctx context.Context) ([]AdminGetURLC
 	return items, nil
 }
 
+const adminGetUser = `-- name: AdminGetUser :one
+SELECT
+    u.id, u.username, u.email, u.created_at, u.is_oauth, u.guid, u.updated_at, u.is_suspended,
+    COALESCE(s.stripe_product_name, 'Free') AS plan_name,
+    COUNT(DISTINCT urls.id) AS url_count,
+    COUNT(DISTINCT v.id) AS click_count,
+    CASE 
+        WHEN u.is_suspended THEN 'suspended'
+        ELSE 'active'
+    END AS user_status
+FROM
+    users u
+LEFT JOIN
+    customer c ON u.guid = c.user_id
+LEFT JOIN
+    subscription s ON c.user_id = s.customer_id
+LEFT JOIN
+    urls ON u.id = urls.author_id
+LEFT JOIN
+    visits v ON urls.id = v.url_id
+WHERE u.guid = $1
+GROUP BY
+    u.id, u.username, u.email, u.created_at, s.stripe_product_name, s.status
+`
+
+type AdminGetUserRow struct {
+	ID          int32            `json:"id"`
+	Username    string           `json:"username"`
+	Email       string           `json:"email"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	IsOauth     pgtype.Bool      `json:"is_oauth"`
+	Guid        pgtype.UUID      `json:"guid"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	IsSuspended bool             `json:"is_suspended"`
+	PlanName    string           `json:"plan_name"`
+	UrlCount    int64            `json:"url_count"`
+	ClickCount  int64            `json:"click_count"`
+	UserStatus  string           `json:"user_status"`
+}
+
+func (q *Queries) AdminGetUser(ctx context.Context, guid pgtype.UUID) (AdminGetUserRow, error) {
+	row := q.db.QueryRow(ctx, adminGetUser, guid)
+	var i AdminGetUserRow
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.CreatedAt,
+		&i.IsOauth,
+		&i.Guid,
+		&i.UpdatedAt,
+		&i.IsSuspended,
+		&i.PlanName,
+		&i.UrlCount,
+		&i.ClickCount,
+		&i.UserStatus,
+	)
+	return i, err
+}
+
 const adminGetUserGrowth = `-- name: AdminGetUserGrowth :many
 WITH date_series AS (
     SELECT generate_series(
@@ -401,8 +461,8 @@ func (q *Queries) AdminGetUserGrowth(ctx context.Context) ([]AdminGetUserGrowthR
 
 const adminListURLSDetails = `-- name: AdminListURLSDetails :many
 SELECT
-    urls.id, urls.short_url, urls.long_url, urls.author_id, urls.created_at, urls.title, urls.is_archived,
-    users.id, users.username, users.email, users.created_at, users.is_oauth, users.guid, users.updated_at,
+    urls.id, urls.short_url, urls.long_url, urls.author_id, urls.created_at, urls.title, urls.is_archived, urls.is_active,
+    users.id, users.username, users.email, users.created_at, users.is_oauth, users.guid, users.updated_at, users.is_suspended,
     users.username AS author_name,
     COUNT(visits.id) AS click_count
 FROM
@@ -441,6 +501,7 @@ func (q *Queries) AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDeta
 			&i.Url.CreatedAt,
 			&i.Url.Title,
 			&i.Url.IsArchived,
+			&i.Url.IsActive,
 			&i.User.ID,
 			&i.User.Username,
 			&i.User.Email,
@@ -448,6 +509,7 @@ func (q *Queries) AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDeta
 			&i.User.IsOauth,
 			&i.User.Guid,
 			&i.User.UpdatedAt,
+			&i.User.IsSuspended,
 			&i.AuthorName,
 			&i.ClickCount,
 		); err != nil {
@@ -463,11 +525,14 @@ func (q *Queries) AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDeta
 
 const adminListUsers = `-- name: AdminListUsers :many
 SELECT
-    u.id, u.username, u.email, u.created_at, u.is_oauth, u.guid, u.updated_at,
+    u.id, u.username, u.email, u.created_at, u.is_oauth, u.guid, u.updated_at, u.is_suspended,
     COALESCE(s.stripe_product_name, 'Free') AS plan_name,
     COUNT(DISTINCT urls.id) AS url_count,
     COUNT(DISTINCT v.id) AS click_count,
-    'active' AS user_status
+    CASE 
+        WHEN u.is_suspended THEN 'suspended'
+        ELSE 'active'
+    END AS user_status
 FROM
     users u
 LEFT JOIN
@@ -485,17 +550,18 @@ ORDER BY
 `
 
 type AdminListUsersRow struct {
-	ID         int32            `json:"id"`
-	Username   string           `json:"username"`
-	Email      string           `json:"email"`
-	CreatedAt  pgtype.Timestamp `json:"created_at"`
-	IsOauth    pgtype.Bool      `json:"is_oauth"`
-	Guid       pgtype.UUID      `json:"guid"`
-	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
-	PlanName   string           `json:"plan_name"`
-	UrlCount   int64            `json:"url_count"`
-	ClickCount int64            `json:"click_count"`
-	UserStatus string           `json:"user_status"`
+	ID          int32            `json:"id"`
+	Username    string           `json:"username"`
+	Email       string           `json:"email"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	IsOauth     pgtype.Bool      `json:"is_oauth"`
+	Guid        pgtype.UUID      `json:"guid"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	IsSuspended bool             `json:"is_suspended"`
+	PlanName    string           `json:"plan_name"`
+	UrlCount    int64            `json:"url_count"`
+	ClickCount  int64            `json:"click_count"`
+	UserStatus  string           `json:"user_status"`
 }
 
 func (q *Queries) AdminListUsers(ctx context.Context) ([]AdminListUsersRow, error) {
@@ -515,6 +581,7 @@ func (q *Queries) AdminListUsers(ctx context.Context) ([]AdminListUsersRow, erro
 			&i.IsOauth,
 			&i.Guid,
 			&i.UpdatedAt,
+			&i.IsSuspended,
 			&i.PlanName,
 			&i.UrlCount,
 			&i.ClickCount,
@@ -535,7 +602,7 @@ UPDATE urls
 SET title = $1,
     long_url = $2
 WHERE id = $3
-RETURNING id, short_url, long_url, author_id, created_at, title, is_archived
+RETURNING id, short_url, long_url, author_id, created_at, title, is_archived, is_active
 `
 
 type AdminUpdateURLParams struct {
@@ -555,23 +622,26 @@ func (q *Queries) AdminUpdateURL(ctx context.Context, arg AdminUpdateURLParams) 
 		&i.CreatedAt,
 		&i.Title,
 		&i.IsArchived,
+		&i.IsActive,
 	)
 	return i, err
 }
 
 const adminUpdateURLStatus = `-- name: AdminUpdateURLStatus :exec
 UPDATE urls
-SET is_archived = $1
-WHERE id = $2
+SET is_archived = $1,
+    is_active = $2
+WHERE id = $3
 `
 
 type AdminUpdateURLStatusParams struct {
 	IsArchived pgtype.Bool `json:"is_archived"`
+	IsActive   bool        `json:"is_active"`
 	ID         int32       `json:"id"`
 }
 
 func (q *Queries) AdminUpdateURLStatus(ctx context.Context, arg AdminUpdateURLStatusParams) error {
-	_, err := q.db.Exec(ctx, adminUpdateURLStatus, arg.IsArchived, arg.ID)
+	_, err := q.db.Exec(ctx, adminUpdateURLStatus, arg.IsArchived, arg.IsActive, arg.ID)
 	return err
 }
 
