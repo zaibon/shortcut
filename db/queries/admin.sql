@@ -28,6 +28,11 @@ LEFT JOIN
     urls ON u.id = urls.author_id
 LEFT JOIN
     visits v ON urls.id = v.url_id
+WHERE
+    (sqlc.narg('search')::text IS NULL OR u.username ILIKE '%' || sqlc.narg('search') || '%' OR u.email ILIKE '%' || sqlc.narg('search') || '%')
+    AND (sqlc.narg('is_suspended')::boolean IS NULL OR u.is_suspended = sqlc.narg('is_suspended'))
+    AND (sqlc.narg('plan')::text IS NULL OR COALESCE(s.stripe_product_name, 'Free') = sqlc.narg('plan'))
+    AND (sqlc.narg('created_after')::timestamp IS NULL OR u.created_at >= sqlc.narg('created_after'))
 GROUP BY
     u.id, u.username, u.email, u.created_at, s.stripe_product_name, s.status
 ORDER BY

@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -301,7 +302,39 @@ func (h *AdministrationHandlers) overview(w http.ResponseWriter, r *http.Request
 }
 
 func (h *AdministrationHandlers) users(w http.ResponseWriter, r *http.Request) {
-	users, err := h.service.ListUsers(r.Context())
+	filter := domain.UserFilter{
+		Search: r.URL.Query().Get("user-search"),
+	}
+
+	status := r.URL.Query().Get("user-status")
+	if status == "Active" {
+		isSuspended := false
+		filter.IsSuspended = &isSuspended
+	} else if status == "Suspended" {
+		isSuspended := true
+		filter.IsSuspended = &isSuspended
+	}
+
+	plan := r.URL.Query().Get("user-plan")
+	if plan != "" && plan != "All Plans" {
+		filter.Plan = &plan
+	}
+
+	dateRange := r.URL.Query().Get("user-date")
+	now := time.Now()
+	switch dateRange {
+	case "Last 7 days":
+		t := now.AddDate(0, 0, -7)
+		filter.CreatedAfter = &t
+	case "Last 30 days":
+		t := now.AddDate(0, 0, -30)
+		filter.CreatedAfter = &t
+	case "Last 90 days":
+		t := now.AddDate(0, 0, -90)
+		filter.CreatedAfter = &t
+	}
+
+	users, err := h.service.ListUsers(r.Context(), filter)
 	if err != nil {
 		http.Error(w, "Failed to retrieve users", http.StatusInternalServerError)
 		return
@@ -317,9 +350,13 @@ func (h *AdministrationHandlers) users(w http.ResponseWriter, r *http.Request) {
 		Pagination: paginationLinks,
 	}
 
+	if r.Header.Get("HX-Request") == "true" {
+		admin.UserTable(data).Render(r.Context(), w)
+		return
+	}
+
 	admin.UsersTab(data).Render(r.Context(), w)
 }
-
 func (h *AdministrationHandlers) urls(w http.ResponseWriter, r *http.Request) {
 	urls, err := h.service.ListURLs(r.Context())
 	if err != nil {

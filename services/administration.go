@@ -51,35 +51,101 @@ func (s *Administration) GetUser(ctx context.Context, guid domain.GUID) (domain.
 	}, nil
 }
 
-func (s *Administration) ListUsers(ctx context.Context) ([]domain.AdminUser, error) {
-	rows, err := s.db.AdminListUsers(ctx)
+func (s *Administration) ListUsers(ctx context.Context, filter domain.UserFilter) ([]domain.AdminUser, error) {
+
+	params := datastore.AdminListUsersParams{
+
+		Search: pgtype.Text{
+
+			String: filter.Search,
+
+			Valid: filter.Search != "",
+		},
+	}
+
+	if filter.IsSuspended != nil {
+
+		params.IsSuspended = pgtype.Bool{
+
+			Bool: *filter.IsSuspended,
+
+			Valid: true,
+		}
+
+	}
+
+	if filter.Plan != nil {
+
+		params.Plan = pgtype.Text{
+
+			String: *filter.Plan,
+
+			Valid: true,
+		}
+
+	}
+
+	if filter.CreatedAfter != nil {
+
+		params.CreatedAfter = pgtype.Timestamp{
+
+			Time: *filter.CreatedAfter,
+
+			Valid: true,
+		}
+
+	}
+
+	rows, err := s.db.AdminListUsers(ctx, params)
+
 	if err != nil {
+
 		return nil, err
+
 	}
 
 	var users []domain.AdminUser
+
 	for _, r := range rows {
+
 		user := domain.AdminUser{
+
 			User: domain.User{
-				ID:          domain.ID(r.ID),
-				GUID:        r.Guid.Bytes,
-				Name:        r.Username,
-				Email:       r.Email,
-				Avatar:      "",
-				CreatedAt:   r.CreatedAt.Time,
-				IsOauth:     r.IsOauth.Bool,
-				Provider:    "",
+
+				ID: domain.ID(r.ID),
+
+				GUID: r.Guid.Bytes,
+
+				Name: r.Username,
+
+				Email: r.Email,
+
+				Avatar: "",
+
+				CreatedAt: r.CreatedAt.Time,
+
+				IsOauth: r.IsOauth.Bool,
+
+				Provider: "",
+
 				IsSuspended: r.UserStatus == "suspended",
 			},
-			Plan:       r.PlanName,
-			URLCount:   int(r.UrlCount),
+
+			Plan: r.PlanName,
+
+			URLCount: int(r.UrlCount),
+
 			ClickCount: int(r.ClickCount),
-			Status:     r.UserStatus,
+
+			Status: r.UserStatus,
 		}
+
 		users = append(users, user)
+
 	}
 
 	return users, nil
+
 }
 
 func (s *Administration) ListURLs(ctx context.Context) ([]domain.AdminURL, error) {

@@ -24,7 +24,7 @@ type Querier interface {
 	AdminGetUserGrowth(ctx context.Context) ([]AdminGetUserGrowthRow, error)
 	AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDetailsRow, error)
 	AdminListUserURLs(ctx context.Context, guid pgtype.UUID) ([]AdminListUserURLsRow, error)
-	AdminListUsers(ctx context.Context) ([]AdminListUsersRow, error)
+	AdminListUsers(ctx context.Context, arg AdminListUsersParams) ([]AdminListUsersRow, error)
 	AdminToggleUserURLs(ctx context.Context, arg AdminToggleUserURLsParams) error
 	AdminUpdateURL(ctx context.Context, arg AdminUpdateURLParams) (Url, error)
 	AdminUpdateURLStatus(ctx context.Context, arg AdminUpdateURLStatusParams) error

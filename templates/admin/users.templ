@@ -27,7 +27,7 @@ templ UsersTab(data AdminDashboardData) {
 			<!-- Users Filters -->
 			<div class="bg-white shadow sm:rounded-lg mb-6">
 				<div class="px-4 py-5 sm:p-6">
-					<div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+					<form class="grid grid-cols-1 gap-4 sm:grid-cols-4" hx-trigger="change from:select, keyup delay:500ms from:input" hx-get="/admin/users" hx-target="#user-table-container" hx-swap="outerHTML" hx-push-url="true">
 						<div>
 							<label for="user-search" class="block text-sm font-medium text-gray-700">Search</label>
 							<input type="text" name="user-search" id="user-search" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Search users..."/>
@@ -37,7 +37,6 @@ templ UsersTab(data AdminDashboardData) {
 							<select id="user-status" name="user-status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
 								<option>All Status</option>
 								<option>Active</option>
-								<option>Inactive</option>
 								<option>Suspended</option>
 							</select>
 						</div>
@@ -59,34 +58,49 @@ templ UsersTab(data AdminDashboardData) {
 								<option>Last 90 days</option>
 							</select>
 						</div>
-					</div>
+					</form>
 				</div>
 			</div>
 			<!-- Users Table -->
-			<div class="bg-white shadow overflow-hidden sm:rounded-lg">
-				<table class="min-w-full divide-y divide-gray-200">
-					<thead class="bg-gray-50">
-						<tr>
-							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
-							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URLs</th>
-							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
-							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-							<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-							<th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
-						</tr>
-					</thead>
-					<tbody class="bg-white divide-y divide-gray-200">
-						for _, user := range data.Users {
-							@UserRow(user)
-						}
-					</tbody>
-				</table>
-				<!-- Pagination -->
-				@components.Pagination(data.Pagination)
-			</div>
+			@UserTable(data)
 		</div>
 	}
+}
+
+templ UserTable(data AdminDashboardData) {
+	<div id="user-table-container" class="bg-white shadow overflow-hidden sm:rounded-lg">
+		<table class="min-w-full divide-y divide-gray-200">
+			<thead class="bg-gray-50">
+				<tr>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URLs</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+					<th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+				</tr>
+			</thead>
+			<tbody class="bg-white divide-y divide-gray-200">
+				if len(data.Users) == 0 {
+					<tr>
+						<td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500">
+							<div class="flex flex-col items-center justify-center">
+								<i class="fas fa-users-slash text-4xl text-gray-300 mb-3"></i>
+								<p>No users found matching your criteria.</p>
+							</div>
+						</td>
+					</tr>
+				} else {
+					for _, user := range data.Users {
+						@UserRow(user)
+					}
+				}
+			</tbody>
+		</table>
+		<!-- Pagination -->
+		@components.Pagination(data.Pagination)
+	</div>
 }
 
 templ UserRow(user domain.AdminUser) {

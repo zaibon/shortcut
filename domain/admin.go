@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type AdminOverview struct {
 	TotalUsers  TotalCard
 	TotalURLs   TotalCard
@@ -35,4 +37,11 @@ type TopURL struct {
 	ShortURL string
 	LongURL  string
 	Clicks   int
+}
+
+type UserFilter struct {
+	Search       string
+	IsSuspended  *bool
+	Plan         *string
+	CreatedAfter *time.Time
 }

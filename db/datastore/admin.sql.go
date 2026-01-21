@@ -609,11 +609,23 @@ LEFT JOIN
     urls ON u.id = urls.author_id
 LEFT JOIN
     visits v ON urls.id = v.url_id
+WHERE
+    ($1::text IS NULL OR u.username ILIKE '%' || $1 || '%' OR u.email ILIKE '%' || $1 || '%')
+    AND ($2::boolean IS NULL OR u.is_suspended = $2)
+    AND ($3::text IS NULL OR COALESCE(s.stripe_product_name, 'Free') = $3)
+    AND ($4::timestamp IS NULL OR u.created_at >= $4)
 GROUP BY
     u.id, u.username, u.email, u.created_at, s.stripe_product_name, s.status
 ORDER BY
     u.created_at DESC
 `
+
+type AdminListUsersParams struct {
+	Search       pgtype.Text      `json:"search"`
+	IsSuspended  pgtype.Bool      `json:"is_suspended"`
+	Plan         pgtype.Text      `json:"plan"`
+	CreatedAfter pgtype.Timestamp `json:"created_after"`
+}
 
 type AdminListUsersRow struct {
 	ID          int32            `json:"id"`
@@ -630,8 +642,13 @@ type AdminListUsersRow struct {
 	UserStatus  string           `json:"user_status"`
 }
 
-func (q *Queries) AdminListUsers(ctx context.Context) ([]AdminListUsersRow, error) {
-	rows, err := q.db.Query(ctx, adminListUsers)
+func (q *Queries) AdminListUsers(ctx context.Context, arg AdminListUsersParams) ([]AdminListUsersRow, error) {
+	rows, err := q.db.Query(ctx, adminListUsers,
+		arg.Search,
+		arg.IsSuspended,
+		arg.Plan,
+		arg.CreatedAfter,
+	)
 	if err != nil {
 		return nil, err
 	}
