@@ -47,7 +47,7 @@ func UsersTab(data AdminDashboardData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><!-- Users Management --><div class=\"mb-8\"><div class=\"sm:flex sm:items-center\"><div class=\"sm:flex-auto\"><h1 class=\"text-2xl font-semibold text-gray-900\">Users</h1><p class=\"mt-2 text-sm text-gray-700\">Manage all registered users and their accounts.</p></div><div class=\"mt-4 sm:mt-0 sm:ml-16 sm:flex-none\"><button type=\"button\" class=\"inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto\"><i class=\"fas fa-user-plus mr-2\"></i> Add User</button></div></div></div><!-- Users Filters --><div class=\"bg-white shadow sm:rounded-lg mb-6\"><div class=\"px-4 py-5 sm:p-6\"><form class=\"grid grid-cols-1 gap-4 sm:grid-cols-4\" hx-trigger=\"change from:select, keyup delay:500ms from:input\" hx-get=\"/admin/users\" hx-target=\"#user-table-container\" hx-swap=\"outerHTML\" hx-push-url=\"true\"><div><label for=\"user-search\" class=\"block text-sm font-medium text-gray-700\">Search</label> <input type=\"text\" name=\"user-search\" id=\"user-search\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\" placeholder=\"Search users...\"></div><div><label for=\"user-status\" class=\"block text-sm font-medium text-gray-700\">Status</label> <select id=\"user-status\" name=\"user-status\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\"><option>All Status</option> <option>Active</option> <option>Suspended</option></select></div><div><label for=\"user-plan\" class=\"block text-sm font-medium text-gray-700\">Plan</label> <select id=\"user-plan\" name=\"user-plan\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\"><option>All Plans</option> <option>Free</option> <option>Pro</option> <option>Business</option></select></div><div><label for=\"user-date\" class=\"block text-sm font-medium text-gray-700\">Registration</label> <select id=\"user-date\" name=\"user-date\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\"><option>All Time</option> <option>Last 7 days</option> <option>Last 30 days</option> <option>Last 90 days</option></select></div></form></div></div><!-- Users Table -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><!-- Users Management --><div class=\"mb-8\"><div class=\"sm:flex sm:items-center\"><div class=\"sm:flex-auto\"><h1 class=\"text-2xl font-semibold text-gray-900\">Users</h1><p class=\"mt-2 text-sm text-gray-700\">Manage all registered users and their accounts.</p></div><div class=\"mt-4 sm:mt-0 sm:ml-16 sm:flex-none\"><button type=\"button\" class=\"inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto\"><i class=\"fas fa-user-plus mr-2\"></i> Add User</button></div></div></div><!-- Users Filters --><div class=\"bg-white shadow-sm border border-slate-200 rounded-xl mb-6 overflow-hidden\"><div class=\"px-4 py-5 sm:p-6 bg-slate-50/50\"><form class=\"grid grid-cols-1 gap-4 sm:grid-cols-4\" hx-trigger=\"change from:select, keyup delay:500ms from:input\" hx-get=\"/admin/users\" hx-target=\"#user-table-container\" hx-swap=\"outerHTML\" hx-push-url=\"true\"><!-- Search --><div><label for=\"user-search\" class=\"block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1\">Search</label><div class=\"relative group\"><div class=\"absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none\"><i class=\"fas fa-search text-slate-400 group-focus-within:text-indigo-500 transition-colors\"></i></div><input type=\"text\" name=\"user-search\" id=\"user-search\" class=\"block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all shadow-sm\" placeholder=\"Name or email...\"></div></div><!-- Status --><div><label for=\"user-status\" class=\"block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1\">Status</label><div class=\"relative\"><div class=\"absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none\"><i class=\"fas fa-user-shield text-slate-400\"></i></div><select id=\"user-status\" name=\"user-status\" class=\"block w-full pl-10 pr-10 py-2 text-base border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg shadow-sm bg-white appearance-none transition-all\"><option value=\"\">All Status</option> <option value=\"Active\">Active</option> <option value=\"Suspended\">Suspended</option></select><div class=\"absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none\"><i class=\"fas fa-chevron-down text-slate-400 text-xs\"></i></div></div></div><!-- Plan --><div><label for=\"user-plan\" class=\"block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1\">Plan</label><div class=\"relative\"><div class=\"absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none\"><i class=\"fas fa-credit-card text-slate-400\"></i></div><select id=\"user-plan\" name=\"user-plan\" class=\"block w-full pl-10 pr-10 py-2 text-base border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg shadow-sm bg-white appearance-none transition-all\"><option value=\"\">All Plans</option> <option value=\"Free\">Free</option> <option value=\"Pro\">Pro</option> <option value=\"Business\">Business</option></select><div class=\"absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none\"><i class=\"fas fa-chevron-down text-slate-400 text-xs\"></i></div></div></div><!-- Registration Date --><div><label for=\"user-date\" class=\"block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1\">Registration</label><div class=\"relative\"><div class=\"absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none\"><i class=\"fas fa-calendar text-slate-400\"></i></div><select id=\"user-date\" name=\"user-date\" class=\"block w-full pl-10 pr-10 py-2 text-base border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg shadow-sm bg-white appearance-none transition-all\"><option value=\"\">All Time</option> <option value=\"Last 7 days\">Last 7 days</option> <option value=\"Last 30 days\">Last 30 days</option> <option value=\"Last 90 days\">Last 90 days</option></select><div class=\"absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none\"><i class=\"fas fa-chevron-down text-slate-400 text-xs\"></i></div></div></div></form></div></div><!-- Users Table -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -155,7 +155,7 @@ func UserRow(user domain.AdminUser) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("user-row-%s", user.GUID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 108, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 150, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -177,7 +177,7 @@ func UserRow(user domain.AdminUser) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 118, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 160, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -190,7 +190,7 @@ func UserRow(user domain.AdminUser) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 119, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 161, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -203,7 +203,7 @@ func UserRow(user domain.AdminUser) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(user.Plan)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 124, Col: 120}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 166, Col: 120}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -216,7 +216,7 @@ func UserRow(user domain.AdminUser) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.URLCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 126, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 168, Col: 97}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -229,7 +229,7 @@ func UserRow(user domain.AdminUser) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.ClickCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 127, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 169, Col: 99}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -257,7 +257,7 @@ func UserRow(user domain.AdminUser) templ.Component {
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(user.CreatedAt.Format(domain.TimeFormat))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 135, Col: 106}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 177, Col: 106}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func UserRow(user domain.AdminUser) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/users/%s/status", user.GUID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 139, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 181, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -293,7 +293,7 @@ func UserRow(user domain.AdminUser) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/users/%s/status", user.GUID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 143, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/users.templ`, Line: 185, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
