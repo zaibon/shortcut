@@ -89,69 +89,7 @@ templ URLsTab(data AdminDashboardData) {
 					</thead>
 					<tbody class="bg-white divide-y divide-gray-200">
 						for _, url := range data.URLs {
-							<tr>
-								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
-									<a href={ templ.SafeURL(url.Long) } class="hover:text-indigo-600" target="_blank" title={ url.Long }>
-										{ url.Long }
-									</a>
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-									<div class="flex items-center">
-										<a href={ templ.SafeURL(url.Short) } class="text-indigo-600 hover:text-indigo-900" target="_blank">
-											{ url.Slug }
-										</a>
-										<button class="ml-2 text-gray-400 hover:text-gray-600" onclick={ templ.JSFuncCall("copyToClipboard", url.Short) }>
-											<i class="fas fa-copy"></i>
-										</button>
-									</div>
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ url.Author }</td>
-								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-									<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-										{ fmt.Sprintf("%d", url.NrVisited) }
-									</span>
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap">
-									if url.IsActive {
-										<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
-									} else {
-										<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Disabled</span>
-									}
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ url.CreatedAt.Format(domain.TimeFormat) }</td>
-								<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-									<div class="flex space-x-2">
-										<a href={ templ.SafeURL("/admin/urls/" + url.Slug) } class="text-indigo-600 hover:text-indigo-900" title="View Analytics">
-											<i class="fas fa-chart-bar"></i>
-										</a>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/urls/%d/edit", url.ID)) } class="text-indigo-600 hover:text-indigo-900" title="Edit URL">
-											<i class="fas fa-edit"></i>
-										</a>
-										if url.IsArchived {
-											<button
-												class="text-green-600 hover:text-green-900"
-												title="Enable URL"
-												hx-patch={ fmt.Sprintf("/admin/urls/%d/status", url.ID) }
-												hx-vals='{"is_archived": false}'
-												hx-on::after-request="window.location.reload()"
-											>
-												<i class="fas fa-check-circle"></i>
-											</button>
-										} else {
-											<button
-												class="text-red-600 hover:text-red-900"
-												title="Disable URL"
-												hx-patch={ fmt.Sprintf("/admin/urls/%d/status", url.ID) }
-												hx-confirm="Are you sure you want to disable this URL?"
-												hx-vals='{"is_archived": true}'
-												hx-on::after-request="window.location.reload()"
-											>
-												<i class="fas fa-ban"></i>
-											</button>
-										}
-									</div>
-								</td>
-							</tr>
+							@URLRow(url)
 						}
 					</tbody>
 				</table>
@@ -160,4 +98,75 @@ templ URLsTab(data AdminDashboardData) {
 			</div>
 		</div>
 	}
+}
+
+templ URLRow(url domain.AdminURL) {
+	<tr 
+		id={ fmt.Sprintf("url-row-%d", url.ID) }
+		class="hover:bg-gray-50 cursor-pointer transition-colors"
+		onclick={ templ.JSFuncCall("navigateTo", "/admin/urls/" + url.Slug) }
+	>
+		<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
+			<a href={ templ.SafeURL(url.Long) } class="hover:text-indigo-600" target="_blank" title={ url.Long } onclick="event.stopPropagation()">
+				{ url.Long }
+			</a>
+		</td>
+		<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+			<div class="flex items-center">
+				<a href={ templ.SafeURL(url.Short) } class="text-indigo-600 hover:text-indigo-900" target="_blank" onclick="event.stopPropagation()">
+					{ url.Slug }
+				</a>
+				<button class="ml-2 text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); copyToClipboard(this.getAttribute('data-short'))" data-short={ url.Short }>
+					<i class="fas fa-copy"></i>
+				</button>
+			</div>
+		</td>
+		<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{ url.Author }</td>
+		<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+			<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+				{ fmt.Sprintf("%d", url.NrVisited) }
+			</span>
+		</td>
+		<td class="px-6 py-4 whitespace-nowrap">
+			if url.IsActive {
+				<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+			} else {
+				<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Disabled</span>
+			}
+		</td>
+		<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ url.CreatedAt.Format(domain.TimeFormat) }</td>
+		<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation()">
+			<div class="flex space-x-2">
+				<a href={ templ.SafeURL("/admin/urls/" + url.Slug) } class="text-indigo-600 hover:text-indigo-900" title="View Analytics">
+					<i class="fas fa-chart-bar"></i>
+				</a>
+				<a href={ templ.SafeURL(fmt.Sprintf("/admin/urls/%d/edit", url.ID)) } class="text-indigo-600 hover:text-indigo-900" title="Edit URL">
+					<i class="fas fa-edit"></i>
+				</a>
+				if url.IsActive {
+					<button
+						class="text-red-600 hover:text-red-900"
+						title="Disable URL"
+						hx-patch={ fmt.Sprintf("/admin/urls/%d/status", url.ID) }
+						hx-vals='{"is_active": false}'
+						hx-target="closest tr"
+						hx-swap="outerHTML"
+					>
+						<i class="fas fa-ban"></i>
+					</button>
+				} else {
+					<button
+						class="text-green-600 hover:text-green-900"
+						title="Enable URL"
+						hx-patch={ fmt.Sprintf("/admin/urls/%d/status", url.ID) }
+						hx-vals='{"is_active": true}'
+						hx-target="closest tr"
+						hx-swap="outerHTML"
+					>
+						<i class="fas fa-check-circle"></i>
+					</button>
+				}
+			</div>
+		</td>
+	</tr>
 }

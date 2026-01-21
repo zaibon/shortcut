@@ -149,26 +149,45 @@ func (h *AdministrationHandlers) toggleURLStatus(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// Fetch updated URL stats
-	url, err := h.service.GetURL(r.Context(), domain.ID(id))
-	if err != nil {
-		http.Error(w, "Failed to fetch updated URL", http.StatusInternalServerError)
-		return
-	}
-	// Note: We need URLStat for the component, but GetURL returns URL.
-	// We can construct a minimal URLStat or fetch proper stats.
-	// Since the header only needs fields present in URL (plus basic stats which are 0 or we can fetch them),
-	// we should probably just re-fetch stats or map it.
-	// Actually GetURLStats(slug) is available but we have ID here.
-	// Let's use GetURLStats if we can resolve slug, or just map what we have if the component allows.
-	// The component uses domain.URLStat. GetURLStats takes slug.
-	stats, err := h.service.GetURLStats(r.Context(), url.Slug)
-	if err != nil {
-		http.Error(w, "Failed to fetch updated URL stats", http.StatusInternalServerError)
+	target := r.Header.Get("HX-Target")
+
+	// If we are on the detail page, update the header
+	if target == "url-header" {
+		url, err := h.service.GetURL(r.Context(), domain.ID(id))
+		if err != nil {
+			http.Error(w, "Failed to fetch updated URL", http.StatusInternalServerError)
+			return
+		}
+		stats, err := h.service.GetURLStats(r.Context(), url.Slug)
+		if err != nil {
+			http.Error(w, "Failed to fetch updated URL stats", http.StatusInternalServerError)
+			return
+		}
+		admin.URLDetailHeader(stats).Render(r.Context(), w)
 		return
 	}
 
-	admin.URLDetailHeader(stats).Render(r.Context(), w)
+	// Otherwise, we are likely on the list page, update the row
+	urls, err := h.service.ListURLs(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to fetch URLs", http.StatusInternalServerError)
+		return
+	}
+
+	var updatedURL *domain.AdminURL
+	for _, u := range urls {
+		if u.ID == domain.ID(id) {
+			updatedURL = &u
+			break
+		}
+	}
+
+	if updatedURL == nil {
+		http.Error(w, "Updated URL not found", http.StatusInternalServerError)
+		return
+	}
+
+	admin.URLRow(*updatedURL).Render(r.Context(), w)
 }
 
 func (h *AdministrationHandlers) toggleUserSuspension(w http.ResponseWriter, r *http.Request) {
