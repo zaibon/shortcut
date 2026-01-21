@@ -281,6 +281,12 @@ SET is_archived = @is_archived,
     is_active = @is_active
 WHERE id = @id;
 
+-- name: AdminToggleUserURLs :exec
+UPDATE urls
+SET is_active = @is_active
+FROM users
+WHERE urls.author_id = users.id AND users.guid = @guid;
+
 -- name: AdminUpdateURL :one
 UPDATE urls
 SET title = @title,

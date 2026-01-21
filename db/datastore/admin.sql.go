@@ -663,6 +663,23 @@ func (q *Queries) AdminListUsers(ctx context.Context) ([]AdminListUsersRow, erro
 	return items, nil
 }
 
+const adminToggleUserURLs = `-- name: AdminToggleUserURLs :exec
+UPDATE urls
+SET is_active = $1
+FROM users
+WHERE urls.author_id = users.id AND users.guid = $2
+`
+
+type AdminToggleUserURLsParams struct {
+	IsActive bool        `json:"is_active"`
+	Guid     pgtype.UUID `json:"guid"`
+}
+
+func (q *Queries) AdminToggleUserURLs(ctx context.Context, arg AdminToggleUserURLsParams) error {
+	_, err := q.db.Exec(ctx, adminToggleUserURLs, arg.IsActive, arg.Guid)
+	return err
+}
+
 const adminUpdateURL = `-- name: AdminUpdateURL :one
 UPDATE urls
 SET title = $1,

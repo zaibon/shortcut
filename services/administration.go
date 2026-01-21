@@ -288,6 +288,16 @@ func (s *Administration) ToggleUserSuspension(ctx context.Context, guid domain.G
 	})
 }
 
+func (s *Administration) ToggleUserURLsStatus(ctx context.Context, guid domain.GUID, isActive bool) error {
+	return s.db.AdminToggleUserURLs(ctx, datastore.AdminToggleUserURLsParams{
+		Guid: pgtype.UUID{
+			Bytes: guid,
+			Valid: true,
+		},
+		IsActive: isActive,
+	})
+}
+
 func (s *Administration) UpdateURL(ctx context.Context, id domain.ID, title, longURL string) error {
 	_, err := s.db.AdminUpdateURL(ctx, datastore.AdminUpdateURLParams{
 		ID:      int32(id),

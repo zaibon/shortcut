@@ -46,6 +46,7 @@ func (h *AdministrationHandlers) Routes(r chi.Router, pool *pgxpool.Pool) {
 		r.Delete("/admin/urls/{id}", h.deleteURL)
 		r.Patch("/admin/urls/{id}/status", h.toggleURLStatus)
 		r.Patch("/admin/users/{guid}/status", h.toggleUserSuspension)
+		r.Patch("/admin/users/{guid}/urls/status", h.toggleUserURLsStatus)
 		r.Get("/admin/analytics", h.analytics)
 		r.Get("/admin/settings", h.settings)
 	})
@@ -252,6 +253,54 @@ func (h *AdministrationHandlers) toggleUserSuspension(w http.ResponseWriter, r *
 	}
 
 	admin.UserRow(updatedUser).Render(r.Context(), w)
+}
+
+func (h *AdministrationHandlers) toggleUserURLsStatus(w http.ResponseWriter, r *http.Request) {
+	guidStr := chi.URLParam(r, "guid")
+	guid, err := domain.ParseGUID(guidStr)
+	if err != nil {
+		http.Error(w, "Invalid User GUID", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	isActiveStr := r.FormValue("is_active")
+	isActive := isActiveStr == "true"
+
+	if err := h.service.ToggleUserURLsStatus(r.Context(), guid, isActive); err != nil {
+		http.Error(w, "Failed to update user URLs status", http.StatusInternalServerError)
+		return
+	}
+
+	// We redirect to the user detail page to refresh everything
+	// Alternatively, we could re-render the whole UserDetail template and let HTMX swap the body
+	// or specific parts. Since we are changing ALL URLs, the list needs full refresh.
+	// Simple approach: reload the page or return the full detail view if called via HTMX with body swap.
+	// Better yet, just reuse userDetail logic but without the wrapper if needed, or just redirect.
+	// If using hx-boost or similar, a redirect works. If using hx-patch, we can return the new content.
+	// Let's reuse userDetail logic to return the full page content for replacement.
+
+	user, err := h.service.GetUser(r.Context(), guid)
+	if err != nil {
+		http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
+		return
+	}
+
+	urls, err := h.service.GetUserURLs(r.Context(), guid)
+	if err != nil {
+		http.Error(w, "Failed to retrieve user URLs", http.StatusInternalServerError)
+		return
+	}
+
+	data := admin.AdminDashboardData{
+		Tab: "users",
+	}
+
+	admin.UserDetail(data, user, urls).Render(r.Context(), w)
 }
 
 func (h *AdministrationHandlers) overview(w http.ResponseWriter, r *http.Request) {

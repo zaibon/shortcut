@@ -18,7 +18,27 @@ templ UserDetail(data AdminDashboardData, user domain.AdminUser, urls []domain.A
 			@UserDetailHeader(user)
 
 			<div class="mt-8">
-				<h2 class="text-lg font-medium text-gray-900 mb-4">User URLs</h2>
+				<div class="flex items-center justify-between mb-4">
+					<h2 class="text-lg font-medium text-gray-900">User URLs</h2>
+					<div class="flex space-x-2">
+						<button 
+							hx-patch={ fmt.Sprintf("/admin/users/%s/urls/status", user.GUID) } 
+							hx-vals='{"is_active": "true"}'
+							hx-confirm="Are you sure you want to enable ALL URLs for this user?"
+							class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+						>
+							Enable All
+						</button>
+						<button 
+							hx-patch={ fmt.Sprintf("/admin/users/%s/urls/status", user.GUID) } 
+							hx-vals='{"is_active": "false"}'
+							hx-confirm="Are you sure you want to disable ALL URLs for this user?"
+							class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+						>
+							Disable All
+						</button>
+					</div>
+				</div>
 				<div class="bg-white shadow overflow-hidden sm:rounded-lg">
 					<table class="min-w-full divide-y divide-gray-200">
 						<thead class="bg-gray-50">
