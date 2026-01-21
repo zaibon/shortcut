@@ -227,7 +227,7 @@ GROUP BY
 ORDER BY
     urls.created_at DESC;
 
--- name: AdminGetDailyActiveVisitors :many
+-- name: AdminGetDailyUniqueVisitors :many
 WITH date_series AS (
     SELECT generate_series(
         (CURRENT_DATE - interval '6 days')::date,

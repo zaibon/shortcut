@@ -21,7 +21,7 @@ func (q *Queries) AdminDeleteURL(ctx context.Context, id int32) error {
 	return err
 }
 
-const adminGetDailyActiveVisitors = `-- name: AdminGetDailyActiveVisitors :many
+const adminGetDailyUniqueVisitors = `-- name: AdminGetDailyUniqueVisitors :many
 WITH date_series AS (
     SELECT generate_series(
         (CURRENT_DATE - interval '6 days')::date,
@@ -42,20 +42,20 @@ ORDER BY
     ds.day
 `
 
-type AdminGetDailyActiveVisitorsRow struct {
+type AdminGetDailyUniqueVisitorsRow struct {
 	Day   pgtype.Timestamp `json:"day"`
 	Count int64            `json:"count"`
 }
 
-func (q *Queries) AdminGetDailyActiveVisitors(ctx context.Context) ([]AdminGetDailyActiveVisitorsRow, error) {
-	rows, err := q.db.Query(ctx, adminGetDailyActiveVisitors)
+func (q *Queries) AdminGetDailyUniqueVisitors(ctx context.Context) ([]AdminGetDailyUniqueVisitorsRow, error) {
+	rows, err := q.db.Query(ctx, adminGetDailyUniqueVisitors)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []AdminGetDailyActiveVisitorsRow{}
+	items := []AdminGetDailyUniqueVisitorsRow{}
 	for rows.Next() {
-		var i AdminGetDailyActiveVisitorsRow
+		var i AdminGetDailyUniqueVisitorsRow
 		if err := rows.Scan(&i.Day, &i.Count); err != nil {
 			return nil, err
 		}

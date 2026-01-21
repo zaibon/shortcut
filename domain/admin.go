@@ -35,10 +35,10 @@ type AdminUser struct {
 }
 
 type AdminAnalytics struct {
-	DailyActiveUsers  []TimeSeriesData
-	ClickDistribution []TwoDimension // Referrers
-	TopURLs           []TopURL
-	GeoDistribution   []TwoDimension // Country + Count
+	DailyUniqueVisitors []TimeSeriesData
+	ClickDistribution   []TwoDimension // Referrers
+	TopURLs             []TopURL
+	GeoDistribution     []TwoDimension // Country + Count
 }
 
 type TopURL struct {

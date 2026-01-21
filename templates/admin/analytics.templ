@@ -16,12 +16,12 @@ templ AnalyticsTab(data AdminDashboardData) {
 			<div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
 				<div class="bg-white shadow rounded-lg">
 					<div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-						<h3 class="text-lg leading-6 font-medium text-gray-900">Daily Active Users</h3>
+						<h3 class="text-lg leading-6 font-medium text-gray-900">Daily Unique Visitors</h3>
 					</div>
 					<div class="px-4 py-5 sm:p-6">
 						<div class="h-80">
-							@templ.JSONScript("dailyActiveUsersData", data.Analytics.DailyActiveUsers)
-							<canvas id="dailyActiveUsersChart"></canvas>
+							@templ.JSONScript("dailyUniqueVisitorsData", data.Analytics.DailyUniqueVisitors)
+							<canvas id="dailyUniqueVisitorsChart"></canvas>
 						</div>
 					</div>
 				</div>
@@ -85,19 +85,19 @@ templ AnalyticsTab(data AdminDashboardData) {
 			});
 
 			function initAnalyticsCharts() {
-				// Daily Active Users Chart
-				const {labels: dauLabels, data: dauData} = load2dData('dailyActiveUsersData');
-				const dauCtx = document.getElementById('dailyActiveUsersChart').getContext('2d');
+				// Daily Unique Visitors Chart
+				const {labels: duvLabels, data: duvData} = load2dData('dailyUniqueVisitorsData');
+				const duvCtx = document.getElementById('dailyUniqueVisitorsChart').getContext('2d');
 				
 				// Format dates if needed
-				const formattedDauLabels = dauLabels.map(label => {
+				const formattedDuvLabels = duvLabels.map(label => {
 					const d = new Date(label);
 					return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 				});
 
-				createLineChart(dauCtx, formattedDauLabels, [{
-					label: 'Active Users',
-					data: dauData,
+				createLineChart(duvCtx, formattedDuvLabels, [{
+					label: 'Unique Visitors',
+					data: duvData,
 					backgroundColor: 'rgba(16, 185, 129, 0.2)',
 					borderColor: 'rgba(16, 185, 129, 1)',
 					borderWidth: 2,

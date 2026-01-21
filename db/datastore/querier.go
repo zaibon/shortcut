@@ -13,7 +13,7 @@ import (
 type Querier interface {
 	AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error)
 	AdminDeleteURL(ctx context.Context, id int32) error
-	AdminGetDailyActiveVisitors(ctx context.Context) ([]AdminGetDailyActiveVisitorsRow, error)
+	AdminGetDailyUniqueVisitors(ctx context.Context) ([]AdminGetDailyUniqueVisitorsRow, error)
 	AdminGetGeoDistribution(ctx context.Context) ([]AdminGetGeoDistributionRow, error)
 	AdminGetOverviewStatistics(ctx context.Context) (AdminGetOverviewStatisticsRow, error)
 	AdminGetRecentActivity(ctx context.Context) ([]AdminGetRecentActivityRow, error)

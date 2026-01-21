@@ -328,15 +328,15 @@ func (s *Administration) GetOverviewStats(ctx context.Context) (*domain.AdminOve
 }
 
 func (s *Administration) GetAnalyticsStats(ctx context.Context) (*domain.AdminAnalytics, error) {
-	dailyActive, err := s.db.AdminGetDailyActiveVisitors(ctx)
+	dailyUnique, err := s.db.AdminGetDailyUniqueVisitors(ctx)
 	if err != nil {
 		return nil, err
 	}
-	var dailyActiveSeries []domain.TimeSeriesData
-	for _, da := range dailyActive {
-		dailyActiveSeries = append(dailyActiveSeries, domain.TimeSeriesData{
-			Time:  da.Day.Time,
-			Count: da.Count,
+	var dailyUniqueSeries []domain.TimeSeriesData
+	for _, du := range dailyUnique {
+		dailyUniqueSeries = append(dailyUniqueSeries, domain.TimeSeriesData{
+			Time:  du.Day.Time,
+			Count: du.Count,
 		})
 	}
 
@@ -382,10 +382,10 @@ func (s *Administration) GetAnalyticsStats(ctx context.Context) (*domain.AdminAn
 	}
 
 	return &domain.AdminAnalytics{
-		DailyActiveUsers:  dailyActiveSeries,
-		ClickDistribution: referrers,
-		TopURLs:           topURLs,
-		GeoDistribution:   geoDist,
+		DailyUniqueVisitors: dailyUniqueSeries,
+		ClickDistribution:   referrers,
+		TopURLs:             topURLs,
+		GeoDistribution:     geoDist,
 	}, nil
 }
 
