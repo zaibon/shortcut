@@ -108,7 +108,13 @@ func NavBar() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		user := middleware.UserFromContext(ctx)
 		currentPath := "/"
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"bg-red-600\"><div class=\"max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8\"><div class=\"flex items-center justify-between flex-wrap\"><div class=\"w-0 flex-1 flex items-center\"><span class=\"flex p-2 rounded-lg bg-red-800\"><i class=\"fas fa-ban text-white\"></i></span><p class=\"ml-3 font-medium text-white truncate\"><span class=\"md:hidden\">Account Suspended</span> <span class=\"hidden md:inline\">Your account has been suspended. You cannot create or edit links.</span></p></div></div></div></div><nav class=\"bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50\"><div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex justify-between h-16\"><div class=\"flex\"><div class=\"flex-shrink-0 flex items-center\"><a href=\"/\" class=\"text-indigo-600 font-bold text-xl\"><i class=\"fas fa-link mr-2\"></i>shortcut</a></div><div class=\"hidden sm:ml-6 sm:flex sm:space-x-8\">")
+		if user != nil && user.IsSuspended {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"bg-red-600\"><div class=\"max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8\"><div class=\"flex items-center justify-between flex-wrap\"><div class=\"w-0 flex-1 flex items-center\"><span class=\"flex p-2 rounded-lg bg-red-800\"><i class=\"fas fa-ban text-white\"></i></span><p class=\"ml-3 font-medium text-white truncate\"><span class=\"md:hidden\">Account Suspended</span> <span class=\"hidden md:inline\">Your account has been suspended. You cannot create or edit links.</span></p></div></div></div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<nav class=\"bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50\"><div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex justify-between h-16\"><div class=\"flex\"><div class=\"flex-shrink-0 flex items-center\"><a href=\"/\" class=\"text-indigo-600 font-bold text-xl\"><i class=\"fas fa-link mr-2\"></i>shortcut</a></div><div class=\"hidden sm:ml-6 sm:flex sm:space-x-8\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -121,7 +127,7 @@ func NavBar() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -130,17 +136,17 @@ func NavBar() templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></div><div class=\"hidden sm:ml-6 sm:flex sm:items-center\"><div class=\"ml-3 relative\" x-data=\"{ open: false }\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><div class=\"hidden sm:ml-6 sm:flex sm:items-center\"><div class=\"ml-3 relative\" x-data=\"{ open: false }\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if user == nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"flex space-x-4\"><a href=\"/auth\" class=\"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium\">Log in</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"flex space-x-4\"><a href=\"/auth\" class=\"text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium\">Log in</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div><button @click=\"open = !open\" class=\"bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\" id=\"user-menu-button\" aria-expanded=\"false\" aria-haspopup=\"true\"><span class=\"sr-only\">Open user menu</span> <img class=\"h-8 w-8 rounded-full\" src=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div><button @click=\"open = !open\" class=\"bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\" id=\"user-menu-button\" aria-expanded=\"false\" aria-haspopup=\"true\"><span class=\"sr-only\">Open user menu</span> <img class=\"h-8 w-8 rounded-full\" src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -153,7 +159,7 @@ func NavBar() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" alt=\"\"></button><div x-show=\"open\" @click.away=\"open = false\" class=\"origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50\" role=\"menu\" aria-orientation=\"vertical\" aria-labelledby=\"user-menu-button\" tabindex=\"-1\"><a href=\"/account\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100\" role=\"menuitem\">Your Account</a>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" alt=\"\"></button><div x-show=\"open\" @click.away=\"open = false\" class=\"origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50\" role=\"menu\" aria-orientation=\"vertical\" aria-labelledby=\"user-menu-button\" tabindex=\"-1\"><a href=\"/account\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100\" role=\"menuitem\">Your Account</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -161,22 +167,22 @@ func NavBar() templ.Component {
 			       role="menuitem">Your URLs</a>
 			   <a href="/subscription" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
 			       role="menuitem">Subscription</a> */
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<a href=\"/logout\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100\" role=\"menuitem\">Sign out</a></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<a href=\"/logout\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100\" role=\"menuitem\">Sign out</a></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div><div class=\"-mr-2 flex items-center sm:hidden\"><!-- Mobile menu button --><button @click=\"mobileMenuOpen = !mobileMenuOpen\" type=\"button\" class=\"inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500\" aria-controls=\"mobile-menu\" aria-expanded=\"false\"><span class=\"sr-only\">Open main menu</span> <svg class=\"block h-6 w-6\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M4 6h16M4 12h16M4 18h16\"></path></svg> <svg class=\"hidden h-6 w-6\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg></button></div></div></div><!-- Mobile menu, show/hide based on menu state. --><div x-show=\"mobileMenuOpen\" class=\"sm:hidden\" id=\"mobile-menu\"><div class=\"pt-2 pb-3 space-y-1\"><a href=\"/\" class=\"bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium\">Home</a> <a href=\"/urls\" class=\"border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium\">My URLs</a> <a href=\"/subscription\" class=\"border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium\">Subscription</a></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></div><div class=\"-mr-2 flex items-center sm:hidden\"><!-- Mobile menu button --><button @click=\"mobileMenuOpen = !mobileMenuOpen\" type=\"button\" class=\"inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500\" aria-controls=\"mobile-menu\" aria-expanded=\"false\"><span class=\"sr-only\">Open main menu</span> <svg class=\"block h-6 w-6\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M4 6h16M4 12h16M4 18h16\"></path></svg> <svg class=\"hidden h-6 w-6\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg></button></div></div></div><!-- Mobile menu, show/hide based on menu state. --><div x-show=\"mobileMenuOpen\" class=\"sm:hidden\" id=\"mobile-menu\"><div class=\"pt-2 pb-3 space-y-1\"><a href=\"/\" class=\"bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium\">Home</a> <a href=\"/urls\" class=\"border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium\">My URLs</a> <a href=\"/subscription\" class=\"border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium\">Subscription</a></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if user == nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"pt-4 pb-3 border-t border-gray-200\"><div class=\"flex items-center px-4\"><div class=\"flex-shrink-0\"><a href=\"/auth\" class=\"text-gray-500 hover:text-gray-700 block px-3 py-2 rounded-md text-base font-medium\">Log in</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"pt-4 pb-3 border-t border-gray-200\"><div class=\"flex items-center px-4\"><div class=\"flex-shrink-0\"><a href=\"/auth\" class=\"text-gray-500 hover:text-gray-700 block px-3 py-2 rounded-md text-base font-medium\">Log in</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"pt-4 pb-3 border-t border-gray-200\"><div class=\"flex items-center px-4\"><div class=\"flex-shrink-0\"><img class=\"h-10 w-10 rounded-full\" src=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"pt-4 pb-3 border-t border-gray-200\"><div class=\"flex items-center px-4\"><div class=\"flex-shrink-0\"><img class=\"h-10 w-10 rounded-full\" src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -189,7 +195,7 @@ func NavBar() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" alt=\"\"></div><div class=\"ml-3\"><div class=\"text-base font-medium text-gray-800\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" alt=\"\"></div><div class=\"ml-3\"><div class=\"text-base font-medium text-gray-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -202,7 +208,7 @@ func NavBar() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"text-sm font-medium text-gray-500\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div class=\"text-sm font-medium text-gray-500\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -215,12 +221,12 @@ func NavBar() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div></div><div class=\"mt-3 space-y-1\"><a href=\"/account\" class=\"block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100\">Your Account</a><a href=\"/logout\" class=\"block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100\">Sign out</a></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div></div><div class=\"mt-3 space-y-1\"><a href=\"/account\" class=\"block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100\">Your Account</a><a href=\"/logout\" class=\"block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100\">Sign out</a></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
