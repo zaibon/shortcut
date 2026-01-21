@@ -22,7 +22,7 @@ type Querier interface {
 	AdminGetURLCreationTrends(ctx context.Context) ([]AdminGetURLCreationTrendsRow, error)
 	AdminGetUser(ctx context.Context, guid pgtype.UUID) (AdminGetUserRow, error)
 	AdminGetUserGrowth(ctx context.Context) ([]AdminGetUserGrowthRow, error)
-	AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDetailsRow, error)
+	AdminListURLSDetails(ctx context.Context, arg AdminListURLSDetailsParams) ([]AdminListURLSDetailsRow, error)
 	AdminListUserURLs(ctx context.Context, guid pgtype.UUID) ([]AdminListUserURLsRow, error)
 	AdminListUsers(ctx context.Context, arg AdminListUsersParams) ([]AdminListUsersRow, error)
 	AdminToggleUserURLs(ctx context.Context, arg AdminToggleUserURLsParams) error

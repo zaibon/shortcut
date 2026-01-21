@@ -471,11 +471,32 @@ JOIN
     users ON urls.author_id = users.id
 LEFT JOIN
     visits ON urls.id = visits.url_id
+LEFT JOIN
+    customer c ON users.guid = c.user_id
+LEFT JOIN
+    subscription s ON c.user_id = s.customer_id
+WHERE
+    ($1::text IS NULL OR urls.title ILIKE '%' || $1 || '%' OR urls.short_url ILIKE '%' || $1 || '%' OR urls.long_url ILIKE '%' || $1 || '%')
+    AND ($2::boolean IS NULL OR urls.is_active = $2)
+    AND ($3::text IS NULL OR COALESCE(s.stripe_product_name, 'Free') = $3)
+    AND ($4::timestamp IS NULL OR urls.created_at >= $4)
 GROUP BY
-    urls.id, users.username, users.id
+    urls.id, users.username, users.id, s.stripe_product_name
+HAVING
+    ($5::int IS NULL OR COUNT(visits.id) >= $5)
+    AND ($6::int IS NULL OR COUNT(visits.id) <= $6)
 ORDER BY
     urls.created_at DESC
 `
+
+type AdminListURLSDetailsParams struct {
+	Search       pgtype.Text      `json:"search"`
+	IsActive     pgtype.Bool      `json:"is_active"`
+	Plan         pgtype.Text      `json:"plan"`
+	CreatedAfter pgtype.Timestamp `json:"created_after"`
+	MinClicks    pgtype.Int4      `json:"min_clicks"`
+	MaxClicks    pgtype.Int4      `json:"max_clicks"`
+}
 
 type AdminListURLSDetailsRow struct {
 	Url        Url    `json:"url"`
@@ -484,8 +505,15 @@ type AdminListURLSDetailsRow struct {
 	ClickCount int64  `json:"click_count"`
 }
 
-func (q *Queries) AdminListURLSDetails(ctx context.Context) ([]AdminListURLSDetailsRow, error) {
-	rows, err := q.db.Query(ctx, adminListURLSDetails)
+func (q *Queries) AdminListURLSDetails(ctx context.Context, arg AdminListURLSDetailsParams) ([]AdminListURLSDetailsRow, error) {
+	rows, err := q.db.Query(ctx, adminListURLSDetails,
+		arg.Search,
+		arg.IsActive,
+		arg.Plan,
+		arg.CreatedAfter,
+		arg.MinClicks,
+		arg.MaxClicks,
+	)
 	if err != nil {
 		return nil, err
 	}

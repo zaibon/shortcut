@@ -191,8 +191,20 @@ JOIN
     users ON urls.author_id = users.id
 LEFT JOIN
     visits ON urls.id = visits.url_id
+LEFT JOIN
+    customer c ON users.guid = c.user_id
+LEFT JOIN
+    subscription s ON c.user_id = s.customer_id
+WHERE
+    (sqlc.narg('search')::text IS NULL OR urls.title ILIKE '%' || sqlc.narg('search') || '%' OR urls.short_url ILIKE '%' || sqlc.narg('search') || '%' OR urls.long_url ILIKE '%' || sqlc.narg('search') || '%')
+    AND (sqlc.narg('is_active')::boolean IS NULL OR urls.is_active = sqlc.narg('is_active'))
+    AND (sqlc.narg('plan')::text IS NULL OR COALESCE(s.stripe_product_name, 'Free') = sqlc.narg('plan'))
+    AND (sqlc.narg('created_after')::timestamp IS NULL OR urls.created_at >= sqlc.narg('created_after'))
 GROUP BY
-    urls.id, users.username, users.id
+    urls.id, users.username, users.id, s.stripe_product_name
+HAVING
+    (sqlc.narg('min_clicks')::int IS NULL OR COUNT(visits.id) >= sqlc.narg('min_clicks'))
+    AND (sqlc.narg('max_clicks')::int IS NULL OR COUNT(visits.id) <= sqlc.narg('max_clicks'))
 ORDER BY
     urls.created_at DESC;
 

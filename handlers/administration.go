@@ -198,7 +198,7 @@ func (h *AdministrationHandlers) toggleURLStatus(w http.ResponseWriter, r *http.
 	}
 
 	// Otherwise, we are likely on the list page, update the row
-	urls, err := h.service.ListURLs(r.Context())
+	urls, err := h.service.ListURLs(r.Context(), domain.AdminURLFilter{})
 	if err != nil {
 		http.Error(w, "Failed to fetch URLs", http.StatusInternalServerError)
 		return
@@ -358,7 +358,58 @@ func (h *AdministrationHandlers) users(w http.ResponseWriter, r *http.Request) {
 	admin.UsersTab(data).Render(r.Context(), w)
 }
 func (h *AdministrationHandlers) urls(w http.ResponseWriter, r *http.Request) {
-	urls, err := h.service.ListURLs(r.Context())
+	filter := domain.AdminURLFilter{
+		Search: r.URL.Query().Get("url-search"),
+	}
+
+	status := r.URL.Query().Get("url-status")
+	if status == "Active" {
+		isActive := true
+		filter.IsActive = &isActive
+	} else if status == "Disabled" {
+		isActive := false
+		filter.IsActive = &isActive
+	}
+
+	plan := r.URL.Query().Get("url-user")
+	if plan != "" && plan != "All Users" {
+		filter.Plan = &plan
+	}
+
+	dateRange := r.URL.Query().Get("url-date")
+	now := time.Now()
+	switch dateRange {
+	case "Today":
+		t := now.Truncate(24 * time.Hour)
+		filter.CreatedAfter = &t
+	case "Last 7 days":
+		t := now.AddDate(0, 0, -7)
+		filter.CreatedAfter = &t
+	case "Last 30 days":
+		t := now.AddDate(0, 0, -30)
+		filter.CreatedAfter = &t
+	}
+
+	clickRange := r.URL.Query().Get("url-clicks")
+	switch clickRange {
+	case "0 clicks":
+		min, max := 0, 0
+		filter.MinClicks = &min
+		filter.MaxClicks = &max
+	case "1-10 clicks":
+		min, max := 1, 10
+		filter.MinClicks = &min
+		filter.MaxClicks = &max
+	case "11-100 clicks":
+		min, max := 11, 100
+		filter.MinClicks = &min
+		filter.MaxClicks = &max
+	case "100+ clicks":
+		min := 101
+		filter.MinClicks = &min
+	}
+
+	urls, err := h.service.ListURLs(r.Context(), filter)
 	if err != nil {
 		http.Error(w, "Failed to retrieve URLs", http.StatusInternalServerError)
 		return
@@ -372,6 +423,11 @@ func (h *AdministrationHandlers) urls(w http.ResponseWriter, r *http.Request) {
 		Tab:        "urls",
 		URLs:       urls,
 		Pagination: paginationLinks,
+	}
+
+	if r.Header.Get("HX-Request") == "true" {
+		admin.URLTable(data).Render(r.Context(), w)
+		return
 	}
 
 	admin.URLsTab(data).Render(r.Context(), w)

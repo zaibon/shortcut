@@ -148,8 +148,50 @@ func (s *Administration) ListUsers(ctx context.Context, filter domain.UserFilter
 
 }
 
-func (s *Administration) ListURLs(ctx context.Context) ([]domain.AdminURL, error) {
-	urlsRows, err := s.db.AdminListURLSDetails(ctx)
+func (s *Administration) ListURLs(ctx context.Context, filter domain.AdminURLFilter) ([]domain.AdminURL, error) {
+	params := datastore.AdminListURLSDetailsParams{
+		Search: pgtype.Text{
+			String: filter.Search,
+			Valid:  filter.Search != "",
+		},
+	}
+
+	if filter.IsActive != nil {
+		params.IsActive = pgtype.Bool{
+			Bool:  *filter.IsActive,
+			Valid: true,
+		}
+	}
+
+	if filter.Plan != nil {
+		params.Plan = pgtype.Text{
+			String: *filter.Plan,
+			Valid:  true,
+		}
+	}
+
+	if filter.CreatedAfter != nil {
+		params.CreatedAfter = pgtype.Timestamp{
+			Time:  *filter.CreatedAfter,
+			Valid: true,
+		}
+	}
+
+	if filter.MinClicks != nil {
+		params.MinClicks = pgtype.Int4{
+			Int32: int32(*filter.MinClicks),
+			Valid: true,
+		}
+	}
+
+	if filter.MaxClicks != nil {
+		params.MaxClicks = pgtype.Int4{
+			Int32: int32(*filter.MaxClicks),
+			Valid: true,
+		}
+	}
+
+	urlsRows, err := s.db.AdminListURLSDetails(ctx, params)
 	if err != nil {
 		return nil, err
 	}

@@ -45,3 +45,12 @@ type UserFilter struct {
 	Plan         *string
 	CreatedAfter *time.Time
 }
+
+type AdminURLFilter struct {
+	Search       string
+	IsActive     *bool
+	Plan         *string
+	CreatedAfter *time.Time
+	MinClicks    *int
+	MaxClicks    *int
+}
