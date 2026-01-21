@@ -310,3 +310,25 @@ SET title = @title,
     long_url = @long_url
 WHERE id = @id
 RETURNING *;
+
+-- name: AdminGetRecentActivity :many
+SELECT
+    'user_registered' AS type,
+    u.username AS actor,
+    u.email AS details,
+    u.created_at AS occurred_at
+FROM
+    users u
+UNION ALL
+SELECT
+    'url_created' AS type,
+    u.username AS actor,
+    url.short_url AS details,
+    url.created_at AS occurred_at
+FROM
+    urls url
+JOIN
+    users u ON url.author_id = u.id
+ORDER BY
+    occurred_at DESC
+LIMIT 10;

@@ -114,85 +114,44 @@ templ OverviewTab(data AdminDashboardData) {
 				<div class="px-4 py-5 sm:p-6">
 					<div class="flow-root">
 						<ul role="list" class="-mb-8">
-							<li>
-								<div class="relative pb-8">
-									<span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-									<div class="relative flex space-x-3">
-										<div>
-											<span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
-												<i class="fas fa-user-plus text-white text-sm"></i>
-											</span>
-										</div>
-										<div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+							for i, activity := range data.Overview.RecentActivity {
+								<li>
+									<div class="relative pb-8">
+										if i < len(data.Overview.RecentActivity)-1 {
+											<span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+										}
+										<div class="relative flex space-x-3">
 											<div>
-												<p class="text-sm text-gray-500">New user <span class="font-medium text-gray-900">john.doe@example.com</span> registered</p>
+												if activity.Type == "user_registered" {
+													<span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+														<i class="fas fa-user-plus text-white text-sm"></i>
+													</span>
+												} else if activity.Type == "url_created" {
+													<span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+														<i class="fas fa-link text-white text-sm"></i>
+													</span>
+												} else {
+													<span class="h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center ring-8 ring-white">
+														<i class="fas fa-info text-white text-sm"></i>
+													</span>
+												}
 											</div>
-											<div class="text-right text-sm whitespace-nowrap text-gray-500">
-												<time datetime="2023-06-20T09:30">2 minutes ago</time>
+											<div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+												<div>
+													if activity.Type == "user_registered" {
+														<p class="text-sm text-gray-500">New user <span class="font-medium text-gray-900">{ activity.Actor }</span> registered</p>
+													} else if activity.Type == "url_created" {
+														<p class="text-sm text-gray-500">URL <span class="font-medium text-gray-900">{ activity.Details }</span> created by { activity.Actor }</p>
+													}
+												</div>
+												<div class="text-right text-sm whitespace-nowrap text-gray-500">
+													<time datetime={ activity.OccurredAt.Format("2006-01-02T15:04:05Z07:00") }>{ activity.OccurredAt.Format("Jan 02, 15:04") }</time>
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
-							</li>
-							<li>
-								<div class="relative pb-8">
-									<span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-									<div class="relative flex space-x-3">
-										<div>
-											<span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
-												<i class="fas fa-link text-white text-sm"></i>
-											</span>
-										</div>
-										<div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-											<div>
-												<p class="text-sm text-gray-500">URL <span class="font-medium text-gray-900">scut.ly/abc123</span> created by user</p>
-											</div>
-											<div class="text-right text-sm whitespace-nowrap text-gray-500">
-												<time datetime="2023-06-20T09:25">7 minutes ago</time>
-											</div>
-										</div>
-									</div>
-								</div>
-							</li>
-							<li>
-								<div class="relative pb-8">
-									<span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-									<div class="relative flex space-x-3">
-										<div>
-											<span class="h-8 w-8 rounded-full bg-yellow-500 flex items-center justify-center ring-8 ring-white">
-												<i class="fas fa-crown text-white text-sm"></i>
-											</span>
-										</div>
-										<div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-											<div>
-												<p class="text-sm text-gray-500">User <span class="font-medium text-gray-900">jane.smith@example.com</span> upgraded to Pro</p>
-											</div>
-											<div class="text-right text-sm whitespace-nowrap text-gray-500">
-												<time datetime="2023-06-20T09:20">12 minutes ago</time>
-											</div>
-										</div>
-									</div>
-								</div>
-							</li>
-							<li>
-								<div class="relative">
-									<div class="relative flex space-x-3">
-										<div>
-											<span class="h-8 w-8 rounded-full bg-red-500 flex items-center justify-center ring-8 ring-white">
-												<i class="fas fa-exclamation-triangle text-white text-sm"></i>
-											</span>
-										</div>
-										<div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-											<div>
-												<p class="text-sm text-gray-500">URL <span class="font-medium text-gray-900">scut.ly/spam123</span> flagged for review</p>
-											</div>
-											<div class="text-right text-sm whitespace-nowrap text-gray-500">
-												<time datetime="2023-06-20T09:15">17 minutes ago</time>
-											</div>
-										</div>
-									</div>
-								</div>
-							</li>
+								</li>
+							}
 						</ul>
 					</div>
 				</div>

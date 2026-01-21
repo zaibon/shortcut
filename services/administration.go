@@ -291,6 +291,20 @@ func (s *Administration) GetOverviewStats(ctx context.Context) (*domain.AdminOve
 		})
 	}
 
+	activityRows, err := s.db.AdminGetRecentActivity(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var recentActivity []domain.RecentActivity
+	for _, row := range activityRows {
+		recentActivity = append(recentActivity, domain.RecentActivity{
+			Type:       row.Type,
+			Actor:      row.Actor,
+			Details:    row.Details,
+			OccurredAt: row.OccurredAt.Time,
+		})
+	}
+
 	overview := &domain.AdminOverview{
 		TotalUsers: domain.TotalCard{
 			Total:     int(stats.TotalUsers),
@@ -307,6 +321,7 @@ func (s *Administration) GetOverviewStats(ctx context.Context) (*domain.AdminOve
 		UserGrowth:        userGrows,
 		UsersOverTime:     usersTotal,
 		URLCreationTrends: urlCreationTrends,
+		RecentActivity:    recentActivity,
 	}
 
 	return overview, nil

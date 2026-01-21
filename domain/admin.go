@@ -10,11 +10,19 @@ type AdminOverview struct {
 	UserGrowth        []TimeSeriesData
 	UsersOverTime     []TimeSeriesData
 	URLCreationTrends []TimeSeriesData
+	RecentActivity    []RecentActivity
 }
 
 type TotalCard struct {
 	Total     int
 	Variation int
+}
+
+type RecentActivity struct {
+	Type       string
+	Actor      string
+	Details    string
+	OccurredAt time.Time
 }
 
 // AdminUser represents a user in the admin panel with additional information

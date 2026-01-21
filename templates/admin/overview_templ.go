@@ -143,7 +143,127 @@ func OverviewTab(data AdminDashboardData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<canvas id=\"urlTrendsChart\"></canvas></div></div></div></div><!-- Recent Activity --><div class=\"bg-white shadow rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Recent Activity</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"flow-root\"><ul role=\"list\" class=\"-mb-8\"><li><div class=\"relative pb-8\"><span class=\"absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200\" aria-hidden=\"true\"></span><div class=\"relative flex space-x-3\"><div><span class=\"h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white\"><i class=\"fas fa-user-plus text-white text-sm\"></i></span></div><div class=\"min-w-0 flex-1 pt-1.5 flex justify-between space-x-4\"><div><p class=\"text-sm text-gray-500\">New user <span class=\"font-medium text-gray-900\">john.doe@example.com</span> registered</p></div><div class=\"text-right text-sm whitespace-nowrap text-gray-500\"><time datetime=\"2023-06-20T09:30\">2 minutes ago</time></div></div></div></div></li><li><div class=\"relative pb-8\"><span class=\"absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200\" aria-hidden=\"true\"></span><div class=\"relative flex space-x-3\"><div><span class=\"h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white\"><i class=\"fas fa-link text-white text-sm\"></i></span></div><div class=\"min-w-0 flex-1 pt-1.5 flex justify-between space-x-4\"><div><p class=\"text-sm text-gray-500\">URL <span class=\"font-medium text-gray-900\">scut.ly/abc123</span> created by user</p></div><div class=\"text-right text-sm whitespace-nowrap text-gray-500\"><time datetime=\"2023-06-20T09:25\">7 minutes ago</time></div></div></div></div></li><li><div class=\"relative pb-8\"><span class=\"absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200\" aria-hidden=\"true\"></span><div class=\"relative flex space-x-3\"><div><span class=\"h-8 w-8 rounded-full bg-yellow-500 flex items-center justify-center ring-8 ring-white\"><i class=\"fas fa-crown text-white text-sm\"></i></span></div><div class=\"min-w-0 flex-1 pt-1.5 flex justify-between space-x-4\"><div><p class=\"text-sm text-gray-500\">User <span class=\"font-medium text-gray-900\">jane.smith@example.com</span> upgraded to Pro</p></div><div class=\"text-right text-sm whitespace-nowrap text-gray-500\"><time datetime=\"2023-06-20T09:20\">12 minutes ago</time></div></div></div></div></li><li><div class=\"relative\"><div class=\"relative flex space-x-3\"><div><span class=\"h-8 w-8 rounded-full bg-red-500 flex items-center justify-center ring-8 ring-white\"><i class=\"fas fa-exclamation-triangle text-white text-sm\"></i></span></div><div class=\"min-w-0 flex-1 pt-1.5 flex justify-between space-x-4\"><div><p class=\"text-sm text-gray-500\">URL <span class=\"font-medium text-gray-900\">scut.ly/spam123</span> flagged for review</p></div><div class=\"text-right text-sm whitespace-nowrap text-gray-500\"><time datetime=\"2023-06-20T09:15\">17 minutes ago</time></div></div></div></div></li></ul></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<canvas id=\"urlTrendsChart\"></canvas></div></div></div></div><!-- Recent Activity --><div class=\"bg-white shadow rounded-lg\"><div class=\"px-4 py-5 sm:px-6 border-b border-gray-200\"><h3 class=\"text-lg leading-6 font-medium text-gray-900\">Recent Activity</h3></div><div class=\"px-4 py-5 sm:p-6\"><div class=\"flow-root\"><ul role=\"list\" class=\"-mb-8\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for i, activity := range data.Overview.RecentActivity {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<li><div class=\"relative pb-8\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if i < len(data.Overview.RecentActivity)-1 {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200\" aria-hidden=\"true\"></span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"relative flex space-x-3\"><div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if activity.Type == "user_registered" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white\"><i class=\"fas fa-user-plus text-white text-sm\"></i></span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if activity.Type == "url_created" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white\"><i class=\"fas fa-link text-white text-sm\"></i></span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center ring-8 ring-white\"><i class=\"fas fa-info text-white text-sm\"></i></span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"min-w-0 flex-1 pt-1.5 flex justify-between space-x-4\"><div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if activity.Type == "user_registered" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<p class=\"text-sm text-gray-500\">New user <span class=\"font-medium text-gray-900\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var9 string
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(activity.Actor)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/overview.templ`, Line: 142, Col: 112}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span> registered</p>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if activity.Type == "url_created" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<p class=\"text-sm text-gray-500\">URL <span class=\"font-medium text-gray-900\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var10 string
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(activity.Details)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/overview.templ`, Line: 144, Col: 109}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span> created by ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var11 string
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(activity.Actor)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/overview.templ`, Line: 144, Col: 146}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</p>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div class=\"text-right text-sm whitespace-nowrap text-gray-500\"><time datetime=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var12 string
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(activity.OccurredAt.Format("2006-01-02T15:04:05Z07:00"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/overview.templ`, Line: 148, Col: 85}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var13 string
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(activity.OccurredAt.Format("Jan 02, 15:04"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/overview.templ`, Line: 148, Col: 133}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</time></div></div></div></div></li>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</ul></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

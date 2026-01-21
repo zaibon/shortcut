@@ -181,6 +181,61 @@ func (q *Queries) AdminGetOverviewStatistics(ctx context.Context) (AdminGetOverv
 	return i, err
 }
 
+const adminGetRecentActivity = `-- name: AdminGetRecentActivity :many
+SELECT
+    'user_registered' AS type,
+    u.username AS actor,
+    u.email AS details,
+    u.created_at AS occurred_at
+FROM
+    users u
+UNION ALL
+SELECT
+    'url_created' AS type,
+    u.username AS actor,
+    url.short_url AS details,
+    url.created_at AS occurred_at
+FROM
+    urls url
+JOIN
+    users u ON url.author_id = u.id
+ORDER BY
+    occurred_at DESC
+LIMIT 10
+`
+
+type AdminGetRecentActivityRow struct {
+	Type       string           `json:"type"`
+	Actor      string           `json:"actor"`
+	Details    string           `json:"details"`
+	OccurredAt pgtype.Timestamp `json:"occurred_at"`
+}
+
+func (q *Queries) AdminGetRecentActivity(ctx context.Context) ([]AdminGetRecentActivityRow, error) {
+	rows, err := q.db.Query(ctx, adminGetRecentActivity)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []AdminGetRecentActivityRow{}
+	for rows.Next() {
+		var i AdminGetRecentActivityRow
+		if err := rows.Scan(
+			&i.Type,
+			&i.Actor,
+			&i.Details,
+			&i.OccurredAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const adminGetTopReferrers = `-- name: AdminGetTopReferrers :many
 SELECT
     COALESCE(NULLIF(referrer, ''), 'Direct') AS source,
