@@ -276,31 +276,13 @@ func (h *AdministrationHandlers) toggleUserURLsStatus(w http.ResponseWriter, r *
 		return
 	}
 
-	// We redirect to the user detail page to refresh everything
-	// Alternatively, we could re-render the whole UserDetail template and let HTMX swap the body
-	// or specific parts. Since we are changing ALL URLs, the list needs full refresh.
-	// Simple approach: reload the page or return the full detail view if called via HTMX with body swap.
-	// Better yet, just reuse userDetail logic but without the wrapper if needed, or just redirect.
-	// If using hx-boost or similar, a redirect works. If using hx-patch, we can return the new content.
-	// Let's reuse userDetail logic to return the full page content for replacement.
-
-	user, err := h.service.GetUser(r.Context(), guid)
-	if err != nil {
-		http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
-		return
-	}
-
 	urls, err := h.service.GetUserURLs(r.Context(), guid)
 	if err != nil {
 		http.Error(w, "Failed to retrieve user URLs", http.StatusInternalServerError)
 		return
 	}
 
-	data := admin.AdminDashboardData{
-		Tab: "users",
-	}
-
-	admin.UserDetail(data, user, urls).Render(r.Context(), w)
+	admin.UserURLList(urls).Render(r.Context(), w)
 }
 
 func (h *AdministrationHandlers) overview(w http.ResponseWriter, r *http.Request) {

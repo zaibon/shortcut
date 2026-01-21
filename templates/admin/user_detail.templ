@@ -25,6 +25,8 @@ templ UserDetail(data AdminDashboardData, user domain.AdminUser, urls []domain.A
 							hx-patch={ fmt.Sprintf("/admin/users/%s/urls/status", user.GUID) } 
 							hx-vals='{"is_active": "true"}'
 							hx-confirm="Are you sure you want to enable ALL URLs for this user?"
+							hx-target="#user-url-list"
+							hx-swap="outerHTML"
 							class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
 						>
 							Enable All
@@ -33,46 +35,52 @@ templ UserDetail(data AdminDashboardData, user domain.AdminUser, urls []domain.A
 							hx-patch={ fmt.Sprintf("/admin/users/%s/urls/status", user.GUID) } 
 							hx-vals='{"is_active": "false"}'
 							hx-confirm="Are you sure you want to disable ALL URLs for this user?"
+							hx-target="#user-url-list"
+							hx-swap="outerHTML"
 							class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
 						>
 							Disable All
 						</button>
 					</div>
 				</div>
-				<div class="bg-white shadow overflow-hidden sm:rounded-lg">
-					<table class="min-w-full divide-y divide-gray-200">
-						<thead class="bg-gray-50">
-							<tr>
-								<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original URL</th>
-								<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Short URL</th>
-								<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-								<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
-								<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-								<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-								<th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
-							</tr>
-						</thead>
-						<tbody class="bg-white divide-y divide-gray-200">
-							if len(urls) == 0 {
-								<tr>
-									<td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500">
-										<div class="flex flex-col items-center justify-center">
-											<i class="fas fa-link text-4xl text-gray-300 mb-3"></i>
-											<p>This user hasn't created any URLs yet.</p>
-										</div>
-									</td>
-								</tr>
-							} else {
-								for _, url := range urls {
-									@URLRow(url)
-								}
-							}
-						</tbody>
-					</table>
-				</div>
+				@UserURLList(urls)
 			</div>
 		</main>
 	}
+}
+
+templ UserURLList(urls []domain.AdminURL) {
+	<div id="user-url-list" class="bg-white shadow overflow-hidden sm:rounded-lg">
+		<table class="min-w-full divide-y divide-gray-200">
+			<thead class="bg-gray-50">
+				<tr>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original URL</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Short URL</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+					<th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+				</tr>
+			</thead>
+			<tbody class="bg-white divide-y divide-gray-200">
+				if len(urls) == 0 {
+					<tr>
+						<td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500">
+							<div class="flex flex-col items-center justify-center">
+								<i class="fas fa-link text-4xl text-gray-300 mb-3"></i>
+								<p>This user hasn't created any URLs yet.</p>
+							</div>
+						</td>
+					</tr>
+				} else {
+					for _, url := range urls {
+						@URLRow(url)
+					}
+				}
+			</tbody>
+		</table>
+	</div>
 }
 
 templ UserDetailHeader(user domain.AdminUser) {
