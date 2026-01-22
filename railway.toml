@@ -1,0 +1,2 @@
+[deploy]
+preDeployCommand = "./shortcut migrate up"

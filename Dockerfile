@@ -20,6 +20,9 @@ COPY . .
 # Install just
 # RUN apk add just
 
+# Convert migrations to sequential order (Hybrid Versioning)
+RUN go tool goose -dir=db/migrations fix
+
 # Build the Go app for the target platform
 # Extract target OS and architecture from TARGETPLATFORM (e.g., linux/amd64)
 ARG TARGETOS TARGETARCH
