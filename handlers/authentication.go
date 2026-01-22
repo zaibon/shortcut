@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"gitea.com/go-chi/session"
+	"github.com/alexedwards/scs/v2"
 	"github.com/donseba/go-htmx"
 	"github.com/go-chi/chi/v5"
 
@@ -28,20 +28,22 @@ type URLUsageService interface {
 }
 
 type UsersHandler struct {
-	htmx         *htmx.HTMX
-	auth         AuthService
-	stripe       stripeService
-	urlService   URLUsageService
-	stripePubKey string
+	htmx           *htmx.HTMX
+	auth           AuthService
+	stripe         stripeService
+	urlService     URLUsageService
+	stripePubKey   string
+	sessionManager *scs.SessionManager
 }
 
-func NewUsersHandler(svc AuthService, stripe stripeService, urlService URLUsageService, stripePubKey string) *UsersHandler {
+func NewUsersHandler(svc AuthService, stripe stripeService, urlService URLUsageService, stripePubKey string, sessionManager *scs.SessionManager) *UsersHandler {
 	return &UsersHandler{
-		htmx:         htmx.New(),
-		auth:         svc,
-		stripe:       stripe,
-		urlService:   urlService,
-		stripePubKey: stripePubKey,
+		htmx:           htmx.New(),
+		auth:           svc,
+		stripe:         stripe,
+		urlService:     urlService,
+		stripePubKey:   stripePubKey,
+		sessionManager: sessionManager,
 	}
 }
 
@@ -114,9 +116,8 @@ func (h *UsersHandler) deleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess := session.GetSession(r)
-	if err := sess.Destroy(w, r); err != nil {
-		slog.Error("failed to destroy sessions", "id", sess.ID())
+	if err := h.sessionManager.Destroy(r.Context()); err != nil {
+		slog.Error("failed to destroy sessions", "error", err)
 	}
 
 	w.Header().Set("HX-Redirect", "/")
@@ -124,11 +125,8 @@ func (h *UsersHandler) deleteAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UsersHandler) logout(w http.ResponseWriter, r *http.Request) {
-	sess := session.GetSession(r)
-	id := sess.ID()
-
-	if err := sess.Destroy(w, r); err != nil {
-		slog.Error("failed to destroy sessions", "id", id)
+	if err := h.sessionManager.Destroy(r.Context()); err != nil {
+		slog.Error("failed to destroy sessions", "error", err)
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -184,10 +182,12 @@ func (h *UsersHandler) oauthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := session.GetSession(r).Set("user", user); err != nil {
+	if err := h.sessionManager.RenewToken(r.Context()); err != nil {
+		slog.Error("failed to renew session token", "error", err)
 		http.Error(w, "unexpected error", http.StatusInternalServerError)
 		return
 	}
+	h.sessionManager.Put(r.Context(), "user_id", user.GUID.String())
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }

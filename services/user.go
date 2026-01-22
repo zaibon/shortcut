@@ -21,6 +21,7 @@ import (
 type userStore interface {
 	InsertUserOauth(ctx context.Context, user datastore.InsertUserOauthParams) (domain.GUID, error)
 	GetUser(ctx context.Context, email string) (datastore.User, error)
+	GetUserByGUID(ctx context.Context, guid domain.GUID) (datastore.User, error)
 
 	// oauth
 	InsertOauthState(ctx context.Context, state string, provider domain.OauthProvider) error
@@ -79,6 +80,22 @@ func NewUser(store userStore, ownDomain string, tls bool,
 
 func (s *userService) ToggleUserSuspension(ctx context.Context, guid domain.GUID, isSuspended bool) error {
 	return s.store.UpdateUserSuspension(ctx, guid, isSuspended)
+}
+
+func (s *userService) GetUser(ctx context.Context, guid domain.GUID) (*domain.User, error) {
+	user, err := s.store.GetUserByGUID(ctx, guid)
+	if err != nil {
+		return nil, err
+	}
+	return &domain.User{
+		GUID:        domain.GUID(user.Guid.Bytes),
+		ID:          domain.ID(user.ID),
+		Name:        user.Username,
+		Email:       user.Email,
+		IsOauth:     user.IsOauth.Bool,
+		IsSuspended: user.IsSuspended,
+		CreatedAt:   user.CreatedAt.Time,
+	}, nil
 }
 
 func (s *userService) VerifyOauthState(ctx context.Context, state string) (bool, domain.OauthProvider, error) {

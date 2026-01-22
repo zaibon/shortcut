@@ -9,14 +9,13 @@ import (
 	"syscall"
 	"time"
 
-	"gitea.com/go-chi/session"
+	"github.com/alexedwards/scs/pgxstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/urfave/cli/v2"
-
-	_ "gitea.com/go-chi/session/postgres"
 
 	sentryhttp "github.com/getsentry/sentry-go/http"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
@@ -171,6 +170,14 @@ func runServer(ctx context.Context, c config) error {
 		return fmt.Errorf("unable to ping the database %s: %v", c.SafeDBString(), err)
 	}
 
+	// session manager
+	sessionManager := scs.New()
+	sessionManager.Lifetime = time.Duration(c.SessionLifetime) * time.Second
+	sessionManager.Store = pgxstore.New(dbPool)
+	sessionManager.Cookie.Name = "shortcut_session"
+	sessionManager.Cookie.SameSite = http.SameSiteLaxMode
+	sessionManager.Cookie.Secure = c.TLS
+
 	// databases
 	urlStore := db.NewURLStore(dbPool)
 	userStore := db.NewUserStore(dbPool)
@@ -190,7 +197,7 @@ func runServer(ctx context.Context, c config) error {
 
 	// HTTP handlers
 	urlHandlers := handlers.NewURLHandlers(urlService, stripeService)
-	userHandlers := handlers.NewUsersHandler(userService, stripeService, urlService, c.StripePubKey)
+	userHandlers := handlers.NewUsersHandler(userService, stripeService, urlService, c.StripePubKey, sessionManager)
 	healthzHandlers := handlers.NewHealtzHandlers(stdlib.OpenDBFromPool(dbPool))
 	subscriptionHandlers := handlers.NewSubscriptionHandlers(c.StripeKey, c.StripeEndpointSecret, stripeService, urlService)
 	adminHandlers := handlers.NewAdministrationHandlers(adminService)
@@ -220,19 +227,8 @@ func runServer(ctx context.Context, c config) error {
 		r.Use(chiMiddleware.Logger)
 		r.Use(chiMiddleware.Recoverer)
 		r.Use(chiMiddleware.RealIP)
-		r.Use(session.Sessioner(
-			session.Options{
-				Provider:       "postgres",
-				ProviderConfig: c.DBConnString,
-				CookieName:     "shortcut_session",
-				Secure:         c.TLS,
-				SameSite:       http.SameSiteLaxMode,
-				IDLength:       32,
-				Maxlifetime:    int64(c.SessionLifetime),
-				CookieLifeTime: c.SessionLifetime,
-			},
-		))
-		r.Use(middleware.UserContext)
+		r.Use(sessionManager.LoadAndSave)
+		r.Use(middleware.UserContext(sessionManager, userService))
 		r.Use(middleware.SentryMiddleware)
 
 		// HTTP Routing

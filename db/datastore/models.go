@@ -32,9 +32,9 @@ type Oauth2State struct {
 }
 
 type Session struct {
-	Key    string      `json:"key"`
-	Data   []byte      `json:"data"`
-	Expiry pgtype.Int4 `json:"expiry"`
+	Token  string             `json:"token"`
+	Data   []byte             `json:"data"`
+	Expiry pgtype.Timestamptz `json:"expiry"`
 }
 
 type Subscription struct {

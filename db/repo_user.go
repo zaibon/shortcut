@@ -54,6 +54,22 @@ func (s *userStore) GetUser(ctx context.Context, email string) (datastore.User, 
 	return row, nil
 }
 
+func (s *userStore) GetUserByGUID(ctx context.Context, guid domain.GUID) (datastore.User, error) {
+	row, err := s.db.GetUserByGUID(ctx, pgtype.UUID{
+		Bytes: guid,
+		Valid: uuid.UUID(guid) != uuid.Nil,
+	})
+	if err != nil {
+		return datastore.User{}, fmt.Errorf(
+			"failed to get user %s: %w",
+			guid,
+			err,
+		)
+	}
+
+	return row, nil
+}
+
 func (s *userStore) InsertOauthState(ctx context.Context, state string, provider domain.OauthProvider) error {
 	return s.db.InsertOauth2State(ctx, datastore.InsertOauth2StateParams{
 		State:    state,

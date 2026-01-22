@@ -5,12 +5,11 @@ go 1.24.0
 toolchain go1.24.1
 
 require (
-	gitea.com/go-chi/session v0.0.0-20240316035857-16768d98ec96
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/urfave/cli/v2 v2.27.6
 	golang.org/x/crypto v0.45.0
-	modernc.org/sqlite v1.38.2
+	modernc.org/sqlite v1.38.2 // indirect
 )
 
 require (
@@ -145,7 +144,6 @@ require (
 	github.com/ldez/tagliatelle v0.7.1 // indirect
 	github.com/ldez/usetesting v0.4.2 // indirect
 	github.com/leonklingele/grouper v1.1.2 // indirect
-	github.com/lib/pq v1.10.9 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/macabu/inamedparam v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.10 // indirect
@@ -233,7 +231,6 @@ require (
 	github.com/tursodatabase/libsql-client-go v0.0.0-20240902231107-85af5b9d094d // indirect
 	github.com/ultraware/funlen v0.2.0 // indirect
 	github.com/ultraware/whitespace v0.2.0 // indirect
-	github.com/unknwon/com v1.0.1 // indirect
 	github.com/uudashr/gocognit v1.2.0 // indirect
 	github.com/uudashr/iface v1.3.1 // indirect
 	github.com/vertica/vertica-sql-go v1.3.3 // indirect
@@ -284,6 +281,8 @@ require (
 
 require (
 	github.com/a-h/templ v0.3.857
+	github.com/alexedwards/scs/pgxstore v0.0.0-20251002162104-209de6e426de
+	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/donseba/go-htmx v1.12.0
 	github.com/getsentry/sentry-go v0.33.0
 	github.com/google/uuid v1.6.0
