@@ -71,7 +71,7 @@ func URLDetail(data AdminDashboardData, url domain.URLStat) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main><script>\n        document.addEventListener('alpine:init', () => {\n            Alpine.data('dashboardData', () => ({\n                timeRange: '24h',\n            }));\n        });\n\n\t\tfunction getData(){\n\t\t\tconst input = JSON.parse(document.getElementById('visitOverTime').textContent);\n\t\t\treturn input.map((p) => {\n\t\t\t\treturn {\n\t\t\t\t\t\"x\": new Date(p.Time),\n\t\t\t\t\t\"y\": p.Count,\t\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t\t\n\t\tfunction updateChart() {\n\t\t\tconst data = getData();\n\t\t\twindow.mainChart.data.datasets[0].data = data;\n\t\t\twindow.mainChart.update();\n\t\t}\n\n\t\tfunction initMap() {\n\t\t\tconst locations = JSON.parse(document.getElementById('locationData').textContent) || [];\n\t\t\tconst mapData = {};\n\t\t\tlocations.forEach(l => {\n\t\t\t\tmapData[l.CountryCode] = l.VisitCount;\n\t\t\t});\n\n\t\t\tnew jsVectorMap({\n\t\t\t\tselector: '#jvm-map',\n\t\t\t\tmap: 'world',\n\t\t\t\tvisualizeData: {\n\t\t\t\t\tscale: ['#a5b4fc', '#4338ca'],\n\t\t\t\t\tvalues: mapData\n\t\t\t\t},\n\t\t\t\tzoomButtons: false,\n\t\t\t\tonRegionTooltipShow(event, tooltip, code) {\n\t\t\t\t\ttooltip.text(tooltip.text() + ' (' + (mapData[code] || 0) + ')');\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\n        document.addEventListener('DOMContentLoaded', function() {\n\t\t\tinitMap();\n\n            // Main Line Chart\n\t\t\tconst data = getData();\n            const ctxMain = document.getElementById('mainChart').getContext('2d');\n            window.mainChart = new Chart(ctxMain, {\n                type: 'line',\n                data: {\n                    datasets: [{\n                        label: 'Clicks',\n                        data: data,\n                        borderColor: '#4f46e5',\n                        backgroundColor: 'rgba(79, 70, 229, 0.05)',\n                        borderWidth: 2,\n                        tension: 0.4,\n                        fill: true,\n                        pointRadius: 0,\n                        pointHoverRadius: 6\n                    }]\n                },\n                options: {\n                    responsive: true,\n                    maintainAspectRatio: false,\n                    plugins: { legend: { display: false } },\n                    scales: {\n                        y: { \n                            beginAtZero: true, \n                            grid: { borderDash: [2, 4], color: '#f1f5f9' },\n                            ticks: { font: { size: 11 } }\n                        },\n                        x: { \n\t\t\t\t\t\t\ttype: 'time',\n\t\t\t\t\t\t\ttime: {\n\t\t\t\t\t\t\t\tunit: 'hour'\n\t\t\t\t\t\t\t},\n                            grid: { display: false },\n                            ticks: { font: { size: 11 } }\n                        }\n                    },\n                    interaction: {\n                        intersect: false,\n                        mode: 'index',\n                    },\n                }\n            });\n\n            // Referrer Donut Chart\n\t\t\tconst {labels, data: refData} = load2dData('referrerChartData');\n            const ctxRef = document.getElementById('referrerChart').getContext('2d');\n            new Chart(ctxRef, {\n                type: 'doughnut',\n                data: {\n                    labels: labels,\n                    datasets: [{\n                        data: refData,\n                        backgroundColor: ['#6366f1', '#a5b4fc', '#c7d2fe', '#e0e7ff', '#312e81'],\n                        borderWidth: 0,\n                        hoverOffset: 4\n                    }]\n                },\n                options: {\n                    responsive: true,\n                    maintainAspectRatio: false,\n                    cutout: '75%',\n                    plugins: { legend: { display: false } }\n                }\n            });\n        });\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main><script>\n        document.addEventListener('alpine:init', () => {\n            Alpine.data('dashboardData', () => ({\n                timeRange: '24h',\n            }));\n        });\n\n        document.addEventListener('DOMContentLoaded', function() {\n\t\t\tinitDashboardCharts();\n        });\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -113,7 +113,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(url.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 151, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 48, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -147,7 +147,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(url.CreatedAt.Format("Jan 02, 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 162, Col: 122}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 59, Col: 122}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -169,7 +169,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 164, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 61, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -191,7 +191,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(url.Long)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 167, Col: 117}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 64, Col: 117}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -204,7 +204,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("qrCodeModal('%s')", url.Short))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 171, Col: 78}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 68, Col: 78}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -222,7 +222,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/urls/%d/status", url.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 173, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 70, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -240,7 +240,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/urls/%d/status", url.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 177, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 74, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -258,7 +258,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("copyToClipboard('%s')", url.Short))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 181, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 78, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -271,7 +271,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("showModal('%s')", url.Short))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 184, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 81, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
