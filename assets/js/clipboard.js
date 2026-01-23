@@ -1,5 +1,7 @@
+import { showFlashMessage } from './flash.js';
+
 // Copy to clipboard function
-function copyToClipboard(text) {
+export function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
         showFlashMessage("URL copied to clipboard!", "success")
     }).catch(err => {
@@ -8,7 +10,7 @@ function copyToClipboard(text) {
 }
 
 // Share or Copy function
-async function shareOrCopy(text) {
+export async function shareOrCopy(text) {
     if (navigator.share) {
         try {
             await navigator.share({

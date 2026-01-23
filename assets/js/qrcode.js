@@ -1,5 +1,5 @@
 // QR Code Component for Shortcut
-document.addEventListener("alpine:init", () => {
+export function registerQrCodeModal(Alpine) {
     Alpine.data("qrCodeModal", (initialUrl = "") => ({
 
         open: false,
@@ -32,4 +32,4 @@ document.addEventListener("alpine:init", () => {
             document.body.removeChild(link)
         },
     }))
-})
+}

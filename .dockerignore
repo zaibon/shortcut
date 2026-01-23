@@ -3,3 +3,4 @@ bin/
 *.db
 *.mmdb
 __debug_*
+node_modules/

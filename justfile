@@ -15,13 +15,16 @@ lint: fmt
 generate:
     go generate ./...
 
-build: generate fmt
+build-assets:
+    bun run build
+
+build: generate build-assets fmt
     CGO_ENABLED=0 go build -o bin/shortcut cmd/*.go
 
-build-linux: generate fmt
+build-linux: generate build-assets fmt
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/shortcut cmd/*.go
 
-build-dev: 
+build-dev: build-assets
     CGO_ENABLED=0 go build -tags=dev -o bin/shortcut cmd/*.go
 
 run: build

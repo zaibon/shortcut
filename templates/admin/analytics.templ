@@ -79,48 +79,5 @@ templ AnalyticsTab(data AdminDashboardData) {
 				</div>
 			</div>
 		</div>
-		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				initAnalyticsCharts();
-			});
-
-			function initAnalyticsCharts() {
-				// Daily Unique Visitors Chart
-				const {labels: duvLabels, data: duvData} = load2dData('dailyUniqueVisitorsData');
-				const duvCtx = document.getElementById('dailyUniqueVisitorsChart').getContext('2d');
-				
-				// Format dates if needed
-				const formattedDuvLabels = duvLabels.map(label => {
-					const d = new Date(label);
-					return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-				});
-
-				createLineChart(duvCtx, formattedDuvLabels, [{
-					label: 'Unique Visitors',
-					data: duvData,
-					backgroundColor: 'rgba(16, 185, 129, 0.2)',
-					borderColor: 'rgba(16, 185, 129, 1)',
-					borderWidth: 2,
-					tension: 0.3,
-					fill: true
-				}]);
-
-				// Click Distribution Chart
-				const {labels: cdLabels, data: cdData} = load2dData('clickDistributionData');
-				const cdCtx = document.getElementById('clickDistributionChart').getContext('2d');
-				
-				createDoughnutChart(cdCtx, cdLabels, [{
-					data: cdData,
-					backgroundColor: [
-						'rgba(99, 102, 241, 0.8)',
-						'rgba(139, 92, 246, 0.8)',
-						'rgba(59, 130, 246, 0.8)',
-						'rgba(16, 185, 129, 0.8)',
-						'rgba(245, 158, 11, 0.8)'
-					],
-					borderWidth: 1
-				}]);
-			}
-		</script>
 	}
 }

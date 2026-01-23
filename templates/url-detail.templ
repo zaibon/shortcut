@@ -8,9 +8,6 @@ import (
 
 templ URLDetail(url domain.URLStat) {
 	@Layout() {
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css"/>
-		<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
-		<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
 		<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="dashboardData()">
 			<!-- Header: Link Info -->
 			<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -27,7 +24,7 @@ templ URLDetail(url domain.URLStat) {
 					</div>
 				</div>
 				<div class="flex gap-3" x-data={ fmt.Sprintf("qrCodeModal('%s')", url.Short) }>
-					<button @click={ fmt.Sprintf("copyToClipboard('%s')", url.Short) } class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+					<button data-action="copy" data-value={ url.Short } class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
 						<i class="far fa-copy mr-2"></i> <span>Copy Link</span>
 					</button>
 					<button @click={ fmt.Sprintf("showModal('%s')", url.Short) } class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
@@ -41,10 +38,5 @@ templ URLDetail(url domain.URLStat) {
 			@components.LocationsAndReferrers(url)
 			@components.DevicesAndBrowsers(url)
 		</main>
-		<script>
-        document.addEventListener('DOMContentLoaded', function() {
-			initDashboardCharts();
-        });
-		</script>
 	}
 }

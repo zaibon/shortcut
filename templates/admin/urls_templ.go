@@ -227,20 +227,20 @@ func URLRow(url domain.AdminURL) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</a> <button class=\"ml-2 text-gray-400 hover:text-gray-600\" onclick=\"event.stopPropagation(); copyToClipboard(this.getAttribute(&#39;data-short&#39;))\" data-short=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</a> <button class=\"ml-2 text-gray-400 hover:text-gray-600\" data-action=\"copy\" data-value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/urls.templ`, Line: 186, Col: 165}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/urls.templ`, Line: 186, Col: 100}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"><i class=\"fas fa-copy\"></i></button></div></td><td class=\"px-6 py-4 whitespace-nowrap text-sm text-gray-900\" onclick=\"event.stopPropagation()\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" onclick=\"event.stopPropagation()\"><i class=\"fas fa-copy\"></i></button></div></td><td class=\"px-6 py-4 whitespace-nowrap text-sm text-gray-900\" onclick=\"event.stopPropagation()\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

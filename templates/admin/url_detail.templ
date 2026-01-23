@@ -8,9 +8,6 @@ import (
 
 templ URLDetail(data AdminDashboardData, url domain.URLStat) {
 	@AdminLayout(data) {
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css"/>
-		<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
-		<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
 		<main class="w-full py-8" x-data="dashboardData()">
 			<div class="mb-8 flex justify-between items-center">
 				<h1 class="text-2xl font-bold text-gray-900">URL Analytics</h1>
@@ -26,11 +23,6 @@ templ URLDetail(data AdminDashboardData, url domain.URLStat) {
 			@components.LocationsAndReferrers(url)
 			@components.DevicesAndBrowsers(url)
 		</main>
-		<script>
-        document.addEventListener('DOMContentLoaded', function() {
-			initDashboardCharts();
-        });
-		</script>
 	}
 }
 
@@ -69,7 +61,7 @@ templ URLDetailHeader(url domain.URLStat) {
 					<i class="fas fa-check mr-2"></i> Enable
 				</button>
 			}
-			<button @click={ fmt.Sprintf("copyToClipboard('%s')", url.Short) } class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+			<button data-action="copy" data-value={ url.Short } class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
 				<i class="far fa-copy mr-2"></i> <span>Copy Link</span>
 			</button>
 			<button @click={ fmt.Sprintf("showModal('%s')", url.Short) } class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">

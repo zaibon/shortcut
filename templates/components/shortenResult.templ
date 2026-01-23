@@ -14,7 +14,8 @@ templ ShortenURL(short, original string) {
 			<div class="flex items-center gap-3 w-full sm:w-auto">
 				<button 
                     class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors group"
-                    onclick={ templ.JSFuncCall("copyToClipboard", short) }
+                    data-action="copy"
+                    data-value={ short }
                 >
 					<i class="far fa-copy mr-2 text-gray-400 group-hover:text-indigo-500"></i> Copy
 				</button>
