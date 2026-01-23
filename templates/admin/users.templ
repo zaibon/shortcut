@@ -149,7 +149,9 @@ templ UserRow(user domain.AdminUser) {
 	<tr 
 		id={ fmt.Sprintf("user-row-%s", user.GUID) }
 		class="hover:bg-gray-50 cursor-pointer transition-colors"
-		onclick={ templ.JSFuncCall("navigateTo", fmt.Sprintf("/admin/users/%s", user.GUID)) }
+		hx-get={ fmt.Sprintf("/admin/users/%s", user.GUID) }
+		hx-push-url="true"
+		hx-target="body"
 	>
 		<td class="px-6 py-4 whitespace-nowrap">
 			<div class="flex items-center">

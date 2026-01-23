@@ -8,7 +8,9 @@ import (
 templ URLListItem(url domain.URLStat) {
 	<div 
 		class="bg-white rounded-xl shadow-sm border border-slate-200 hover:border-indigo-300 transition-all duration-200 group cursor-pointer"
-		onclick={ templ.JSFuncCall("navigateTo", fmt.Sprintf("/urls/%s", url.Slug)) }
+		hx-get={ fmt.Sprintf("/urls/%s", url.Slug) }
+		hx-push-url="true"
+		hx-target="body"
 	>
 		<div class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 			
