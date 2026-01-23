@@ -307,10 +307,11 @@ func (h *AdministrationHandlers) users(w http.ResponseWriter, r *http.Request) {
 	}
 
 	status := r.URL.Query().Get("user-status")
-	if status == "Active" {
+	switch status {
+	case "Active":
 		isSuspended := false
 		filter.IsSuspended = &isSuspended
-	} else if status == "Suspended" {
+	case "Suspended":
 		isSuspended := true
 		filter.IsSuspended = &isSuspended
 	}
@@ -363,10 +364,11 @@ func (h *AdministrationHandlers) urls(w http.ResponseWriter, r *http.Request) {
 	}
 
 	status := r.URL.Query().Get("url-status")
-	if status == "Active" {
+	switch status {
+	case "Active":
 		isActive := true
 		filter.IsActive = &isActive
-	} else if status == "Disabled" {
+	case "Disabled":
 		isActive := false
 		filter.IsActive = &isActive
 	}
