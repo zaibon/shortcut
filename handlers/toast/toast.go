@@ -6,50 +6,47 @@ import (
 )
 
 const (
-	INFO    = "info"
-	SUCCESS = "success"
-	WARNING = "warning"
-	DANGER  = "danger"
+	TypeInfo    = "info"
+	TypeSuccess = "success"
+	TypeWarning = "warning"
+	TypeError   = "error"
+
+	LevelFlash = "flash"
 )
 
 type Toast struct {
-	Level         string `json:"level"`
-	Title         string `json:"title"`
-	Message       string `json:"message"`
-	CustomWrapper string `json:"customWrapper"`
+	Level   string `json:"level"`
+	Message string `json:"message"`
+	Type    string `json:"type"`
 }
 
 func New(level, title, message string, customWrapper ...string) Toast {
-	t := Toast{
-		Level:   level,
-		Title:   title,
+	return Toast{
+		Level:   LevelFlash,
 		Message: message,
+		Type:    level,
 	}
-	if len(customWrapper) > 0 {
-		t.CustomWrapper = customWrapper[0]
-	}
-	return t
 }
 
 func Info(title, message string, customWrapper ...string) Toast {
-	return New(INFO, title, message)
+	return New(TypeInfo, title, message)
 }
 
 func Success(w http.ResponseWriter, title, message string, customWrapper ...string) {
-	New(SUCCESS, title, message).SetHXTriggerHeader(w)
+	New(TypeSuccess, title, message).SetHXTriggerHeader(w)
 }
 
 func Warning(w http.ResponseWriter, title, message string, customWrapper ...string) {
-	New(WARNING, title, message).SetHXTriggerHeader(w)
+	New(TypeWarning, title, message).SetHXTriggerHeader(w)
 }
 
 func Danger(w http.ResponseWriter, title, message string, customWrapper ...string) {
-	New(DANGER, title, message).SetHXTriggerHeader(w)
+	New(TypeError, title, message).SetHXTriggerHeader(w)
 }
 
 func (t Toast) jsonify() (string, error) {
 	eventMap := map[string]Toast{}
-	eventMap["makeToast"] = t
+	eventMap["showMessage"] = t
 	jsonData, err := json.Marshal(eventMap)
 	if err != nil {
 		return "", err
