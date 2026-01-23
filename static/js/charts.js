@@ -226,3 +226,10 @@ window.initDashboardCharts = function() {
         });
     }
 }
+
+// Register Alpine components
+document.addEventListener('alpine:init', () => {
+    Alpine.data('dashboardData', () => ({
+        timeRange: '24h',
+    }));
+});
