@@ -47,7 +47,7 @@ func URLDetail(data AdminDashboardData, url domain.URLStat) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css\"><script src=\"https://cdn.jsdelivr.net/npm/jsvectormap\"></script> <script src=\"https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js\"></script> <main class=\"w-full py-8\" x-data=\"dashboardData()\"><div class=\"mb-8 flex justify-between items-center\"><h1 class=\"text-2xl font-bold text-gray-900\">URL Analytics</h1><a href=\"/admin/urls\" class=\"inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none\"><i class=\"fas fa-arrow-left mr-2\"></i> Back to URLs</a></div><!-- Header: Link Info -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"w-full py-8\" x-data=\"dashboardData()\"><div class=\"mb-8 flex justify-between items-center\"><h1 class=\"text-2xl font-bold text-gray-900\">URL Analytics</h1><a href=\"/admin/urls\" class=\"inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none\"><i class=\"fas fa-arrow-left mr-2\"></i> Back to URLs</a></div><!-- Header: Link Info -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -71,7 +71,7 @@ func URLDetail(data AdminDashboardData, url domain.URLStat) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main><script>\n        document.addEventListener('DOMContentLoaded', function() {\n\t\t\tinitDashboardCharts();\n        });\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -113,7 +113,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(url.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 42, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 34, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -147,7 +147,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(url.CreatedAt.Format("Jan 02, 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 53, Col: 122}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 45, Col: 122}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -169,7 +169,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 55, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 47, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -191,7 +191,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(url.Long)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 58, Col: 117}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 50, Col: 117}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -204,7 +204,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("qrCodeModal('%s')", url.Short))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 62, Col: 78}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 54, Col: 78}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -222,7 +222,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/urls/%d/status", url.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 64, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 56, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -240,7 +240,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/urls/%d/status", url.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 68, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 60, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -251,14 +251,14 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<button @click=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<button data-action=\"copy\" data-value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("copyToClipboard('%s')", url.Short))
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 72, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 64, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -271,7 +271,7 @@ func URLDetailHeader(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("showModal('%s')", url.Short))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 75, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/url_detail.templ`, Line: 67, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {

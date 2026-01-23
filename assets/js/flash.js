@@ -1,5 +1,5 @@
 // Enhanced flash message handling
-function showFlashMessage(message, type = 'error') {
+export function showFlashMessage(message, type = 'error') {
   const flashContainer = document.getElementById('flash-messages');
   const messageElement = document.createElement('div');
 
@@ -54,7 +54,7 @@ function showFlashMessage(message, type = 'error') {
   return messageElement;
 }
 
-function removeFlashMessage(messageElement) {
+export function removeFlashMessage(messageElement) {
   messageElement.classList.add('opacity-0', '-translate-y-2');
   setTimeout(() => {
     if (messageElement.parentNode) {
@@ -63,36 +63,10 @@ function removeFlashMessage(messageElement) {
   }, 300);
 }
 
-
-document.body.addEventListener("showMessage", function (evt) {
-  if (evt.detail && evt.detail.level && evt.detail.level === 'flash') {
-    showFlashMessage(evt.detail.message, evt.detail.type);
-  }
-})
-
-// TODO: extract from here
-// function handleLoginResponse(event) {
-//   const xhr = event.detail.xhr;
-
-//   // Check if the request was successful (status 200-299)
-//   if (xhr.status >= 200 && xhr.status < 300) {
-//     // For demo purposes, simulate successful login
-//     // In a real app, this would be handled by the server response
-//     return;
-//   }
-
-//   // Handle different error types
-//   let errorMessage = 'An unknown error occurred. Please try again.';
-
-//   if (xhr.status === 401) {
-//     errorMessage = 'Invalid email or password. Please try again.';
-//   } else if (xhr.status === 403) {
-//     errorMessage = 'Your account has been locked. Please contact support.';
-//   } else if (xhr.status === 429) {
-//     errorMessage = 'Too many login attempts. Please try again later.';
-//   } else if (xhr.status >= 500) {
-//     errorMessage = 'Server error. Please try again later.';
-//   }
-
-//   showFlashMessage(errorMessage, 'error');
-// }
+export function initFlashListeners() {
+    document.body.addEventListener("showMessage", function (evt) {
+      if (evt.detail && evt.detail.level && evt.detail.level === 'flash') {
+        showFlashMessage(evt.detail.message, evt.detail.type);
+      }
+    })
+}

@@ -45,3 +45,9 @@ gha-creds-*.json
 
 # templ watch files
 *_templ.txt
+
+# Node dependencies
+node_modules/
+
+# Build output
+static/dist/

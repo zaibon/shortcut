@@ -64,24 +64,20 @@ func ShortenURL(short, original string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div><div class=\"flex items-center gap-3 w-full sm:w-auto\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div><div class=\"flex items-center gap-3 w-full sm:w-auto\"><button class=\"flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors group\" data-action=\"copy\" data-value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.JSFuncCall("copyToClipboard", short))
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(short)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/shortenResult.templ`, Line: 18, Col: 38}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<button class=\"flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors group\" onclick=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var5 templ.ComponentScript = templ.JSFuncCall("copyToClipboard", short)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5.Call)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"><i class=\"far fa-copy mr-2 text-gray-400 group-hover:text-indigo-500\"></i> Copy</button></div></div><div class=\"bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center\"><a href=\"/urls\" class=\"text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center\">View Analytics <i class=\"fas fa-arrow-right ml-1 text-xs\"></i></a> <button class=\"text-gray-400 hover:text-gray-600 text-sm\" onclick=\"document.getElementById(&#39;result-container&#39;).innerHTML = &#39;&#39;\">Create another</button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><i class=\"far fa-copy mr-2 text-gray-400 group-hover:text-indigo-500\"></i> Copy</button></div></div><div class=\"bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center\"><a href=\"/urls\" class=\"text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center\">View Analytics <i class=\"fas fa-arrow-right ml-1 text-xs\"></i></a> <button class=\"text-gray-400 hover:text-gray-600 text-sm\" onclick=\"document.getElementById(&#39;result-container&#39;).innerHTML = &#39;&#39;\">Create another</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

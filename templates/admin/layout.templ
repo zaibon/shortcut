@@ -48,16 +48,10 @@ templ AdminLayout(data AdminDashboardData) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>Admin Dashboard - Shortcut</title>
 			<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-			<script src="https://unpkg.com/htmx.org@2.0.4"></script>
-			<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-			<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-			<script src="/static/js/charts.js" defer></script>
-			<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-			<script src="/static/js/flash.js" defer></script>
-			<script src="/static/js/clipboard.js" defer></script>
-			<script src="/static/js/qrcode.js"></script>
+			<script src="/static/dist/bundle.js" defer></script>
 			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
 			<link rel="stylesheet" href="/static/css/styles.css"/>
+			<link rel="stylesheet" href="/static/dist/bundle.css"/>
 			<script defer src="https://umami.zaibon.be/script.js" data-website-id="6e1d6647-3ea3-4698-af08-516fbf237c25"></script>
 		</head>
 		<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
@@ -165,157 +159,6 @@ templ AdminLayout(data AdminDashboardData) {
 					</div>
 				</footer>
 			</div>
-			<script>
-
-    // Initialize charts when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      initCharts();
-    });
-
-    function initCharts() {
-      // User Growth Chart
-	  var {labels, data } = load2dData('userGrowthChartData');
-	  var totalUserData = load2dData('totalUserChartData');
-      const userGrowthCtx = document.getElementById('userGrowthChart');
-      if (userGrowthCtx) {
-        new Chart(userGrowthCtx.getContext('2d'), {
-          type: 'line',
-          data: {
-            labels: labels.map((label)=>{
-				let d = new Date(label);
-				return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-			}),
-            datasets: [{
-              label: 'New Users',
-              data: data,
-              backgroundColor: 'rgba(99, 102, 241, 0.2)',
-              borderColor: 'rgba(99, 102, 241, 1)',
-              borderWidth: 2,
-              tension: 0.3,
-              fill: true,
-			  yAxisID: 'left'
-            },
-			{
-              label: 'Total Users',
-              data: totalUserData.data,
-              backgroundColor: 'rgba(24, 196, 157, 0.2)',
-              borderColor: 'rgba(24, 196, 157, 1)',
-              borderWidth: 2,
-              tension: 0.3,
-              fill: true,
-			  yAxisID: 'right'
-            }
-			]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              left: {
-				position: 'left',
-                beginAtZero: true
-              },
-			  right: {
-				position: 'right',
-                beginAtZero: true
-              }
-            }
-          }
-        });
-      }
-
-      // URL Trends Chart
-	  var {labels, data } = load2dData('urlTrendsChartData');
-      const urlTrendsCtx = document.getElementById('urlTrendsChart');
-      if (urlTrendsCtx) {
-        new Chart(urlTrendsCtx.getContext('2d'), {
-          type: 'bar',
-          data: {
-            labels: labels.map((label)=>{
-				let d = new Date(label);
-				return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-			}),
-            datasets: [{
-              label: 'URLs Created',
-              data: data,
-              backgroundColor: 'rgba(139, 92, 246, 0.8)',
-              borderColor: 'rgba(139, 92, 246, 1)',
-              borderWidth: 1
-            },]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          }
-        });
-      }
-
-      // Daily Active Users Chart
-      const dailyActiveUsersCtx = document.getElementById('dailyActiveUsersChart');
-      if (dailyActiveUsersCtx) {
-        new Chart(dailyActiveUsersCtx.getContext('2d'), {
-          type: 'line',
-          data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{
-              label: 'Active Users',
-              data: [3200, 3800, 4200, 4500, 4100, 2800, 2400],
-              backgroundColor: 'rgba(16, 185, 129, 0.2)',
-              borderColor: 'rgba(16, 185, 129, 1)',
-              borderWidth: 2,
-              tension: 0.3,
-              fill: true
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          }
-        });
-      }
-
-      // Click Distribution Chart
-      const clickDistributionCtx = document.getElementById('clickDistributionChart');
-      if (clickDistributionCtx) {
-        new Chart(clickDistributionCtx.getContext('2d'), {
-          type: 'doughnut',
-          data: {
-            labels: ['Direct', 'Social Media', 'Search Engines', 'Email', 'Other'],
-            datasets: [{
-              data: [35, 25, 20, 15, 5],
-              backgroundColor: [
-                'rgba(99, 102, 241, 0.8)',
-                'rgba(139, 92, 246, 0.8)',
-                'rgba(59, 130, 246, 0.8)',
-                'rgba(16, 185, 129, 0.8)',
-                'rgba(245, 158, 11, 0.8)'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom'
-              }
-            }
-          }
-        });
-      }
-    }
-  			</script>
 		</body>
 	</html>
 }

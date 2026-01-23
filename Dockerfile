@@ -1,4 +1,12 @@
-# Use the official Golang image to create a build artifact
+# Stage 1: Build Assets
+FROM oven/bun:alpine AS assets-builder
+WORKDIR /app
+COPY package.json bun.lock ./
+RUN bun install
+COPY . .
+RUN bun run build
+
+# Stage 2: Build Go App
 FROM golang:1.24-alpine AS builder
 
 # Define build arguments for platform
@@ -11,31 +19,30 @@ WORKDIR /app
 # Copy go mod and sum files
 COPY go.mod go.sum ./
 
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+# Download all dependencies
 RUN go mod download
 
-# Copy the source from the current directory to the Working Directory inside the container
+# Copy the source
 COPY . .
 
-# Install just
-# RUN apk add just
+# Copy built assets
+COPY --from=assets-builder /app/static/dist ./static/dist
 
-# Convert migrations to sequential order (Hybrid Versioning)
+# Convert migrations to sequential order
 RUN go tool goose -dir=db/migrations fix
 
 # Build the Go app for the target platform
-# Extract target OS and architecture from TARGETPLATFORM (e.g., linux/amd64)
 ARG TARGETOS TARGETARCH
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o ./bin/shortcut -v ./cmd/*.go
 
-# Start a new stage from scratch
+# Stage 3: Final Image
 FROM alpine:latest
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Copy the Pre-built binary file from the previous stage
+# Copy the Pre-built binary file
 COPY --from=builder /app/bin/shortcut .
 
 USER appuser

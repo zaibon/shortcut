@@ -183,7 +183,7 @@ templ URLRow(url domain.AdminURL) {
 				<a href={ templ.SafeURL(url.Short) } class="text-indigo-600 hover:text-indigo-900" target="_blank" onclick="event.stopPropagation()">
 					{ url.Slug }
 				</a>
-				<button class="ml-2 text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); copyToClipboard(this.getAttribute('data-short'))" data-short={ url.Short }>
+				<button class="ml-2 text-gray-400 hover:text-gray-600" data-action="copy" data-value={ url.Short } onclick="event.stopPropagation()">
 					<i class="fas fa-copy"></i>
 				</button>
 			</div>
