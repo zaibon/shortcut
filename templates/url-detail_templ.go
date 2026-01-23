@@ -162,7 +162,7 @@ func URLDetail(url domain.URLStat) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</main><script>\n        document.addEventListener('alpine:init', () => {\n            Alpine.data('dashboardData', () => ({\n                timeRange: '24h',\n            }));\n        });\n\n        document.addEventListener('DOMContentLoaded', function() {\n\t\t\tinitDashboardCharts();\n        });\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</main><script>\n        document.addEventListener('DOMContentLoaded', function() {\n\t\t\tinitDashboardCharts();\n        });\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

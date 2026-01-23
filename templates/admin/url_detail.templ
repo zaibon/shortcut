@@ -27,12 +27,6 @@ templ URLDetail(data AdminDashboardData, url domain.URLStat) {
 			@components.DevicesAndBrowsers(url)
 		</main>
 		<script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('dashboardData', () => ({
-                timeRange: '24h',
-            }));
-        });
-
         document.addEventListener('DOMContentLoaded', function() {
 			initDashboardCharts();
         });
