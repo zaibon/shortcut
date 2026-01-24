@@ -1,0 +1,23 @@
+package components
+
+import "github.com/zaibon/shortcut/middleware"
+
+templ UmamiTracking() {
+	<script defer src="https://umami.zaibon.be/script.js" data-website-id="6e1d6647-3ea3-4698-af08-516fbf237c25"></script>
+	{{ user := middleware.UserFromContext(ctx) }}
+	if user != nil {
+		<script id="umami-identifier" data-user-id={ user.GUID.String() } data-user-email={ user.Email } data-user-name={ user.Name } data-user-provider={ string(user.Provider) }>
+			window.addEventListener('load', function() {
+				const el = document.getElementById('umami-identifier');
+				if (window.umami && el) {
+					umami.identify({
+						id: el.dataset.userId,
+						email: el.dataset.userEmail,
+						name: el.dataset.userName,
+						authProvider: el.dataset.userProvider
+					});
+				}
+			});
+		</script>
+	}
+}

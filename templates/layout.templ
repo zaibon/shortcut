@@ -1,5 +1,7 @@
 package templates
 
+import "github.com/zaibon/shortcut/templates/components"
+
 templ Layout() {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -13,7 +15,7 @@ templ Layout() {
 			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
 			<link rel="stylesheet" href="/static/css/styles.css"/>
 			<link rel="stylesheet" href="/static/dist/bundle.css"/>
-			<script defer src="https://umami.zaibon.be/script.js" data-website-id="6e1d6647-3ea3-4698-af08-516fbf237c25"></script>
+			@components.UmamiTracking()
 		</head>
 		<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
 			<!-- Flash message container -->

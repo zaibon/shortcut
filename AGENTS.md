@@ -7,7 +7,8 @@ This document provides instructions and guidelines for AI agents modifying this 
 This project uses `just` as a command runner. Always prefer `just` commands over raw shell commands when available.
 
 ### Common Commands
-- **Build:** `just build` (compiles to `bin/shortcut`)
+- **Build:** `just build` (compiles assets and Go binary to `bin/shortcut`)
+- **Build Assets:** `just build-assets` (bundles and minifies JS/CSS using Vite and Bun)
 - **Lint:** `just lint` (runs `golangci-lint` after formatting)
 - **Format:** `just fmt` (runs `gci` to organize imports and format code)
 - **Test (All):** `just test` (runs all tests with `go test -v ./...`)
@@ -39,7 +40,8 @@ The project follows a Domain-Driven Design (DDD) inspired layout:
 - **`middleware/`**: HTTP middleware (Auth, Sentry, Logging).
 - **`db/`**: Database access (migrations, `sqlc` queries).
 - **`templates/`**: `templ` UI components.
-- **`static/`**: Static assets.
+- **`assets/js/`**: Source JavaScript files (ES Modules).
+- **`static/`**: Static assets. Built JavaScript/CSS are located in `static/dist/`.
 
 ## 3. Code Style & Conventions
 
@@ -63,7 +65,11 @@ The project follows a Domain-Driven Design (DDD) inspired layout:
 ### Tech Stack Specifics
 - **Web Framework:** `chi` router.
 - **Templates:** `templ`. **Important:** `templ` files generate Go code (`_templ.go`). Do not edit the generated files directly. Edit `.templ` files and run `just generate`.
-- **Frontend:** `htmx` is used for dynamic behavior.
+- **Frontend:** `htmx` is used for dynamic behavior. Alpine.js is used for client-side state.
+- **JavaScript Bundling:** `Vite` and `Bun` are used for bundling and minification.
+    - Source: `assets/js/main.js` (entry point).
+    - Output: `static/dist/bundle.js`.
+    - **Agent Rule:** If you modify files in `assets/js/`, you must run `just build-assets` to update the bundle.
 - **Database:** PostgreSQL with `pgx`.
     - Use `sqlc` for type-safe SQL queries. Edit queries in `db/queries/*.sql` and run `just generate` (via `go generate`).
 - **Logging:** Use `github.com/zaibon/shortcut/log`.
@@ -77,9 +83,11 @@ The project follows a Domain-Driven Design (DDD) inspired layout:
 
 ## 6. Development Workflow for Agents
 1. **Explore:** Use `ls -R`, `read`, or `grep` to understand the relevant files.
-2. **Plan:** Determine if changes affect DB schemas (`goose`), SQL queries (`sqlc`), or Templates (`templ`).
+2. **Plan:** Determine if changes affect DB schemas (`goose`), SQL queries (`sqlc`), Templates (`templ`), or JavaScript (`assets/js`).
 3. **Edit:** Apply changes.
-4. **Generate:** If you touched `.sql` or `.templ` files, run `just generate`.
+4. **Generate:** 
+    - If you touched `.sql` or `.templ` files, run `just generate`.
+    - If you touched `assets/js/` files, run `just build-assets`.
 5. **Verify:**
     - Run `just fmt`.
     - Run `just lint`.

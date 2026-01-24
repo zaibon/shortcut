@@ -8,6 +8,8 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "github.com/zaibon/shortcut/templates/components"
+
 func Layout() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -29,7 +31,15 @@ func Layout() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Shortcut - Modern URL Shortener</title><link rel=\"manifest\" href=\"/static/favicon/site.webmanifest\"><script src=\"https://cdn.tailwindcss.com/3.4.17\"></script><script src=\"/static/dist/bundle.js\" defer></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css\"><link rel=\"stylesheet\" href=\"/static/css/styles.css\"><link rel=\"stylesheet\" href=\"/static/dist/bundle.css\"><script defer src=\"https://umami.zaibon.be/script.js\" data-website-id=\"6e1d6647-3ea3-4698-af08-516fbf237c25\"></script></head><body class=\"bg-gray-50 text-gray-900 min-h-screen flex flex-col\"><!-- Flash message container --><div id=\"flash-messages\" class=\"fixed top-4 right-4 z-[100] max-w-md w-full\" aria-live=\"polite\"></div><div x-data=\"{ mobileMenuOpen: false, userMenuOpen: false, isLoggedIn: false }\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Shortcut - Modern URL Shortener</title><link rel=\"manifest\" href=\"/static/favicon/site.webmanifest\"><script src=\"https://cdn.tailwindcss.com/3.4.17\"></script><script src=\"/static/dist/bundle.js\" defer></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css\"><link rel=\"stylesheet\" href=\"/static/css/styles.css\"><link rel=\"stylesheet\" href=\"/static/dist/bundle.css\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.UmamiTracking().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</head><body class=\"bg-gray-50 text-gray-900 min-h-screen flex flex-col\"><!-- Flash message container --><div id=\"flash-messages\" class=\"fixed top-4 right-4 z-[100] max-w-md w-full\" aria-live=\"polite\"></div><div x-data=\"{ mobileMenuOpen: false, userMenuOpen: false, isLoggedIn: false }\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -45,7 +55,7 @@ func Layout() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
