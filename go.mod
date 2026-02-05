@@ -7,7 +7,7 @@ toolchain go1.24.1
 require (
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/pressly/goose/v3 v3.26.0
-	github.com/urfave/cli/v2 v2.27.6
+	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/crypto v0.45.0
 	modernc.org/sqlite v1.38.2 // indirect
 )
@@ -64,7 +64,7 @@ require (
 	github.com/ckaznocha/intrange v0.3.1 // indirect
 	github.com/cli/browser v1.3.0 // indirect
 	github.com/coder/websocket v1.8.12 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/cubicdaiya/gonp v1.0.4 // indirect
 	github.com/curioswitch/go-reassign v0.3.0 // indirect
 	github.com/daixiang0/gci v0.13.6 // indirect
