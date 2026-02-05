@@ -280,7 +280,7 @@ require (
 )
 
 require (
-	github.com/a-h/templ v0.3.857
+	github.com/a-h/templ v0.3.977
 	github.com/alexedwards/scs/pgxstore v0.0.0-20251002162104-209de6e426de
 	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/donseba/go-htmx v1.12.0
