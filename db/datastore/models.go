@@ -24,6 +24,18 @@ type Customer struct {
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 }
 
+type ModerationFlag struct {
+	ID         int32            `json:"id"`
+	UrlID      int32            `json:"url_id"`
+	UserID     int32            `json:"user_id"`
+	RiskScore  int32            `json:"risk_score"`
+	ThreatType string           `json:"threat_type"`
+	Status     string           `json:"status"`
+	CreatedAt  pgtype.Timestamp `json:"created_at"`
+	ReviewedAt pgtype.Timestamp `json:"reviewed_at"`
+	ReviewedBy pgtype.UUID      `json:"reviewed_by"`
+}
+
 type Oauth2State struct {
 	State     string           `json:"state"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`

@@ -12,8 +12,8 @@ import (
 )
 
 const addShortURL = `-- name: AddShortURL :one
-INSERT INTO urls (title,short_url, long_url, author_id) 
-VALUES ($1, $2, $3, $4)
+INSERT INTO urls (title, short_url, long_url, author_id, is_active) 
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id, short_url, long_url, author_id, created_at, title, is_archived, is_active
 `
 
@@ -22,6 +22,7 @@ type AddShortURLParams struct {
 	ShortUrl string `json:"short_url"`
 	LongUrl  string `json:"long_url"`
 	AuthorID int32  `json:"author_id"`
+	IsActive bool   `json:"is_active"`
 }
 
 func (q *Queries) AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, error) {
@@ -30,6 +31,7 @@ func (q *Queries) AddShortURL(ctx context.Context, arg AddShortURLParams) (Url, 
 		arg.ShortUrl,
 		arg.LongUrl,
 		arg.AuthorID,
+		arg.IsActive,
 	)
 	var i Url
 	err := row.Scan(

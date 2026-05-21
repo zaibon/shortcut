@@ -41,13 +41,16 @@ type Querier interface {
 	GetCustomer(ctx context.Context, userID pgtype.UUID) (Customer, error)
 	// Description: Get customer by stripe id
 	GetCustomerByStripeId(ctx context.Context, stripeID string) (Customer, error)
+	GetModerationFlagByID(ctx context.Context, id int32) (ModerationFlag, error)
 	GetOauth2State(ctx context.Context, state string) (Oauth2State, error)
 	GetShortURL(ctx context.Context, shortUrl string) (Url, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByGUID(ctx context.Context, guid pgtype.UUID) (User, error)
+	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserProvider(ctx context.Context, arg GetUserProviderParams) (UserProvider, error)
 	GetUserProviderByProviderUserId(ctx context.Context, arg GetUserProviderByProviderUserIdParams) (UserProvider, error)
 	InsertCustomer(ctx context.Context, arg InsertCustomerParams) (Customer, error)
+	InsertModerationFlag(ctx context.Context, arg InsertModerationFlagParams) (ModerationFlag, error)
 	InsertOauth2State(ctx context.Context, arg InsertOauth2StateParams) error
 	InsertSubscription(ctx context.Context, arg InsertSubscriptionParams) (Subscription, error)
 	InsertUserOauth(ctx context.Context, arg InsertUserOauthParams) (User, error)
@@ -55,6 +58,7 @@ type Querier interface {
 	InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error)
 	IsAdmin(ctx context.Context, guid pgtype.UUID) (bool, error)
 	ListCustomerSubscription(ctx context.Context, arg ListCustomerSubscriptionParams) ([]Subscription, error)
+	ListModerationFlags(ctx context.Context) ([]ListModerationFlagsRow, error)
 	ListShortURLs(ctx context.Context, arg ListShortURLsParams) ([]Url, error)
 	ListStatisticsPerAuthor(ctx context.Context, arg ListStatisticsPerAuthorParams) ([]ListStatisticsPerAuthorRow, error)
 	ListUserProviders(ctx context.Context, userID pgtype.UUID) ([]UserProvider, error)
@@ -67,10 +71,12 @@ type Querier interface {
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)
 	UnarchiveURL(ctx context.Context, arg UnarchiveURLParams) error
 	UniqueVisitCount(ctx context.Context, urlID int32) (int64, error)
+	UpdateModerationFlagStatus(ctx context.Context, arg UpdateModerationFlagStatusParams) error
 	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error)
 	UpdateTitle(ctx context.Context, arg UpdateTitleParams) (Url, error)
 	UpdateURLStatus(ctx context.Context, arg UpdateURLStatusParams) error
 	UpdateUserSuspension(ctx context.Context, arg UpdateUserSuspensionParams) error
+	UpdateUserSuspensionByID(ctx context.Context, arg UpdateUserSuspensionByIDParams) error
 	UpsertBrowser(ctx context.Context, arg UpsertBrowserParams) (Browser, error)
 	VisitOverTime(ctx context.Context, arg VisitOverTimeParams) ([]VisitOverTimeRow, error)
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/zaibon/shortcut/domain"
 	"github.com/zaibon/shortcut/log"
 	"github.com/zaibon/shortcut/middleware"
+	"github.com/zaibon/shortcut/services"
 	"github.com/zaibon/shortcut/templates"
 	"github.com/zaibon/shortcut/templates/components"
 )
@@ -126,6 +127,10 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 
 	short, err := h.svc.Shorten(ctx, url, title, user.ID)
 	if err != nil {
+		if errors.Is(err, services.ErrSuspiciousURL) {
+			addFlash(w, r, err.Error(), flashTypeError)
+			return
+		}
 		log.Error("failed to shorten url", slog.Any("error", err))
 		addFlash(w, r, "Failed to shorten URL\nSomething wrong happened, try again.", flashTypeError)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

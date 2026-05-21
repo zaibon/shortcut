@@ -87,6 +87,29 @@ func (q *Queries) GetUserByGUID(ctx context.Context, guid pgtype.UUID) (User, er
 	return i, err
 }
 
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, username, email, created_at, is_oauth, guid, updated_at, is_suspended
+FROM users
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.CreatedAt,
+		&i.IsOauth,
+		&i.Guid,
+		&i.UpdatedAt,
+		&i.IsSuspended,
+	)
+	return i, err
+}
+
 const getUserProvider = `-- name: GetUserProvider :one
 SELECT id, user_id, provider, provider_user_id, created_at, updated_at
 FROM user_providers
@@ -258,5 +281,21 @@ type UpdateUserSuspensionParams struct {
 
 func (q *Queries) UpdateUserSuspension(ctx context.Context, arg UpdateUserSuspensionParams) error {
 	_, err := q.db.Exec(ctx, updateUserSuspension, arg.IsSuspended, arg.Guid)
+	return err
+}
+
+const updateUserSuspensionByID = `-- name: UpdateUserSuspensionByID :exec
+UPDATE users
+SET is_suspended = $1
+WHERE id = $2
+`
+
+type UpdateUserSuspensionByIDParams struct {
+	IsSuspended bool  `json:"is_suspended"`
+	ID          int32 `json:"id"`
+}
+
+func (q *Queries) UpdateUserSuspensionByID(ctx context.Context, arg UpdateUserSuspensionByIDParams) error {
+	_, err := q.db.Exec(ctx, updateUserSuspensionByID, arg.IsSuspended, arg.ID)
 	return err
 }

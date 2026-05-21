@@ -22,12 +22,13 @@ func NewURLStore(db datastore.DBTX) *urlStore {
 	}
 }
 
-func (s *urlStore) Add(ctx context.Context, title, shortURL, longURL string, authorID domain.ID) (domain.ID, error) {
+func (s *urlStore) Add(ctx context.Context, title, shortURL, longURL string, authorID domain.ID, isActive bool) (domain.ID, error) {
 	url, err := s.db.AddShortURL(ctx, datastore.AddShortURLParams{
 		Title:    title,
 		ShortUrl: shortURL,
 		LongUrl:  longURL,
 		AuthorID: int32(authorID),
+		IsActive: isActive,
 	})
 	if err != nil {
 		return 0, fmt.Errorf("failed to add shorten url: %w", err)
@@ -287,4 +288,28 @@ func (a urlStore) VisitOverTime(ctx context.Context, urlID domain.ID, period dom
 	}
 
 	return result, nil
+}
+
+func (s urlStore) InsertModerationFlag(ctx context.Context, urlID, userID domain.ID, riskScore int, threatType string) error {
+	_, err := s.db.InsertModerationFlag(ctx, datastore.InsertModerationFlagParams{
+		UrlID:      int32(urlID),
+		UserID:     int32(userID),
+		RiskScore:  int32(riskScore),
+		ThreatType: threatType,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to insert moderation flag: %w", err)
+	}
+	return nil
+}
+
+func (s urlStore) SuspendUserByID(ctx context.Context, userID domain.ID, isSuspended bool) error {
+	err := s.db.UpdateUserSuspensionByID(ctx, datastore.UpdateUserSuspensionByIDParams{
+		ID:          int32(userID),
+		IsSuspended: isSuspended,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to suspend user %d: %w", userID, err)
+	}
+	return nil
 }

@@ -60,3 +60,14 @@ ORDER BY created_at DESC;
 UPDATE users
 SET is_suspended = @is_suspended
 WHERE guid = @guid;
+
+-- name: GetUserByID :one
+SELECT *
+FROM users
+WHERE id = @id
+LIMIT 1;
+
+-- name: UpdateUserSuspensionByID :exec
+UPDATE users
+SET is_suspended = @is_suspended
+WHERE id = @id;

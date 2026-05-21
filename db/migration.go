@@ -23,7 +23,7 @@ func NewMigration(db *sql.DB) (*Migration, error) {
 
 func (m *Migration) Run(ctx context.Context, command string, args ...string) error {
 	log.Printf("Running migrations")
-	if err := goose.RunContext(ctx, command, m.db, "migrations", args...); err != nil {
+	if err := goose.RunWithOptionsContext(ctx, command, m.db, "migrations", args); err != nil {
 		return err
 	}
 	log.Printf("Migrations done")
