@@ -17,6 +17,8 @@ generate:
 
 build-assets:
     bun run build
+    echo "This is a placeholder file to ensure the static/dist directory is tracked in Git." > static/dist/placeholder.txt
+    echo "It satisfies the go:embed directive in clean environments without requiring an assets build." >> static/dist/placeholder.txt
 
 build: generate build-assets fmt
     CGO_ENABLED=0 go build -o bin/shortcut cmd/*.go

@@ -23,9 +23,17 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version-file: 'go.mod'
 
       - uses: extractions/setup-just@v2
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
 
       - name: Build
         run: just build
@@ -33,5 +41,5 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: shortcut-${{ matrix.os }}-${{ matrix.version }}
+          name: shortcut-${{ matrix.os }}
           path: bin/shortcut
