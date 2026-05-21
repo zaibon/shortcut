@@ -6,4 +6,4 @@ import (
 	"os"
 )
 
-var migrationsFS = os.DirFS("./migrations")
+var migrationsFS = os.DirFS("./db")

@@ -613,3 +613,102 @@ func (s *Administration) GetURLStats(ctx context.Context, slug string) (domain.U
 
 	return stats, nil
 }
+
+func (s *Administration) ListModerationFlags(ctx context.Context) ([]domain.ModerationFlag, error) {
+	rows, err := s.db.ListModerationFlags(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list moderation flags: %w", err)
+	}
+
+	var flags []domain.ModerationFlag
+	for _, r := range rows {
+		var reviewedAt *time.Time
+		if r.ReviewedAt.Valid {
+			reviewedAt = &r.ReviewedAt.Time
+		}
+
+		var reviewedBy *domain.GUID
+		if r.ReviewedBy.Valid {
+			g := domain.GUID(r.ReviewedBy.Bytes)
+			reviewedBy = &g
+		}
+
+		flags = append(flags, domain.ModerationFlag{
+			ID:         int(r.ID),
+			URLID:      int(r.UrlID),
+			UserID:     int(r.UserID),
+			RiskScore:  int(r.RiskScore),
+			ThreatType: r.ThreatType,
+			Status:     r.Status,
+			CreatedAt:  r.CreatedAt.Time,
+			ReviewedAt: reviewedAt,
+			ReviewedBy: reviewedBy,
+			LongURL:    r.LongUrl,
+			ShortURL:   r.ShortUrl,
+			Username:   r.Username,
+			Email:      r.Email,
+		})
+	}
+
+	return flags, nil
+}
+
+func (s *Administration) ReviewModerationFlag(ctx context.Context, flagID int, status string, reviewerGUID domain.GUID) error {
+	// 1. Fetch moderation flag details to know the URL ID and User ID
+	flag, err := s.db.GetModerationFlagByID(ctx, int32(flagID))
+	if err != nil {
+		return fmt.Errorf("failed to fetch moderation flag by ID: %w", err)
+	}
+
+	// 2. Validate review status
+	if status != "approved" && status != "rejected" {
+		return fmt.Errorf("invalid moderation review status: %s", status)
+	}
+
+	// 3. Update moderation flag record
+	err = s.db.UpdateModerationFlagStatus(ctx, datastore.UpdateModerationFlagStatusParams{
+		ID:         int32(flagID),
+		Status:     status,
+		ReviewedBy: pgtype.UUID{Bytes: reviewerGUID, Valid: true},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update moderation flag status: %w", err)
+	}
+
+	// 4. Update URL and user suspension based on review decision
+	if status == "approved" {
+		err = s.db.AdminUpdateURLStatus(ctx, datastore.AdminUpdateURLStatusParams{
+			ID:       flag.UrlID,
+			IsActive: true,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to reactivate URL %d: %w", flag.UrlID, err)
+		}
+
+		err = s.db.UpdateUserSuspensionByID(ctx, datastore.UpdateUserSuspensionByIDParams{
+			ID:          flag.UserID,
+			IsSuspended: false,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to unsuspend user %d: %w", flag.UserID, err)
+		}
+	} else {
+		err = s.db.AdminUpdateURLStatus(ctx, datastore.AdminUpdateURLStatusParams{
+			ID:       flag.UrlID,
+			IsActive: false,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to deactivate URL %d: %w", flag.UrlID, err)
+		}
+
+		err = s.db.UpdateUserSuspensionByID(ctx, datastore.UpdateUserSuspensionByIDParams{
+			ID:          flag.UserID,
+			IsSuspended: true,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to suspend user %d: %w", flag.UserID, err)
+		}
+	}
+
+	return nil
+}

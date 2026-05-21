@@ -48,6 +48,8 @@ func (h *AdministrationHandlers) Routes(r chi.Router, pool *pgxpool.Pool) {
 		r.Patch("/admin/urls/{id}/status", h.toggleURLStatus)
 		r.Patch("/admin/users/{guid}/status", h.toggleUserSuspension)
 		r.Patch("/admin/users/{guid}/urls/status", h.toggleUserURLsStatus)
+		r.Get("/admin/moderation", h.moderation)
+		r.Post("/admin/moderation/{id}/review", h.reviewModeration)
 		r.Get("/admin/analytics", h.analytics)
 		r.Get("/admin/settings", h.settings)
 	})
@@ -454,4 +456,68 @@ func (h *AdministrationHandlers) settings(w http.ResponseWriter, r *http.Request
 	}
 
 	admin.SettingsTab(data).Render(r.Context(), w)
+}
+
+func (h *AdministrationHandlers) moderation(w http.ResponseWriter, r *http.Request) {
+	flags, err := h.service.ListModerationFlags(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to retrieve moderation flags", http.StatusInternalServerError)
+		return
+	}
+
+	data := admin.AdminDashboardData{
+		Tab:             "moderation",
+		ModerationFlags: flags,
+	}
+
+	admin.ModerationTab(data).Render(r.Context(), w)
+}
+
+func (h *AdministrationHandlers) reviewModeration(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid moderation flag ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	status := r.FormValue("status")
+	if status == "" {
+		http.Error(w, "Missing status parameter", http.StatusBadRequest)
+		return
+	}
+
+	adminUser := middleware.UserFromContext(r.Context())
+
+	err = h.service.ReviewModerationFlag(r.Context(), id, status, adminUser.GUID)
+	if err != nil {
+		http.Error(w, "Failed to review moderation flag: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	flags, err := h.service.ListModerationFlags(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to retrieve updated flags list", http.StatusInternalServerError)
+		return
+	}
+
+	var updatedFlag *domain.ModerationFlag
+	for _, f := range flags {
+		if f.ID == id {
+			updatedFlag = &f
+			break
+		}
+	}
+
+	if updatedFlag == nil {
+		http.Error(w, "Updated moderation flag not found", http.StatusInternalServerError)
+		return
+	}
+
+	admin.ModerationRow(*updatedFlag).Render(r.Context(), w)
 }

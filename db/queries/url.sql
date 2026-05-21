@@ -1,6 +1,6 @@
 -- name: AddShortURL :one
-INSERT INTO urls (title,short_url, long_url, author_id) 
-VALUES (@title, @short_url, @long_url, @author_id)
+INSERT INTO urls (title, short_url, long_url, author_id, is_active) 
+VALUES (@title, @short_url, @long_url, @author_id, @is_active)
 RETURNING *;
 
 -- name: ListShortURLs :many

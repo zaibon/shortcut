@@ -72,6 +72,11 @@ func Authenticated(next http.Handler) http.Handler {
 			return
 		}
 
+		if user.IsSuspended {
+			http.Error(w, "Your account has been suspended.", http.StatusForbidden)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	}
 

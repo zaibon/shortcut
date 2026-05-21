@@ -62,3 +62,19 @@ type AdminURLFilter struct {
 	MinClicks    *int
 	MaxClicks    *int
 }
+
+type ModerationFlag struct {
+	ID          int
+	URLID       int
+	UserID      int
+	RiskScore   int
+	ThreatType  string
+	Status      string
+	CreatedAt   time.Time
+	ReviewedAt  *time.Time
+	ReviewedBy  *GUID
+	LongURL     string
+	ShortURL    string
+	Username    string
+	Email       string
+}

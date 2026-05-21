@@ -129,6 +129,13 @@ var serverFlags = []cli.Flag{
 		EnvVars:     []string{"SHORTCUT_SESSION_LIFETIME"},
 		Destination: &c.SessionLifetime,
 	},
+	&cli.StringFlag{
+		Name:        "webrisk-key",
+		Usage:       "Google Web Risk API Key",
+		Value:       "",
+		EnvVars:     []string{"SHORTCUT_GOOGLE_WEBRISK_API_KEY"},
+		Destination: &c.GoogleWebRiskAPIKey,
+	},
 }
 
 func listenSignals(ctx context.Context, c config, f func(context.Context, config) error, sig ...os.Signal) error {
@@ -184,7 +191,8 @@ func runServer(ctx context.Context, c config) error {
 	subscriptionStore := db.NewRepoSubscription(dbPool)
 
 	// services
-	urlService := services.NewURL(urlStore, c.redirectURL())
+	safetyScanner := services.NewWebRiskScanner(c.GoogleWebRiskAPIKey)
+	urlService := services.NewURL(urlStore, safetyScanner, c.redirectURL())
 	userService := services.NewUser(userStore, c.Domain, c.TLS,
 		c.GoogleOauthClientID, c.GoogleOauthSecret,
 		c.GithubOauthClientID, c.GithubOauthSecret,

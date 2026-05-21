@@ -32,7 +32,7 @@ build-dev: build-assets
 run: build
     ./bin/shortcut
 
-db-migrate action: build
+db-migrate action: build-dev
     ./bin/shortcut migrate {{ action }}
 
 db-create-migration name type:

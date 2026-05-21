@@ -32,12 +32,13 @@ templ adminNavLinkMobile(text, href string, isActive bool) {
 }
 
 type AdminDashboardData struct {
-	Tab        string
-	Overview   domain.AdminOverview
-	Users      []domain.AdminUser
-	URLs       []domain.AdminURL
-	Analytics  domain.AdminAnalytics
-	Pagination domain.PaginationLinks
+	Tab             string
+	Overview        domain.AdminOverview
+	Users           []domain.AdminUser
+	URLs            []domain.AdminURL
+	Analytics       domain.AdminAnalytics
+	ModerationFlags []domain.ModerationFlag
+	Pagination      domain.PaginationLinks
 }
 
 templ AdminLayout(data AdminDashboardData) {
@@ -81,6 +82,9 @@ templ AdminLayout(data AdminDashboardData) {
 									}
 									@adminNavLink("URLs", "/admin/urls", data.Tab == "urls") {
 										<i class="fas fa-link mr-2"></i>
+									}
+									@adminNavLink("Moderation", "/admin/moderation", data.Tab == "moderation") {
+										<i class="fas fa-shield-alt mr-2 text-red-500"></i>
 									}
 									@adminNavLink("Analytics", "/admin/analytics", data.Tab == "analytics") {
 										<i class="fas fa-chart-bar mr-2"></i>
@@ -135,6 +139,9 @@ templ AdminLayout(data AdminDashboardData) {
 							}
 							@adminNavLinkMobile("URLs", "/admin/urls", data.Tab == "urls") {
 								<i class="fas fa-link mr-2"></i>
+							}
+							@adminNavLinkMobile("Moderation", "/admin/moderation", data.Tab == "moderation") {
+								<i class="fas fa-shield-alt mr-2 text-red-500"></i>
 							}
 							@adminNavLinkMobile("Analytics", "/admin/analytics", data.Tab == "analytics") {
 								<i class="fas fa-chart-bar mr-2"></i>

@@ -22,7 +22,7 @@ import (
 const idLength = 6 //TODO: make this dynamic by reading the amount of url stored in DB.
 
 type URLStore interface {
-	Add(ctx context.Context, title, shortURL, longURL string, authorID domain.ID) (domain.ID, error)
+	Add(ctx context.Context, title, shortURL, longURL string, authorID domain.ID, isActive bool) (domain.ID, error)
 	List(ctx context.Context, authorID domain.ID, search string) ([]datastore.ListStatisticsPerAuthorRow, error)
 	Get(ctx context.Context, slug string) (datastore.Url, error)
 	GetByID(ctx context.Context, id domain.ID) (datastore.Url, error)
@@ -46,32 +46,71 @@ type URLStore interface {
 	UniqueVisitCount(ctx context.Context, urlID domain.ID) (int64, error)
 	TotalVisit(ctx context.Context, urlID domain.ID) (int64, error)
 	UpdateURLStatus(ctx context.Context, shortURL string, isActive bool) error
+	InsertModerationFlag(ctx context.Context, urlID, userID domain.ID, riskScore int, threatType string) error
+	SuspendUserByID(ctx context.Context, userID domain.ID, isSuspended bool) error
 }
+
+var ErrSuspiciousURL = errors.New("the URL you entered has been flagged as suspicious; your account has been suspended pending review")
 
 type urlService struct {
-	repo        URLStore
-	shortDomain string
+	repo          URLStore
+	safetyScanner SafetyScanner
+	shortDomain   string
 }
 
-func NewURL(repo URLStore, shortDomain string) *urlService {
+func NewURL(repo URLStore, safetyScanner SafetyScanner, shortDomain string) *urlService {
 	return &urlService{
-		repo:        repo,
-		shortDomain: shortDomain,
+		repo:          repo,
+		safetyScanner: safetyScanner,
+		shortDomain:   shortDomain,
 	}
 }
 
 // Shorten creates a new short URL, if title is empty it will try to extract it from the URL.
-func (s *urlService) Shorten(ctx context.Context, url, title string, userID domain.ID) (string, error) {
+func (s *urlService) Shorten(ctx context.Context, targetURL, title string, userID domain.ID) (string, error) {
 	shortURL, err := generateShortID(idLength)
 	if err != nil {
 		return "", err
 	}
 
 	if title == "" {
-		title = ExtractTitle(url)
+		title = ExtractTitle(targetURL)
 	}
 
-	if _, err := s.repo.Add(ctx, title, shortURL, url, domain.ID(userID)); err != nil {
+	// Scan URL for safety threats
+	var riskScore int
+	var threatType string
+	if s.safetyScanner != nil {
+		var scanErr error
+		riskScore, threatType, scanErr = s.safetyScanner.Scan(ctx, targetURL)
+		if scanErr != nil {
+			log.Error("Safety Scanner error scanning URL", "url", targetURL, "err", scanErr)
+		}
+	}
+
+	if threatType != "" || riskScore > 0 {
+		log.Info("Safety Scanner: URL flagged as dangerous", "url", targetURL, "threat", threatType, "score", riskScore)
+
+		// 1. Add URL as INACTIVE
+		urlID, addErr := s.repo.Add(ctx, title, shortURL, targetURL, userID, false)
+		if addErr != nil {
+			return "", fmt.Errorf("failed to add inactive URL after safety flag: %w", addErr)
+		}
+
+		// 2. Insert Moderation Flag
+		if err := s.repo.InsertModerationFlag(ctx, urlID, userID, riskScore, threatType); err != nil {
+			log.Error("failed to log moderation flag for url", "url_id", urlID, "err", err)
+		}
+
+		// 3. Suspend User
+		if err := s.repo.SuspendUserByID(ctx, userID, true); err != nil {
+			log.Error("failed to suspend user", "user_id", userID, "err", err)
+		}
+
+		return "", ErrSuspiciousURL
+	}
+
+	if _, err := s.repo.Add(ctx, title, shortURL, targetURL, userID, true); err != nil {
 		return "", err
 	}
 

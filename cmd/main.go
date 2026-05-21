@@ -41,6 +41,8 @@ type config struct {
 	SentryDSN string
 
 	SessionLifetime int
+
+	GoogleWebRiskAPIKey string
 }
 
 func (c config) SafeDBString() string {
