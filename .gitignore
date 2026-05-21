@@ -50,4 +50,5 @@ gha-creds-*.json
 node_modules/
 
 # Build output
-static/dist/
+static/dist/*
+!static/dist/placeholder.txt

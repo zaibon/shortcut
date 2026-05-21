@@ -1,0 +1,2 @@
+This is a placeholder file to ensure the static/dist directory is tracked in Git.
+It satisfies the go:embed directive in clean environments without requiring an assets build.
