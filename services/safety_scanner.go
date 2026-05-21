@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -31,6 +32,21 @@ var blockedKeywords = []string{
 	"hack-account",
 	"verify-login-alert",
 	"testsafebrowsing.appspot.com", // handy for local testing of heuristics
+
+	// Blocked production patterns (extracted from database analytics)
+	"clickoffering",
+	"escortalligator",
+	"escortalliogatoras",
+	"listcrawlas",
+	"listcraowler",
+	"listcrawlar",
+	"facetimelive-video-call",
+	"re-varify",
+	"re-verify",
+	"agesmart",
+	"agesmert",
+	"segpay",
+	"wp-admin/css/colors",
 }
 
 type SafetyScanner interface {
@@ -69,6 +85,21 @@ func (s *WebRiskScanner) Scan(ctx context.Context, targetURL string) (int, strin
 
 func isBlockedByLocalHeuristics(targetURL string) bool {
 	lowerURL := strings.ToLower(targetURL)
+
+	// 1. Block high-risk file extensions (e.g., .hta used in malware)
+	if strings.HasSuffix(lowerURL, ".hta") || strings.Contains(lowerURL, ".hta?") {
+		return true
+	}
+
+	// 2. Block raw IP addresses as hosts to prevent bypassing domain filters
+	if u, err := url.Parse(targetURL); err == nil {
+		host := u.Hostname()
+		if ip := net.ParseIP(host); ip != nil {
+			return true
+		}
+	}
+
+	// 3. Keyword blocklist checks
 	for _, kw := range blockedKeywords {
 		if strings.Contains(lowerURL, kw) {
 			return true

@@ -48,6 +48,54 @@ func TestSafetyScanner_LocalHeuristics(t *testing.T) {
 			wantScore:  MaxRiskScore,
 			wantThreat: ThreatTypeSocialEngineering,
 		},
+		{
+			name:       "flagged by raw IP host",
+			targetURL:  "http://91.98.115.116/203/vz/vz.doc",
+			wantScore:  MaxRiskScore,
+			wantThreat: ThreatTypeSocialEngineering,
+		},
+		{
+			name:       "flagged by raw IP host simple",
+			targetURL:  "http://144.172.105.105",
+			wantScore:  MaxRiskScore,
+			wantThreat: ThreatTypeSocialEngineering,
+		},
+		{
+			name:       "flagged by high-risk hta extension",
+			targetURL:  "https://somehost.com/files/payload.hta",
+			wantScore:  MaxRiskScore,
+			wantThreat: ThreatTypeSocialEngineering,
+		},
+		{
+			name:       "flagged by high-risk hta extension with query",
+			targetURL:  "http://safe-looking-domain.com/index.hta?query=1",
+			wantScore:  MaxRiskScore,
+			wantThreat: ThreatTypeSocialEngineering,
+		},
+		{
+			name:       "flagged by production spam keyword clickoffering",
+			targetURL:  "https://eiffah.clickoffering.com/s/629f10e00a55b?track=Ira30",
+			wantScore:  MaxRiskScore,
+			wantThreat: ThreatTypeSocialEngineering,
+		},
+		{
+			name:       "flagged by production escort listcrawlas domain",
+			targetURL:  "https://escortalliogatoras.listcrawlas.com/review/38",
+			wantScore:  MaxRiskScore,
+			wantThreat: ThreatTypeSocialEngineering,
+		},
+		{
+			name:       "flagged by production typosquatting re-varify refund domain",
+			targetURL:  "https://agesmart-re-varify.com/SegpayEU79",
+			wantScore:  MaxRiskScore,
+			wantThreat: ThreatTypeSocialEngineering,
+		},
+		{
+			name:       "flagged by production WordPress credentials harvesting",
+			targetURL:  "https://rislent.com/wp-admin/css/colors/coffee/verify",
+			wantScore:  MaxRiskScore,
+			wantThreat: ThreatTypeSocialEngineering,
+		},
 	}
 
 	// Scanner with no API key should still flag heuristics
