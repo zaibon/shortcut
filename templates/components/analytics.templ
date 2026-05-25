@@ -5,12 +5,12 @@ import (
 	"github.com/zaibon/shortcut/middleware"
 )
 
-func getUmamiConfig() (string, string, bool) {
+func getUmamiConfig() (string, string, bool, bool) {
 	url := os.Getenv("SHORTCUT_UMAMI_URL")
 	websiteID := os.Getenv("SHORTCUT_UMAMI_WEBSITE_ID")
 
 	if url == "" || websiteID == "" {
-		return "", "", true
+		return "", "", true, false
 	}
 
 	disabled := os.Getenv("SHORTCUT_UMAMI_DISABLED") == "true"
@@ -18,13 +18,19 @@ func getUmamiConfig() (string, string, bool) {
 		disabled = true
 	}
 
-	return url, websiteID, disabled
+	performance := os.Getenv("SHORTCUT_UMAMI_PERFORMANCE") != "false"
+
+	return url, websiteID, disabled, performance
 }
 
 templ UmamiTracking() {
-	{{ url, websiteID, disabled := getUmamiConfig() }}
+	{{ url, websiteID, disabled, performance := getUmamiConfig() }}
 	if !disabled {
-		<script defer src={ url } data-website-id={ websiteID }></script>
+		if performance {
+			<script defer src={ url } data-website-id={ websiteID } data-performance="true"></script>
+		} else {
+			<script defer src={ url } data-website-id={ websiteID }></script>
+		}
 		{{ user := middleware.UserFromContext(ctx) }}
 		if user != nil {
 			<script id="umami-identifier" data-user-id={ user.GUID.String() } data-user-email={ user.Email } data-user-name={ user.Name } data-user-provider={ string(user.Provider) }>
