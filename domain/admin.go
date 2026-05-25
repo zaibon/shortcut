@@ -67,6 +67,7 @@ type ModerationFlag struct {
 	ID          int
 	URLID       int
 	UserID      int
+	UserGUID    GUID
 	RiskScore   int
 	ThreatType  string
 	Status      string
