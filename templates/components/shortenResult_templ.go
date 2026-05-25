@@ -81,7 +81,20 @@ func ShortenURL(short, original string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><i class=\"far fa-copy mr-2 text-gray-400 group-hover:text-indigo-500\"></i> Copy</button></div></div><div class=\"bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center\"><a href=\"/urls\" class=\"text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center\">View Analytics <i class=\"fas fa-arrow-right ml-1 text-xs\"></i></a> <button class=\"text-gray-400 hover:text-gray-600 text-sm\" onclick=\"document.getElementById('result-container').innerHTML = ''\">Create another</button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" data-umami-event=\"Copy Short Link\" data-umami-event-url=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(short)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/shortenResult.templ`, Line: 20, Col: 48}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"><i class=\"far fa-copy mr-2 text-gray-400 group-hover:text-indigo-500\"></i> Copy</button></div></div><div class=\"bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-between items-center\"><a href=\"/urls\" class=\"text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center\">View Analytics <i class=\"fas fa-arrow-right ml-1 text-xs\"></i></a> <button class=\"text-gray-400 hover:text-gray-600 text-sm\" onclick=\"document.getElementById('result-container').innerHTML = ''\">Create another</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

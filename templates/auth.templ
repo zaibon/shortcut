@@ -19,6 +19,8 @@ templ AuthPage() {
 								<a
 									class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 									href="/oauth/login/google"
+									data-umami-event="Login Attempt"
+									data-umami-event-provider="Google"
 								>
 									<div class="flex items-center">
 										<i class="fab fa-google text-lg mr-3 text-red-500"></i>
@@ -29,6 +31,8 @@ templ AuthPage() {
 									type="button"
 									class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 									href="/oauth/login/github"
+									data-umami-event="Login Attempt"
+									data-umami-event-provider="GitHub"
 								>
 									<div class="flex items-center">
 										<i class="fab fa-github text-lg mr-3"></i>
