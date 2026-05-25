@@ -1,23 +1,54 @@
 package components
 
-import "github.com/zaibon/shortcut/middleware"
+import (
+	"os"
+	"github.com/zaibon/shortcut/middleware"
+)
+
+const (
+	DefaultUmamiURL       = "https://umami.zaibon.be/script.js"
+	DefaultUmamiWebsiteID = "6e1d6647-3ea3-4698-af08-516fbf237c25"
+)
+
+func getUmamiConfig() (string, string, bool) {
+	url := os.Getenv("SHORTCUT_UMAMI_URL")
+	if url == "" {
+		url = DefaultUmamiURL
+	}
+
+	websiteID := os.Getenv("SHORTCUT_UMAMI_WEBSITE_ID")
+	if websiteID == "" {
+		websiteID = DefaultUmamiWebsiteID
+	}
+
+	disabled := os.Getenv("SHORTCUT_UMAMI_DISABLED") == "true"
+	if os.Getenv("SHORTCUT_DEV_MODE") == "true" && os.Getenv("SHORTCUT_UMAMI_DISABLED") != "false" {
+		disabled = true
+	}
+
+	return url, websiteID, disabled
+}
 
 templ UmamiTracking() {
-	<script defer src="https://umami.zaibon.be/script.js" data-website-id="6e1d6647-3ea3-4698-af08-516fbf237c25"></script>
-	{{ user := middleware.UserFromContext(ctx) }}
-	if user != nil {
-		<script id="umami-identifier" data-user-id={ user.GUID.String() } data-user-email={ user.Email } data-user-name={ user.Name } data-user-provider={ string(user.Provider) }>
-			window.addEventListener('load', function() {
-				const el = document.getElementById('umami-identifier');
-				if (window.umami && el) {
-					umami.identify({
-						id: el.dataset.userId,
-						email: el.dataset.userEmail,
-						name: el.dataset.userName,
-						authProvider: el.dataset.userProvider
-					});
-				}
-			});
-		</script>
+	{{ url, websiteID, disabled := getUmamiConfig() }}
+	if !disabled {
+		<script defer src={ url } data-website-id={ websiteID }></script>
+		{{ user := middleware.UserFromContext(ctx) }}
+		if user != nil {
+			<script id="umami-identifier" data-user-id={ user.GUID.String() } data-user-email={ user.Email } data-user-name={ user.Name } data-user-provider={ string(user.Provider) }>
+				window.addEventListener('load', function() {
+					const el = document.getElementById('umami-identifier');
+					if (window.umami && el) {
+						umami.identify({
+							id: el.dataset.userId,
+							email: el.dataset.userEmail,
+							name: el.dataset.userName,
+							authProvider: el.dataset.userProvider
+						});
+					}
+				});
+			</script>
+		}
 	}
 }
+
