@@ -82,6 +82,7 @@ SELECT
     f.reviewed_by,
     urls.long_url,
     urls.short_url,
+    users.guid,
     users.username,
     users.email
 FROM moderation_flags f
@@ -102,6 +103,7 @@ type ListModerationFlagsRow struct {
 	ReviewedBy pgtype.UUID      `json:"reviewed_by"`
 	LongUrl    string           `json:"long_url"`
 	ShortUrl   string           `json:"short_url"`
+	Guid       pgtype.UUID      `json:"guid"`
 	Username   string           `json:"username"`
 	Email      string           `json:"email"`
 }
@@ -127,6 +129,7 @@ func (q *Queries) ListModerationFlags(ctx context.Context) ([]ListModerationFlag
 			&i.ReviewedBy,
 			&i.LongUrl,
 			&i.ShortUrl,
+			&i.Guid,
 			&i.Username,
 			&i.Email,
 		); err != nil {

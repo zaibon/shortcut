@@ -16,6 +16,7 @@ SELECT
     f.reviewed_by,
     urls.long_url,
     urls.short_url,
+    users.guid,
     users.username,
     users.email
 FROM moderation_flags f
