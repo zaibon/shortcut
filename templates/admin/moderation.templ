@@ -83,7 +83,9 @@ templ ModerationRow(flag domain.ModerationFlag) {
 		<!-- Creator/User details -->
 		<td class="px-6 py-4 whitespace-nowrap">
 			<div class="flex flex-col">
-				<span class="text-sm font-medium text-gray-900">{ flag.Username }</span>
+				<a href={ templ.SafeURL(fmt.Sprintf("/admin/users/%s", flag.UserGUID)) } class="text-sm font-medium text-indigo-600 hover:text-indigo-900 hover:underline transition-all">
+					{ flag.Username }
+				</a>
 				<span class="text-xs text-gray-500">{ flag.Email }</span>
 			</div>
 		</td>
