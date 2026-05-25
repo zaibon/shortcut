@@ -5,20 +5,12 @@ import (
 	"github.com/zaibon/shortcut/middleware"
 )
 
-const (
-	DefaultUmamiURL       = "https://umami.zaibon.be/script.js"
-	DefaultUmamiWebsiteID = "6e1d6647-3ea3-4698-af08-516fbf237c25"
-)
-
 func getUmamiConfig() (string, string, bool) {
 	url := os.Getenv("SHORTCUT_UMAMI_URL")
-	if url == "" {
-		url = DefaultUmamiURL
-	}
-
 	websiteID := os.Getenv("SHORTCUT_UMAMI_WEBSITE_ID")
-	if websiteID == "" {
-		websiteID = DefaultUmamiWebsiteID
+
+	if url == "" || websiteID == "" {
+		return "", "", true
 	}
 
 	disabled := os.Getenv("SHORTCUT_UMAMI_DISABLED") == "true"
