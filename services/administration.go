@@ -637,6 +637,7 @@ func (s *Administration) ListModerationFlags(ctx context.Context) ([]domain.Mode
 			ID:         int(r.ID),
 			URLID:      int(r.UrlID),
 			UserID:     int(r.UserID),
+			UserGUID:   domain.GUID(r.Guid.Bytes),
 			RiskScore:  int(r.RiskScore),
 			ThreatType: r.ThreatType,
 			Status:     r.Status,

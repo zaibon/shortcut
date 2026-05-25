@@ -90,6 +90,14 @@ func main() {
 				},
 				Flags: migrationScan,
 			},
+			{
+				Name:  "scan-urls",
+				Usage: "bulk scans existing shortened URLs against Google Web Risk API",
+				Action: func(ctx *cli.Context) error {
+					return runScanURLs(ctx, c)
+				},
+				Flags: scanURLFlags,
+			},
 		},
 	}
 
