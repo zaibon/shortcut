@@ -1,8 +1,6 @@
 module github.com/zaibon/shortcut
 
-go 1.24.0
-
-toolchain go1.24.1
+go 1.25.0
 
 require (
 	github.com/go-chi/chi/v5 v5.2.2
@@ -292,7 +290,7 @@ require (
 	github.com/stretchr/testify v1.11.0
 	github.com/stripe/stripe-go/v78 v78.12.0
 	golang.org/x/net v0.47.0
-	golang.org/x/oauth2 v0.34.0
+	golang.org/x/oauth2 v0.36.0
 	golang.org/x/sync v0.18.0
 	golang.org/x/text v0.31.0
 )
