@@ -175,7 +175,7 @@ func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	w.Header().Set("X-Robots-Tag", "noindex")
-	http.Redirect(w, r, url.Long, http.StatusMovedPermanently)
+	http.Redirect(w, r, url.Long, http.StatusFound)
 }
 
 func validateURL(url string) map[string]error {
