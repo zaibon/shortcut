@@ -37,6 +37,7 @@ type Querier interface {
 	DeleteURL(ctx context.Context, arg DeleteURLParams) error
 	DeleteUser(ctx context.Context, guid pgtype.UUID) error
 	DeviceDistribution(ctx context.Context, arg DeviceDistributionParams) ([]DeviceDistributionRow, error)
+	GetAPIKeyByHash(ctx context.Context, keyHash string) (ApiKey, error)
 	GetByID(ctx context.Context, id int32) (Url, error)
 	GetCustomer(ctx context.Context, userID pgtype.UUID) (Customer, error)
 	// Description: Get customer by stripe id
@@ -49,6 +50,7 @@ type Querier interface {
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserProvider(ctx context.Context, arg GetUserProviderParams) (UserProvider, error)
 	GetUserProviderByProviderUserId(ctx context.Context, arg GetUserProviderByProviderUserIdParams) (UserProvider, error)
+	InsertAPIKey(ctx context.Context, arg InsertAPIKeyParams) (ApiKey, error)
 	InsertCustomer(ctx context.Context, arg InsertCustomerParams) (Customer, error)
 	InsertModerationFlag(ctx context.Context, arg InsertModerationFlagParams) (ModerationFlag, error)
 	InsertOauth2State(ctx context.Context, arg InsertOauth2StateParams) error
@@ -57,6 +59,7 @@ type Querier interface {
 	InsertUserProvider(ctx context.Context, arg InsertUserProviderParams) (UserProvider, error)
 	InsertVisitLocation(ctx context.Context, arg InsertVisitLocationParams) (VisitLocation, error)
 	IsAdmin(ctx context.Context, guid pgtype.UUID) (bool, error)
+	ListAPIKeysByUser(ctx context.Context, userID pgtype.UUID) ([]ApiKey, error)
 	ListCustomerSubscription(ctx context.Context, arg ListCustomerSubscriptionParams) ([]Subscription, error)
 	ListModerationFlags(ctx context.Context) ([]ListModerationFlagsRow, error)
 	ListShortURLs(ctx context.Context, arg ListShortURLsParams) ([]Url, error)
@@ -66,11 +69,13 @@ type Querier interface {
 	// SQL query to get the location distribution data for a specific URL
 	LocationDistribution(ctx context.Context, arg LocationDistributionParams) ([]LocationDistributionRow, error)
 	ReferrerDistribution(ctx context.Context, arg ReferrerDistributionParams) ([]ReferrerDistributionRow, error)
+	RevokeAPIKey(ctx context.Context, arg RevokeAPIKeyParams) error
 	StatisticPerURL(ctx context.Context, arg StatisticPerURLParams) (StatisticPerURLRow, error)
 	TotalVisit(ctx context.Context, urlID int32) (int64, error)
 	TrackRedirect(ctx context.Context, arg TrackRedirectParams) (Visit, error)
 	UnarchiveURL(ctx context.Context, arg UnarchiveURLParams) error
 	UniqueVisitCount(ctx context.Context, urlID int32) (int64, error)
+	UpdateAPIKeyLastUsed(ctx context.Context, id pgtype.UUID) error
 	UpdateModerationFlagStatus(ctx context.Context, arg UpdateModerationFlagStatusParams) error
 	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error)
 	UpdateTitle(ctx context.Context, arg UpdateTitleParams) (Url, error)
