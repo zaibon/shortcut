@@ -68,7 +68,10 @@ func (h *Handler) Routes(r chi.Router) {
 		r.Get("/urls/{id}/clicks", h.clickChart)
 		r.Delete("/urls/{id}", h.deleteURL)
 	})
+}
 
+// RedirectRoute registers only the redirect hot path, intentionally without session middleware.
+func (h *Handler) RedirectRoute(r chi.Router) {
 	r.Get("/{shortID}", h.redirect)
 }
 
