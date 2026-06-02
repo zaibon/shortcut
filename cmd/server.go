@@ -230,7 +230,16 @@ func runServer(ctx context.Context, c config) error {
 		r.Handle("/sitemap.xml", static.SitemapHandler())
 	})
 
-	// normal HTTP middlewares
+	// redirect hot path — basic middleware only, no session store round-trip
+	server.Group(func(r chi.Router) {
+		r.Use(chiMiddleware.Logger)
+		r.Use(chiMiddleware.Recoverer)
+		r.Use(chiMiddleware.RealIP)
+		r.Use(middleware.SentryMiddleware)
+		urlHandlers.RedirectRoute(r)
+	})
+
+	// session-required routes
 	server.Group(func(r chi.Router) {
 		r.Use(chiMiddleware.Logger)
 		r.Use(chiMiddleware.Recoverer)
@@ -239,7 +248,6 @@ func runServer(ctx context.Context, c config) error {
 		r.Use(middleware.UserContext(sessionManager, userService))
 		r.Use(middleware.SentryMiddleware)
 
-		// HTTP Routing
 		urlHandlers.Routes(r)
 		userHandlers.Routes(r)
 		healthzHandlers.Routes(r)
