@@ -8,6 +8,16 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type ApiKey struct {
+	ID         pgtype.UUID      `json:"id"`
+	UserID     pgtype.UUID      `json:"user_id"`
+	Name       string           `json:"name"`
+	KeyHash    string           `json:"key_hash"`
+	CreatedAt  pgtype.Timestamp `json:"created_at"`
+	LastUsedAt pgtype.Timestamp `json:"last_used_at"`
+	RevokedAt  pgtype.Timestamp `json:"revoked_at"`
+}
+
 type Browser struct {
 	ID        pgtype.UUID        `json:"id"`
 	Name      string             `json:"name"`
