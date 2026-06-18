@@ -14,7 +14,6 @@ import (
 type contextKey string
 
 var contextUser = contextKey("user")
-var contextPath = contextKey("path")
 
 type UserFetcher interface {
 	GetUser(ctx context.Context, guid domain.GUID) (*domain.User, error)
@@ -29,24 +28,6 @@ func UserFromContext(ctx context.Context) *domain.User {
 
 func WithUser(ctx context.Context, user domain.User) context.Context {
 	return context.WithValue(ctx, contextUser, &user)
-}
-
-func PathFromContext(ctx context.Context) string {
-	if path, ok := ctx.Value(contextPath).(string); ok {
-		return path
-	}
-	return ""
-}
-
-func WithPath(ctx context.Context, path string) context.Context {
-	return context.WithValue(ctx, contextPath, path)
-}
-
-func PathContext(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := WithPath(r.Context(), r.URL.Path)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
 }
 
 func UserContext(sessionManager *scs.SessionManager, store UserFetcher) func(http.Handler) http.Handler {
