@@ -1,5 +1,10 @@
 /* Custom styles for Shortcut URL Shortener */
 
+:root {
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 /* Gradient background for hero sections */
 .gradient-bg {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
@@ -7,7 +12,7 @@
 
 /* Custom animation for the copy icon */
 .copy-icon-animation {
-  transition: transform 0.2s ease-in-out;
+  transition: transform 150ms var(--ease-out-quint);
 }
 
 .copy-icon-animation:hover {
@@ -30,13 +35,13 @@ input[type="url"]:focus {
   border-radius: 4px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 50;
-  transform: translateY(100px);
+  transform: translateY(12px) scale(0.95);
   opacity: 0;
-  transition: all 0.3s ease-in-out;
+  transition: transform 160ms var(--ease-out-quint), opacity 160ms var(--ease-out-quint);
 }
 
 .toast.show {
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
   opacity: 1;
 }
 
@@ -51,7 +56,7 @@ input[type="url"]:focus {
 /* Custom styling for the HTMX indicator */
 .htmx-indicator {
   opacity: 0;
-  transition: opacity 200ms ease-in;
+  transition: opacity 120ms var(--ease-out-quint);
 }
 .htmx-request .htmx-indicator {
   opacity: 1;
@@ -79,7 +84,7 @@ input[type="url"]:focus {
 
 /* Custom styling for the result box */
 #result {
-  transition: all 0.3s ease-in-out;
+  transition: transform 180ms var(--ease-out-quint), opacity 180ms var(--ease-out-quint);
 }
 
 /* Responsive adjustments */
@@ -89,20 +94,22 @@ input[type="url"]:focus {
   }
 }
 
-/* Flash message animations */
-@keyframes slideInDown {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+/* Flash message transitions (interruptible and GPU accelerated) */
+.flash-message {
+  transform: translateY(-8px) scale(0.96);
+  opacity: 0;
+  transition: transform 160ms var(--ease-out-quint), opacity 160ms var(--ease-out-quint);
 }
 
-.flash-message {
-  animation: slideInDown 0.3s ease-out forwards;
+.flash-message.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.flash-message.dismiss {
+  transform: translateY(-4px) scale(0.98);
+  opacity: 0;
+  transition: transform 120ms var(--ease-out-quint), opacity 120ms var(--ease-out-quint);
 }
 
 .flash-message.error {
@@ -172,5 +179,84 @@ input[type="url"]:focus {
     background-size: 24px 24px;
 }
 
-/* Smooth fade for HTMX swaps */
-.htmx-swapping { opacity: 0; transition: opacity 0.3s ease-out; }
+/* Smooth scale & fade for HTMX swaps */
+.htmx-swapping {
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 150ms var(--ease-out-quint), transform 150ms var(--ease-out-quint);
+}
+
+/* -------------------------------------------------------------
+   Design Engineering Animation & Tactile Utilities (animations.dev)
+   ------------------------------------------------------------- */
+
+/* Entry keyframes for the shortened URL result card */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 220ms var(--ease-out-quint) forwards;
+}
+
+/* Fast spin for loaders to improve perceived speed */
+.animate-spin-fast {
+  animation: spin 0.6s linear infinite;
+}
+
+/* Tactile active press scaling */
+.active-scale {
+  transition: transform 120ms var(--ease-out-quint);
+}
+.active-scale:active {
+  transform: scale(0.97);
+}
+
+/* Blur content transition helper for copy action */
+.button-content {
+  transition: filter 150ms var(--ease-out-quint), opacity 150ms var(--ease-out-quint);
+}
+.button-content.transitioning {
+  filter: blur(2px);
+  opacity: 0.6;
+}
+
+/* Prefers Reduced Motion settings */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: fadeIn 200ms ease-out forwards;
+  }
+  .active-scale {
+    transition: none !important;
+    transform: none !important;
+  }
+  .flash-message, .toast {
+    transform: none !important;
+    transition: opacity 150ms ease-out !important;
+  }
+  .animate-spin-fast {
+    animation-duration: 1.5s;
+  }
+  .button-content {
+    transition: opacity 150ms ease-out !important;
+  }
+  .button-content.transitioning {
+    filter: none !important;
+  }
+  .htmx-swapping {
+    transform: none !important;
+    transition: opacity 150ms ease-out !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

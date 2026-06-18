@@ -46,6 +46,22 @@ document.addEventListener('click', (event) => {
         case 'copy':
             if (value) {
                 copyToClipboard(value);
+                const buttonContent = actionTrigger.querySelector('.button-content');
+                if (buttonContent && !buttonContent.classList.contains('transitioning')) {
+                    const originalHTML = buttonContent.innerHTML;
+                    buttonContent.classList.add('transitioning');
+                    setTimeout(() => {
+                        buttonContent.innerHTML = `<i class="fas fa-check mr-2 text-green-500"></i> Copied!`;
+                        buttonContent.classList.remove('transitioning');
+                        setTimeout(() => {
+                            buttonContent.classList.add('transitioning');
+                            setTimeout(() => {
+                                buttonContent.innerHTML = originalHTML;
+                                buttonContent.classList.remove('transitioning');
+                            }, 150);
+                        }, 1500);
+                    }, 150);
+                }
                 event.preventDefault();
                 event.stopPropagation();
             }
