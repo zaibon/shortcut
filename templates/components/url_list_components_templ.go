@@ -11,7 +11,16 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 	"github.com/zaibon/shortcut/domain"
+	neturl "net/url"
 )
+
+func getFaviconURL(longURL string) string {
+	parsed, err := neturl.Parse(longURL)
+	if err != nil || parsed.Host == "" {
+		return ""
+	}
+	return fmt.Sprintf("https://www.google.com/s2/favicons?domain=%s&sz=64", parsed.Host)
+}
 
 func URLListItem(url domain.URLStat) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -41,156 +50,184 @@ func URLListItem(url domain.URLStat) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/urls/%s", url.Slug))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 11, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 20, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-push-url=\"true\" hx-target=\"body\"><div class=\"p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4\"><!-- Left: Link Info --><div class=\"flex-1 min-w-0\"><div class=\"flex items-center gap-3 mb-1\"><!-- Favicon Placeholder --><div class=\"w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-400\"><i class=\"fas fa-globe\"></i></div><div class=\"flex items-center gap-2 min-w-0\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-push-url=\"true\" hx-target=\"body\"><div class=\"p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4\"><!-- Left: Link Info --><div class=\"flex-1 min-w-0\"><div class=\"flex items-center gap-3 mb-1\"><!-- Dynamic Favicon -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var3 templ.SafeURL
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(url.Short))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 26, Col: 38}
+		if favicon := getFaviconURL(url.Long); favicon != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<img src=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(favicon)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 32, Col: 20}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"w-8 h-8 rounded-full bg-slate-50 flex-shrink-0 object-contain p-1 border border-slate-100\" alt=\"\" onerror=\"this.style.display='none'; this.nextElementSibling.style.display='flex';\"><div class=\"hidden w-8 h-8 rounded-full bg-slate-100 items-center justify-center flex-shrink-0 text-slate-400\"><i class=\"fas fa-globe text-sm\"></i></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-400\"><i class=\"fas fa-globe text-sm\"></i></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"flex items-center gap-2 min-w-0\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" target=\"_blank\" class=\"text-lg font-bold text-indigo-600 hover:text-indigo-800 truncate\" onclick=\"event.stopPropagation()\">")
+		var templ_7745c5c3_Var4 templ.SafeURL
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(url.Short))
 		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 31, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 47, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</a> <button @click.stop=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" target=\"_blank\" class=\"text-lg font-bold text-indigo-600 hover:text-indigo-800 truncate\" onclick=\"event.stopPropagation()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("navigator.clipboard.writeText('%s'); copyFeedback = %d; setTimeout(() => copyFeedback = null, 2000)", url.Short, url.ID))
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(url.Short)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 34, Col: 154}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 52, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"text-slate-400 hover:text-indigo-600 p-1 rounded transition-colors\" title=\"Copy to clipboard\"><i class=\"far\" :class=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</a> <button @click.stop=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("copyFeedback === %d ? 'fa-check-circle text-green-500' : 'fa-copy'", url.ID))
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("navigator.clipboard.writeText('%s'); copyFeedback = %d; setTimeout(() => copyFeedback = null, 2000)", url.Short, url.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 37, Col: 120}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 55, Col: 154}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"></i></button></div></div><div class=\"flex items-center text-sm text-slate-500 pl-11\"><i class=\"fas fa-level-up-alt rotate-90 mr-2 text-slate-300\"></i> <a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" class=\"text-slate-400 hover:text-indigo-600 p-1 rounded transition-colors\" title=\"Copy to clipboard\"><i class=\"far\" :class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var7 templ.SafeURL
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(url.Long))
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("copyFeedback === %d ? 'fa-check-circle text-green-500' : 'fa-copy'", url.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 44, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 58, Col: 120}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" target=\"_blank\" class=\"hover:text-slate-700 truncate max-w-md\" onclick=\"event.stopPropagation()\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\"></i></button></div></div><div class=\"flex items-center text-sm text-slate-500 pl-11\"><i class=\"fas fa-level-up-alt rotate-90 mr-2 text-slate-300\"></i> <a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(url.Long)
+		var templ_7745c5c3_Var8 templ.SafeURL
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(url.Long))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 49, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 65, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</a></div></div><!-- Middle: Stats & Meta --><div class=\"flex items-center gap-6 pl-11 sm:pl-0 border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0\"><div class=\"flex flex-col items-start sm:items-end\"><span class=\"text-xs font-semibold text-slate-400 uppercase tracking-wider\">Clicks</span><div class=\"flex items-center gap-1.5 text-slate-900 font-bold text-lg\"><i class=\"fas fa-mouse-pointer text-xs text-emerald-500\"></i> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" target=\"_blank\" class=\"hover:text-slate-700 truncate max-w-md\" onclick=\"event.stopPropagation()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
-		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", url.NrVisited))
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(url.Long)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 59, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 70, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><div class=\"hidden md:flex flex-col items-end min-w-[100px]\"><span class=\"text-xs font-semibold text-slate-400 uppercase tracking-wider\">Created</span> <span class=\"text-sm text-slate-600\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</a></div></div><!-- Middle: Stats & Meta --><div class=\"flex items-center gap-6 pl-11 sm:pl-0 border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0\"><div class=\"flex flex-col items-start sm:items-end\"><span class=\"text-xs font-semibold text-slate-400 uppercase tracking-wider\">Clicks</span><div class=\"flex items-center gap-1.5 text-slate-900 font-bold text-lg\"><i class=\"fas fa-mouse-pointer text-xs text-emerald-500\"></i> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
-		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(url.CreatedAt.Format("Jan 02, 2006"))
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", url.NrVisited))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 64, Col: 80}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 80, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div></div><!-- Right: Actions --><div class=\"flex items-center gap-2 pl-11 sm:pl-0\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></div><div class=\"hidden md:flex flex-col items-end min-w-[100px]\"><span class=\"text-xs font-semibold text-slate-400 uppercase tracking-wider\">Created</span> <span class=\"text-sm text-slate-600\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var11 templ.SafeURL
-		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/urls/%s", url.Slug)))
+		var templ_7745c5c3_Var11 string
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(url.CreatedAt.Format("Jan 02, 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 71, Col: 60}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 85, Col: 80}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors\" title=\"Analytics\" onclick=\"event.stopPropagation()\"><i class=\"fas fa-chart-bar\"></i></a> <button @click.stop=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></div></div><!-- Right: Actions --><div class=\"flex items-center gap-2 pl-11 sm:pl-0\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var12 string
-		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("showQR = true; qrUrl = '%s'", url.Short))
+		var templ_7745c5c3_Var12 templ.SafeURL
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/urls/%s", url.Slug)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 79, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 92, Col: 60}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors\" title=\"QR Code\"><i class=\"fas fa-qrcode\"></i></button><div class=\"h-4 w-px bg-slate-200 mx-1\"></div><button class=\"p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors\" hx-delete=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" class=\"p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors\" title=\"Analytics\" onclick=\"event.stopPropagation()\"><i class=\"fas fa-chart-bar\"></i></a> <button @click.stop=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/urls/%d", url.ID))
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("showQR = true; qrUrl = '%s'", url.Short))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 86, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 100, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" hx-confirm=\"Are you sure you want to delete this URL?\" hx-target=\"closest .group\" hx-swap=\"outerHTML swap:500ms\" onclick=\"event.stopPropagation()\"><i class=\"far fa-trash-alt\"></i></button></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors\" title=\"QR Code\"><i class=\"fas fa-qrcode\"></i></button><div class=\"h-4 w-px bg-slate-200 mx-1\"></div><button class=\"p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors\" hx-delete=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 string
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/urls/%d", url.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/url_list_components.templ`, Line: 107, Col: 49}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" hx-confirm=\"Are you sure you want to delete this URL?\" hx-target=\"closest .group\" hx-swap=\"outerHTML swap:500ms\" onclick=\"event.stopPropagation()\"><i class=\"far fa-trash-alt\"></i></button></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

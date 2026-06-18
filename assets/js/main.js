@@ -57,3 +57,35 @@ document.addEventListener('click', (event) => {
 window.updateChart = updateChart;
 window.copyToClipboard = copyToClipboard;
 window.showFlashMessage = showFlashMessage;
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    // If user is typing in a form input, textarea, or editable, don't trigger shortcuts
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+        if (e.key === 'Escape') {
+            e.target.blur();
+        }
+        return;
+    }
+
+    switch (e.key) {
+        case '/':
+            // Focus search input
+            const searchInput = document.querySelector('input[name="search"]');
+            if (searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+            break;
+        case 'n':
+        case 's':
+            // Focus shorten input
+            const shortenInput = document.querySelector('input[name="url"]');
+            if (shortenInput) {
+                e.preventDefault();
+                shortenInput.focus();
+            }
+            break;
+    }
+});
