@@ -197,6 +197,9 @@ func runServer(ctx context.Context, c config) error {
 		c.GoogleOauthClientID, c.GoogleOauthSecret,
 		c.GithubOauthClientID, c.GithubOauthSecret,
 	)
+	if missing := c.missingStripeConfig(); len(missing) > 0 {
+		log.Error("Stripe is not fully configured, billing will fail", "missing", missing)
+	}
 	stripeService := services.NewStripe(c.StripeKey, subscriptionStore, c.Domain, c.TLS)
 	adminService := services.NewAdministrationService(dbPool, c.redirectURL())
 

@@ -78,8 +78,10 @@ func (h *subscriptionHandlers) subscription(w http.ResponseWriter, r *http.Reque
 		planName = sub.Product().Name
 		if sub.Features.LinksNumber > 0 {
 			limit = sub.Features.LinksNumber
-		} else if planName == "Pro" || planName == "Business" {
-			limit = 1000000
+		} else {
+			// ponytail: paid plan with no explicit links cap = unlimited.
+			// Set the `links` metadata on the product to enforce a real limit.
+			limit = domain.UnlimitedPlanLimit
 		}
 	}
 
