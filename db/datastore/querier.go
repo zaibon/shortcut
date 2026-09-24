@@ -72,7 +72,7 @@ type Querier interface {
 	UnarchiveURL(ctx context.Context, arg UnarchiveURLParams) error
 	UniqueVisitCount(ctx context.Context, urlID int32) (int64, error)
 	UpdateModerationFlagStatus(ctx context.Context, arg UpdateModerationFlagStatusParams) error
-	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (Subscription, error)
+	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) error
 	UpdateTitle(ctx context.Context, arg UpdateTitleParams) (Url, error)
 	UpdateURLStatus(ctx context.Context, arg UpdateURLStatusParams) error
 	UpdateUserSuspension(ctx context.Context, arg UpdateUserSuspensionParams) error

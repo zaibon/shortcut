@@ -2,8 +2,17 @@ package components
 
 import (
 	"fmt"
+	neturl "net/url"
 	"github.com/zaibon/shortcut/domain"
 )
+
+func getFaviconURL(longURL string) string {
+	parsed, err := neturl.Parse(longURL)
+	if err != nil || parsed.Host == "" {
+		return ""
+	}
+	return fmt.Sprintf("https://www.google.com/s2/favicons?domain=%s&sz=64", parsed.Host)
+}
 
 templ URLListItem(url domain.URLStat) {
 	<div 
@@ -17,10 +26,22 @@ templ URLListItem(url domain.URLStat) {
 			<!-- Left: Link Info -->
 			<div class="flex-1 min-w-0">
 				<div class="flex items-center gap-3 mb-1">
-					<!-- Favicon Placeholder -->
-					<div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-400">
-						<i class="fas fa-globe"></i>
-					</div>
+					<!-- Dynamic Favicon -->
+					if favicon := getFaviconURL(url.Long); favicon != "" {
+						<img 
+							src={ favicon } 
+							class="w-8 h-8 rounded-full bg-slate-50 flex-shrink-0 object-contain p-1 border border-slate-100" 
+							alt=""
+							onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+						/>
+						<div class="hidden w-8 h-8 rounded-full bg-slate-100 items-center justify-center flex-shrink-0 text-slate-400">
+							<i class="fas fa-globe text-sm"></i>
+						</div>
+					} else {
+						<div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-400">
+							<i class="fas fa-globe text-sm"></i>
+						</div>
+					}
 					<div class="flex items-center gap-2 min-w-0">
 						<a 
 							href={ templ.SafeURL(url.Short) } 

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
@@ -13,9 +14,11 @@ import (
 	"github.com/zaibon/shortcut/log"
 )
 
+type txKey struct{}
+
 type repoSubscriptions struct {
 	pool *pgxpool.Pool
-	db   datastore.Querier
+	db   *datastore.Queries
 }
 
 func NewRepoSubscription(db *pgxpool.Pool) *repoSubscriptions {
@@ -25,15 +28,29 @@ func NewRepoSubscription(db *pgxpool.Pool) *repoSubscriptions {
 	}
 }
 
+// q returns the transaction-bound querier when called inside Tx, otherwise the
+// pool-bound one. This is what makes Tx an actual transaction.
+func (r *repoSubscriptions) q(ctx context.Context) *datastore.Queries {
+	if q, ok := ctx.Value(txKey{}).(*datastore.Queries); ok {
+		return q
+	}
+	return r.db
+}
+
 func (r *repoSubscriptions) Tx(ctx context.Context, fn func(context.Context) error, opts pgx.TxOptions) error {
 	tx, err := r.pool.BeginTx(ctx, opts)
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
-	if err := fn(ctx); err != nil {
-		if err := tx.Rollback(ctx); err != nil {
+	defer func() {
+		// no-op if the tx already committed
+		if err := tx.Rollback(ctx); err != nil && !errors.Is(err, pgx.ErrTxClosed) {
 			log.Error("error rolling back transaction", "err", err)
 		}
+	}()
+
+	ctx = context.WithValue(ctx, txKey{}, r.db.WithTx(tx))
+	if err := fn(ctx); err != nil {
 		return fmt.Errorf("error in transaction: %w", err)
 	}
 	if err := tx.Commit(ctx); err != nil {
@@ -43,7 +60,7 @@ func (r *repoSubscriptions) Tx(ctx context.Context, fn func(context.Context) err
 }
 
 func (r *repoSubscriptions) GetCustomer(ctx context.Context, user *domain.User) (datastore.Customer, error) {
-	row, err := r.db.GetCustomer(ctx, user.GUID.PgType())
+	row, err := r.q(ctx).GetCustomer(ctx, user.GUID.PgType())
 	if err != nil {
 		return datastore.Customer{}, fmt.Errorf("error getting customer with id %s: %w", user.GUID, err)
 	}
@@ -51,7 +68,7 @@ func (r *repoSubscriptions) GetCustomer(ctx context.Context, user *domain.User) 
 }
 
 func (r *repoSubscriptions) GetCustomerByStripeId(ctx context.Context, id string) (datastore.Customer, error) {
-	row, err := r.db.GetCustomerByStripeId(ctx, id)
+	row, err := r.q(ctx).GetCustomerByStripeId(ctx, id)
 	if err != nil {
 		return datastore.Customer{}, fmt.Errorf("error getting customer with id %s: %w", id, err)
 	}
@@ -59,7 +76,7 @@ func (r *repoSubscriptions) GetCustomerByStripeId(ctx context.Context, id string
 }
 
 func (r *repoSubscriptions) InsertCustomer(ctx context.Context, customer datastore.InsertCustomerParams) (datastore.Customer, error) {
-	row, err := r.db.InsertCustomer(ctx, customer)
+	row, err := r.q(ctx).InsertCustomer(ctx, customer)
 	if err != nil {
 		return datastore.Customer{}, fmt.Errorf("error inserting customer with id %s: %w", customer.StripeID, err)
 	}
@@ -67,7 +84,7 @@ func (r *repoSubscriptions) InsertCustomer(ctx context.Context, customer datasto
 }
 
 func (r *repoSubscriptions) InsertSubscription(ctx context.Context, subscription datastore.InsertSubscriptionParams) error {
-	_, err := r.db.InsertSubscription(ctx, subscription)
+	_, err := r.q(ctx).InsertSubscription(ctx, subscription)
 	if err != nil {
 		return fmt.Errorf("error inserting subscription with id %s: %w", subscription.StripeID, err)
 	}
@@ -75,7 +92,7 @@ func (r *repoSubscriptions) InsertSubscription(ctx context.Context, subscription
 }
 
 func (r repoSubscriptions) UpdateSubscription(ctx context.Context, subscription datastore.UpdateSubscriptionParams) error {
-	_, err := r.db.UpdateSubscription(ctx, subscription)
+	err := r.q(ctx).UpdateSubscription(ctx, subscription)
 	if err != nil {
 		return fmt.Errorf("error updating subscription with id %s: %w", subscription.StripeID, err)
 	}
@@ -83,8 +100,7 @@ func (r repoSubscriptions) UpdateSubscription(ctx context.Context, subscription 
 }
 
 func (r *repoSubscriptions) ListSubscriptions(ctx context.Context, user *domain.User, status string) ([]datastore.Subscription, error) {
-	log.Info(user.GUID.String())
-	row, err := r.db.ListCustomerSubscription(ctx, datastore.ListCustomerSubscriptionParams{
+	row, err := r.q(ctx).ListCustomerSubscription(ctx, datastore.ListCustomerSubscriptionParams{
 		CustomerID: user.GUID.PgType(),
 		Status: pgtype.Text{
 			String: status,

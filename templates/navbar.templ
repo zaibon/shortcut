@@ -1,6 +1,9 @@
 package templates
 
-import "github.com/zaibon/shortcut/middleware"
+import (
+	"strings"
+	"github.com/zaibon/shortcut/middleware"
+)
 
 type NavBarLink struct {
 	Name string
@@ -8,10 +11,34 @@ type NavBarLink struct {
 }
 
 templ navLink(link NavBarLink, currentPath string) {
+	{{
+		hrefStr := string(link.Href)
+		isActive := currentPath == hrefStr || (hrefStr != "/" && strings.HasPrefix(currentPath, hrefStr))
+	}}
 	<a
 		href={ link.Href }
-		class={ templ.KV("is-primary", templ.SafeURL(currentPath) == link.Href), 
-		"border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" }
+		class={
+			"inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-150",
+			templ.KV("border-indigo-600 text-slate-900 font-semibold", isActive),
+			templ.KV("border-transparent text-slate-500 hover:border-gray-300 hover:text-gray-700", !isActive),
+		}
+	>
+		{ link.Name }
+	</a>
+}
+
+templ mobileNavLink(link NavBarLink, currentPath string) {
+	{{
+		hrefStr := string(link.Href)
+		isActive := currentPath == hrefStr || (hrefStr != "/" && strings.HasPrefix(currentPath, hrefStr))
+	}}
+	<a
+		href={ link.Href }
+		class={
+			"block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-150",
+			templ.KV("bg-indigo-50 border-indigo-500 text-indigo-700 font-semibold", isActive),
+			templ.KV("border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800", !isActive),
+		}
 	>
 		{ link.Name }
 	</a>
@@ -19,7 +46,7 @@ templ navLink(link NavBarLink, currentPath string) {
 
 templ NavBar() {
 	{{ user := middleware.UserFromContext(ctx) }}
-	{{ currentPath := "/" }}
+	{{ currentPath := middleware.PathFromContext(ctx) }}
 	if user != nil && user.IsSuspended {
 		<div class="bg-red-600">
 			<div class="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
@@ -159,21 +186,11 @@ templ NavBar() {
 		<!-- Mobile menu, show/hide based on menu state. -->
 		<div x-show="mobileMenuOpen" class="sm:hidden" id="mobile-menu">
 			<div class="pt-2 pb-3 space-y-1">
-				<a
-					href="/"
-					class="bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-				>Home</a>
-				<a
-					href="/urls"
-					class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-				>
-					My
-					URLs
-				</a>
-				<a
-					href="/subscription"
-					class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-				>Subscription</a>
+				@mobileNavLink(NavBarLink{Name: "Home", Href: "/"}, currentPath)
+				if user != nil {
+					@mobileNavLink(NavBarLink{Name: "My URLs", Href: "/urls"}, currentPath)
+					@mobileNavLink(NavBarLink{Name: "Subscription", Href: "/subscription"}, currentPath)
+				}
 			</div>
 			if user == nil {
 				<div class="pt-4 pb-3 border-t border-gray-200">

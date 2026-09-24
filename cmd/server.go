@@ -197,6 +197,9 @@ func runServer(ctx context.Context, c config) error {
 		c.GoogleOauthClientID, c.GoogleOauthSecret,
 		c.GithubOauthClientID, c.GithubOauthSecret,
 	)
+	if missing := c.missingStripeConfig(); len(missing) > 0 {
+		log.Error("Stripe is not fully configured, billing will fail", "missing", missing)
+	}
 	stripeService := services.NewStripe(c.StripeKey, subscriptionStore, c.Domain, c.TLS)
 	adminService := services.NewAdministrationService(dbPool, c.redirectURL())
 
@@ -230,16 +233,26 @@ func runServer(ctx context.Context, c config) error {
 		r.Handle("/sitemap.xml", static.SitemapHandler())
 	})
 
-	// normal HTTP middlewares
+	// redirect hot path — basic middleware only, no session store round-trip
 	server.Group(func(r chi.Router) {
 		r.Use(chiMiddleware.Logger)
 		r.Use(chiMiddleware.Recoverer)
 		r.Use(chiMiddleware.RealIP)
+		r.Use(middleware.PathContext)
+		r.Use(middleware.SentryMiddleware)
+		urlHandlers.RedirectRoute(r)
+	})
+
+	// session-required routes
+	server.Group(func(r chi.Router) {
+		r.Use(chiMiddleware.Logger)
+		r.Use(chiMiddleware.Recoverer)
+		r.Use(chiMiddleware.RealIP)
+		r.Use(middleware.PathContext)
 		r.Use(sessionManager.LoadAndSave)
 		r.Use(middleware.UserContext(sessionManager, userService))
 		r.Use(middleware.SentryMiddleware)
 
-		// HTTP Routing
 		urlHandlers.Routes(r)
 		userHandlers.Routes(r)
 		healthzHandlers.Routes(r)

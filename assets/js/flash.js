@@ -4,7 +4,7 @@ export function showFlashMessage(message, type = 'error') {
   const messageElement = document.createElement('div');
 
   // Set appropriate classes based on message type
-  let baseClasses = 'relative mb-4 p-4 rounded-md shadow-md transform transition-all duration-300 ease-in-out translate-y-0 opacity-0';
+  let baseClasses = 'flash-message relative mb-4 p-4 rounded-md shadow-md';
   let typeClasses = type === 'error'
     ? 'bg-red-50 border border-red-200 text-red-700'
     : 'bg-green-50 border border-green-200 text-green-700';
@@ -42,8 +42,7 @@ export function showFlashMessage(message, type = 'error') {
 
   // Animate in
   setTimeout(() => {
-    messageElement.classList.add('translate-y-0', 'opacity-100');
-    messageElement.classList.remove('opacity-0');
+    messageElement.classList.add('show');
   }, 10);
 
   // Auto remove after 5 seconds
@@ -55,12 +54,14 @@ export function showFlashMessage(message, type = 'error') {
 }
 
 export function removeFlashMessage(messageElement) {
-  messageElement.classList.add('opacity-0', '-translate-y-2');
+  if (!messageElement.classList.contains('show')) return;
+  messageElement.classList.remove('show');
+  messageElement.classList.add('dismiss');
   setTimeout(() => {
     if (messageElement.parentNode) {
       messageElement.parentNode.removeChild(messageElement);
     }
-  }, 300);
+  }, 150);
 }
 
 export function initFlashListeners() {

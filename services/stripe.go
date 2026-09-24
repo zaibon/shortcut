@@ -14,6 +14,7 @@ import (
 
 	"github.com/zaibon/shortcut/db/datastore"
 	"github.com/zaibon/shortcut/domain"
+	"github.com/zaibon/shortcut/log"
 )
 
 var ErrNotSubscription = errors.New("no subscription found")
@@ -77,6 +78,10 @@ func (s *stripeService) HandleSessionCheckout(ctx context.Context, session *stri
 		if err != nil {
 			return err
 		}
+		if len(sub.Items.Data) == 0 {
+			log.Error("subscription has no items, skipping", "subscription_id", sub.ID)
+			return nil
+		}
 
 		err = s.store.InsertSubscription(ctx, datastore.InsertSubscriptionParams{
 			StripeID:          sub.ID,
@@ -103,6 +108,10 @@ func (s stripeService) HandleSubscriptionUpdated(ctx context.Context, sub *strip
 	sub, err := s.client.Subscriptions.Get(sub.ID, params)
 	if err != nil {
 		return err
+	}
+	if len(sub.Items.Data) == 0 {
+		log.Error("subscription has no items, skipping", "subscription_id", sub.ID)
+		return nil
 	}
 
 	if err := s.store.UpdateSubscription(ctx, datastore.UpdateSubscriptionParams{
@@ -132,6 +141,9 @@ func (s *stripeService) GetSubscription(ctx context.Context, user *domain.User) 
 	sub, err := s.client.Subscriptions.Get(rows[0].StripeID, params)
 	if err != nil {
 		return nil, err
+	}
+	if len(sub.Items.Data) == 0 {
+		return nil, domain.ErrNotSubscriptionItem
 	}
 
 	return domain.NewSubscription(sub), nil

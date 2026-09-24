@@ -50,6 +50,22 @@ func (c config) SafeDBString() string {
 	return u.Redacted()
 }
 
+// missingStripeConfig returns the names of any required Stripe settings that are
+// empty. Billing (checkout, webhooks, customer portal) cannot work without them.
+func (c config) missingStripeConfig() []string {
+	var missing []string
+	for name, v := range map[string]string{
+		"stripe-key":             c.StripeKey,
+		"stripe-pub-key":         c.StripePubKey,
+		"stripe-endpoint-secret": c.StripeEndpointSecret,
+	} {
+		if v == "" {
+			missing = append(missing, name)
+		}
+	}
+	return missing
+}
+
 var c config
 
 func main() {

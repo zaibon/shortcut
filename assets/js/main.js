@@ -46,6 +46,22 @@ document.addEventListener('click', (event) => {
         case 'copy':
             if (value) {
                 copyToClipboard(value);
+                const buttonContent = actionTrigger.querySelector('.button-content');
+                if (buttonContent && !buttonContent.classList.contains('transitioning')) {
+                    const originalHTML = buttonContent.innerHTML;
+                    buttonContent.classList.add('transitioning');
+                    setTimeout(() => {
+                        buttonContent.innerHTML = `<i class="fas fa-check mr-2 text-green-500"></i> Copied!`;
+                        buttonContent.classList.remove('transitioning');
+                        setTimeout(() => {
+                            buttonContent.classList.add('transitioning');
+                            setTimeout(() => {
+                                buttonContent.innerHTML = originalHTML;
+                                buttonContent.classList.remove('transitioning');
+                            }, 150);
+                        }, 1500);
+                    }, 150);
+                }
                 event.preventDefault();
                 event.stopPropagation();
             }
@@ -57,3 +73,35 @@ document.addEventListener('click', (event) => {
 window.updateChart = updateChart;
 window.copyToClipboard = copyToClipboard;
 window.showFlashMessage = showFlashMessage;
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    // If user is typing in a form input, textarea, or editable, don't trigger shortcuts
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+        if (e.key === 'Escape') {
+            e.target.blur();
+        }
+        return;
+    }
+
+    switch (e.key) {
+        case '/':
+            // Focus search input
+            const searchInput = document.querySelector('input[name="search"]');
+            if (searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+            break;
+        case 'n':
+        case 's':
+            // Focus shorten input
+            const shortenInput = document.querySelector('input[name="url"]');
+            if (shortenInput) {
+                e.preventDefault();
+                shortenInput.focus();
+            }
+            break;
+    }
+});

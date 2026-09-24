@@ -68,7 +68,10 @@ func (h *Handler) Routes(r chi.Router) {
 		r.Get("/urls/{id}/clicks", h.clickChart)
 		r.Delete("/urls/{id}", h.deleteURL)
 	})
+}
 
+// RedirectRoute registers only the redirect hot path, intentionally without session middleware.
+func (h *Handler) RedirectRoute(r chi.Router) {
 	r.Get("/{shortID}", h.redirect)
 }
 
@@ -175,7 +178,7 @@ func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	w.Header().Set("X-Robots-Tag", "noindex")
-	http.Redirect(w, r, url.Long, http.StatusMovedPermanently)
+	http.Redirect(w, r, url.Long, http.StatusFound)
 }
 
 func validateURL(url string) map[string]error {
