@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.1
 
 require (
-	github.com/go-chi/chi/v5 v5.2.2
+	github.com/go-chi/chi/v5 v5.3.2
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/crypto v0.45.0
